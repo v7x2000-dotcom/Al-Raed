@@ -470,6 +470,21 @@ input:checked+.slider:before {
     display: block;
 }
 
+#chat.view-section.active {
+    display: flex !important;
+    flex-direction: column;
+    height: calc(100vh - 80px);
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    #chat.view-section.active {
+        height: calc(100vh - 60px);
+    }
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -2645,7 +2660,7 @@ html[dir="rtl"] .wiki-cat-item:hover { transform: translateX(-5px); }
         position: fixed;
         bottom: 80px;
         left: 20px;
-        z-index: 100;
+        z-index: 9999;
         width: 56px;
         height: 56px;
         border-radius: 50%;

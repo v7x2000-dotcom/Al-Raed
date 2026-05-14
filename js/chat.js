@@ -1565,6 +1565,7 @@ _chatStyles.textContent = `
         flex-direction: column;
         background: var(--bg-primary);
         overflow: hidden;
+        flex: 1;
         height: 100%;
         position: relative;
     }
@@ -1616,9 +1617,17 @@ _chatStyles.textContent = `
 
     /* Input Bar Modern */
     .chat-input-wrapper {
-        padding: 1.25rem;
+        padding: 1rem 1.25rem;
         background: var(--bg-secondary);
         border-top: 1px solid var(--border-color);
+        flex-shrink: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+        .chat-input-wrapper {
+            padding: 0.75rem 1rem;
+        }
     }
 
     .chat-input-container {

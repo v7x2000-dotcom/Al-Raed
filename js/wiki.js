@@ -7,18 +7,19 @@ const WikiManager = {
 
     init: () => {
         WikiManager.load();
-        const btnAdd = document.getElementById('btn-add-wiki');
-        if (btnAdd) {
-            btnAdd.addEventListener('click', () => {
-                console.log('Wiki: Open Modal clicked');
+        
+        // Use delegation to be safer on mobile/dynamic loads
+        document.addEventListener('click', (e) => {
+            const btn = e.target.closest('#btn-add-wiki');
+            if (btn) {
+                console.log('Wiki: FAB clicked');
                 WikiManager.openModal();
-            });
-        }
+            }
+        });
 
         const btnSave = document.getElementById('save-wiki');
         if (btnSave) {
             btnSave.addEventListener('click', () => {
-                console.log('Wiki: Save Article clicked');
                 WikiManager.saveArticle();
             });
         }
@@ -60,6 +61,8 @@ const WikiManager = {
     renderArticles: (list) => {
         const content = document.getElementById('wiki-content');
         if (!content) return;
+
+        const isAr = typeof LangManager !== 'undefined' && LangManager.currentLang === 'ar';
 
         if (list.length === 0) {
             content.innerHTML = `
