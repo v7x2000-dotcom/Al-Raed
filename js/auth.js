@@ -140,17 +140,23 @@ const AuthManager = {
             return;
         }
 
-        const isFirstUser = users.length === 0;
+        // CRITICAL: Ensure we don't accidentally make everyone Super Admin if sync is slow
+        let role = 'Member';
+        if (users.length === 0) {
+            // First user ever becomes Super Admin
+            role = 'Super Admin';
+        }
 
         const newUser = {
             id: 'u_' + Date.now(),
             name,
             email,
             password: pass,
-            role: isFirstUser ? 'Super Admin' : 'Member',
-            title,
+            role: role,
+            title: title || 'Member',
+            avatar: null,
             status: 'active',
-            createdAt: new Date().toISOString()
+            joinedAt: Date.now()
         };
 
         AuthManager.currentUser = newUser;
