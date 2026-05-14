@@ -301,6 +301,7 @@ const Translations = {
     'Action': 'الإجراء',
     'Target': 'الهدف',
     'All Users': 'كافة المستخدمين',
+    'Support Ticket': 'دعم فني',
     'Support Tickets': 'تذاكر الدعم',
     'My Tickets': 'تذاكري',
     'New Ticket': 'تذكرة جديدة',

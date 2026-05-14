@@ -23,11 +23,11 @@ const TeamManager = {
         const title = document.getElementById('member-title').value.trim();
         const email = document.getElementById('member-email').value.trim();
 
-        if (!name || !email) { alert('Name and Email are required.'); return; }
+        if (!name || !email) { showAlert('Name and Email are required.'); return; }
 
         const team = Store.get('team') || [];
         if (team.find(m => m.email === email)) {
-            alert('A member with this email already exists.');
+            showAlert('A member with this email already exists.');
             return;
         }
 
@@ -91,7 +91,9 @@ const TeamManager = {
             };
             const roleStyle = roleColors[member.role] || roleColors['Member'];
             const isMe = member.id === me?.id;
-            const isOnline = isMe || (Store._onlineUsers && Store._onlineUsers.includes(member.id));
+            // Online if document exists AND updated within last 60 seconds
+            const presence = Store._onlineUsers?.find(p => p.id === member.id);
+            const isOnline = isMe || (presence && (Date.now() - (presence.timestamp || 0) < 60000));
 
             const card = document.createElement('div');
             card.className = 'team-card';
@@ -143,9 +145,9 @@ const TeamManager = {
     },
 
     changeRole: (memberId, newRole) => {
-        if (newRole === 'Super Admin') { alert('Cannot assign Super Admin role.'); return; }
+        if (newRole === 'Super Admin') { showAlert('Cannot assign Super Admin role.'); return; }
         const me = AuthManager.currentUser;
-        if (me?.role !== 'Super Admin') { alert('Only Super Admin can change roles.'); return; }
+        if (me?.role !== 'Super Admin') { showAlert('Only Super Admin can change roles.'); return; }
 
         let team = Store.get('team') || [];
         const idx = team.findIndex(m => m.id === memberId);
@@ -162,24 +164,25 @@ const TeamManager = {
     },
 
     removeMember: (memberId) => {
-        if (!confirm('Remove this team member?')) return;
-        const me = AuthManager.currentUser;
-        if (me?.role !== 'Super Admin') { alert('Only Super Admin can remove members.'); return; }
+        askConfirm('Remove this team member?', () => {
+            const me = AuthManager.currentUser;
+            if (me?.role !== 'Super Admin') { showAlert('Only Super Admin can remove members.'); return; }
 
-        let team = Store.get('team') || [];
-        const member = team.find(m => m.id === memberId);
-        if (member?.role === 'Super Admin') { alert('Cannot remove Super Admin.'); return; }
+            let team = Store.get('team') || [];
+            const member = team.find(m => m.id === memberId);
+            if (member?.role === 'Super Admin') { showAlert('Cannot remove Super Admin.'); return; }
 
-        team = team.filter(m => m.id !== memberId);
-        Store.set('team', team);
+            team = team.filter(m => m.id !== memberId);
+            Store.set('team', team);
 
-        let users = Store.get('users') || [];
-        users = users.filter(u => u.id !== memberId);
-        Store.set('users', users);
+            let users = Store.get('users') || [];
+            users = users.filter(u => u.id !== memberId);
+            Store.set('users', users);
 
-        Store.log('Removed Team Member', member?.name || memberId);
-        TeamManager.render();
-        if (typeof App !== 'undefined') App.updateDashboardStats();
+            Store.log('Removed Team Member', member?.name || memberId);
+            TeamManager.render();
+            if (typeof App !== 'undefined') App.updateDashboardStats();
+        });
     }
 };
 

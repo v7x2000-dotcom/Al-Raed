@@ -101,7 +101,11 @@ const Store = {
 
             // ✅ Track online users via Firestore 'presence' collection
             db.collection('presence').onSnapshot((snapshot) => {
-                Store._onlineUsers = snapshot.docs.map(doc => doc.id);
+                // Store full data including timestamps
+                Store._onlineUsers = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
                 window.dispatchEvent(new CustomEvent('onlineUsersUpdated'));
                 if (typeof TeamManager !== 'undefined') TeamManager.render();
             });
@@ -152,7 +156,7 @@ const Store = {
                 case 'events':
                     if (typeof CalendarManager !== 'undefined') CalendarManager.render();
                     break;
-                case 'auditLogs':
+                case 'audit_logs':
                     if (typeof AuditManager !== 'undefined') AuditManager.render();
                     break;
                 case 'notifications':
@@ -224,7 +228,7 @@ const Store = {
                     'tasks': 'tasks',
                     'team': 'team',
                     'finance': 'finance',
-                    'auditLogs': 'audit_logs',
+                    'audit_logs': 'audit_logs',
                     'events': 'events',
                     'presence': 'presence',
                     'users': 'users',
@@ -286,7 +290,7 @@ const Store = {
             Store.set('announcements', []);
             Store.set('chat_rooms', []);
             Store.set('chat_invitations', []);
-            Store.set('auditLogs', []);
+            Store.set('audit_logs', []);
             Store.set('wsInitialized', true);
         }
     },

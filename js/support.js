@@ -188,6 +188,7 @@ const SupportManager = {
             </div>
             <div style="display:flex;align-items:center;gap:1rem;">
                 <span style="font-size:0.85rem;color:${statusColor};background:${statusColor}22;padding:4px 10px;border-radius:12px;font-weight:600;"><i class="fas fa-circle" style="font-size:0.5rem;margin-right:4px;"></i> ${statusText}</span>
+                ${isAdmin ? `<button class="btn btn-icon" style="color:var(--danger);" onclick="SupportManager.deleteTicket('${ticket.id}')" title="حذف التذكرة"><i class="fas fa-trash"></i></button>` : ''}
             </div>
         `;
 
@@ -203,23 +204,35 @@ const SupportManager = {
             
             const div = document.createElement('div');
             div.style.cssText = `
-                display:flex;flex-direction:column;max-width:80%;
+                display:flex;flex-direction:column;max-width:80%; margin-bottom:1rem;
                 ${isMe ? 'align-self:flex-end;align-items:flex-end;' : 'align-self:flex-start;align-items:flex-start;'}
             `;
             
             const bg = isMe ? 'var(--primary-color)' : (isSupportReply ? '#10b981' : 'var(--bg-secondary)');
             const color = (isMe || isSupportReply) ? '#fff' : 'var(--text-primary)';
             const borderRadius = isMe ? '12px 12px 2px 12px' : '12px 12px 12px 2px';
-            
+
             div.innerHTML = `
                 <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:0.2rem;">${msg.senderName} ${isSupportReply ? '<i class="fas fa-check-circle" style="color:#10b981;" title="دعم فني"></i>' : ''}</div>
-                <div style="background:${bg};color:${color};padding:0.8rem 1rem;border-radius:${borderRadius};font-size:0.9rem;box-shadow:0 2px 5px rgba(0,0,0,0.05);line-height:1.5;">
+                <div class="support-msg-bubble" style="background:${bg};color:${color};padding:0.8rem 1rem;border-radius:${borderRadius};font-size:0.9rem;box-shadow:0 2px 5px rgba(0,0,0,0.05);line-height:1.5;cursor:pointer;position:relative;">
                     ${msg.content.replace(/\n/g, '<br>')}
                 </div>
-                <div style="font-size:0.7rem;color:var(--text-secondary);margin-top:0.3rem;">
-                    ${new Date(msg.timestamp).toLocaleString()}
+                <div style="display:flex; gap:0.5rem; align-items:center; margin-top:0.3rem;">
+                    <div style="font-size:0.7rem;color:var(--text-secondary);">
+                        ${new Date(msg.timestamp).toLocaleString()}
+                    </div>
                 </div>
             `;
+
+            // Add context menu listener for admins
+            if (isAdmin) {
+                const bubble = div.querySelector('.support-msg-bubble');
+                bubble.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    SupportManager.showMsgMenu(e, ticket.id, msg.id);
+                });
+            }
+
             msgContainer.appendChild(div);
         });
 
@@ -274,17 +287,99 @@ const SupportManager = {
     },
 
     closeTicket: () => {
-        if (!SupportManager.currentTicketId || !confirm('هل أنت متأكد من إغلاق هذه التذكرة؟')) return;
-        
-        const tickets = SupportManager.getTickets();
-        const ticketIndex = tickets.findIndex(t => t.id === SupportManager.currentTicketId);
-        
-        if (ticketIndex > -1) {
-            tickets[ticketIndex].status = 'Closed';
-            tickets[ticketIndex].updatedAt = new Date().toISOString();
+        if (!SupportManager.currentTicketId) return;
+        askConfirm('هل أنت متأكد من إغلاق هذه التذكرة؟', () => {
+            const tickets = SupportManager.getTickets();
+            const ticketIndex = tickets.findIndex(t => t.id === SupportManager.currentTicketId);
+            
+            if (ticketIndex > -1) {
+                tickets[ticketIndex].status = 'Closed';
+                tickets[ticketIndex].updatedAt = new Date().toISOString();
+                SupportManager.saveTickets(tickets);
+                SupportManager.viewTicket(SupportManager.currentTicketId);
+            }
+        }, 'إغلاق التذكرة', 'check-circle');
+    },
+
+    showMsgMenu: (e, ticketId, msgId) => {
+        // Remove existing menus
+        document.querySelectorAll('.support-context-menu').forEach(m => m.remove());
+
+        const menu = document.createElement('div');
+        menu.className = 'support-context-menu glass-effect';
+        menu.style.cssText = `
+            position: fixed;
+            top: ${e.clientY}px;
+            left: ${e.clientX}px;
+            z-index: 10000;
+            padding: 0.5rem;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            min-width: 120px;
+        `;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.innerHTML = '<i class="fas fa-trash"></i> حذف الرسالة';
+        deleteBtn.style.cssText = `
+            width: 100%;
+            padding: 0.5rem 1rem;
+            border: none;
+            background: none;
+            color: var(--danger);
+            cursor: pointer;
+            text-align: right;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: flex-end;
+        `;
+        deleteBtn.onmouseover = () => deleteBtn.style.background = 'rgba(239,68,68,0.1)';
+        deleteBtn.onmouseout = () => deleteBtn.style.background = 'none';
+        deleteBtn.onclick = () => {
+            SupportManager.deleteMessage(ticketId, msgId);
+            menu.remove();
+        };
+
+        menu.appendChild(deleteBtn);
+        document.body.appendChild(menu);
+
+        // Close on click outside
+        const closeMenu = () => {
+            menu.remove();
+            document.removeEventListener('click', closeMenu);
+        };
+        setTimeout(() => document.addEventListener('click', closeMenu), 10);
+    },
+
+    deleteTicket: (ticketId) => {
+        askConfirm('هل أنت متأكد من حذف هذه التذكرة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.', () => {
+            let tickets = SupportManager.getTickets();
+            tickets = tickets.filter(t => t.id !== ticketId);
             SupportManager.saveTickets(tickets);
-            SupportManager.viewTicket(SupportManager.currentTicketId);
-        }
+            if (SupportManager.currentTicketId === ticketId) {
+                SupportManager.render(); // Reset the view to empty
+            } else {
+                SupportManager.renderTicketsList();
+            }
+            if (typeof AuthManager !== 'undefined') AuthManager.showToast('✅ تم حذف التذكرة بنجاح.');
+        }, 'حذف التذكرة');
+    },
+
+    deleteMessage: (ticketId, msgId) => {
+        askConfirm('هل أنت متأكد من حذف هذه الرسالة؟', () => {
+            const tickets = SupportManager.getTickets();
+            const tIdx = tickets.findIndex(t => t.id === ticketId);
+            if (tIdx > -1) {
+                tickets[tIdx].messages = tickets[tIdx].messages.filter(m => m.id !== msgId);
+                tickets[tIdx].updatedAt = new Date().toISOString();
+                SupportManager.saveTickets(tickets);
+                if (SupportManager.currentTicketId === ticketId) {
+                    SupportManager.viewTicket(ticketId);
+                }
+            }
+        }, 'حذف الرسالة');
     },
 
     showNewTicketModal: () => {
@@ -305,7 +400,7 @@ const SupportManager = {
         const me = AuthManager.currentUser;
 
         if (!title || !desc) {
-            alert('يرجى ملء جميع الحقول المطلوبة');
+            showAlert('يرجى ملء جميع الحقول المطلوبة');
             return;
         }
 

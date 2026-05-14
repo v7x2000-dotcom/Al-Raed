@@ -132,6 +132,26 @@ const ChatManager = {
             }
         });
 
+        // Listen for online users changes
+        window.addEventListener('onlineUsersUpdated', () => {
+            if (ChatManager.currentType === 'private' && ChatManager.currentReceiverId && !ChatManager._isSelfChat) {
+                // Just update the status bar in the header
+                const member = (Store.get('team') || []).find(m => m.id === ChatManager.currentReceiverId);
+                if (member) {
+                    const statusEl = document.getElementById('chat-active-status');
+                    if (statusEl) {
+                        const isOnline = AuthManager.isUserOnline(member.id);
+                        const lastSeen = AuthManager.getUserLastSeen(member.id);
+                        const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الآن' : 'Online') : 
+                                            (lastSeen ? (document.documentElement.dir === 'rtl' ? 'آخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
+                        statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${isOnline?'var(--success)':'var(--text-secondary)'};display:inline-block;"></span> ${lastSeenText}`;
+                    }
+                }
+                // Also refresh sidebar list for status dots
+                ChatManager.loadUsers();
+            }
+        });
+
         // Global Avatar Error Handler
         document.addEventListener('error', (e) => {
             if (e.target.tagName === 'IMG' && (e.target.classList.contains('chat-header-avatar') || e.target.closest('.chat-container'))) {
@@ -248,16 +268,28 @@ const ChatManager = {
         selfDiv.onclick = (e) => ChatManager._selectUser(me, true, e);
         const selfKey = ChatManager._getSelfKey(me);
         const selfMsgs = JSON.parse(localStorage.getItem(selfKey) || '[]');
-        const selfLast = selfMsgs[selfMsgs.length - 1];
+        
+        // Filter out deleted messages for preview
+        const selfDeletedKey = 'chat_deleted_' + selfKey;
+        const selfDeletedIds = JSON.parse(localStorage.getItem(selfDeletedKey) || '[]');
+        const validSelfMsgs = selfMsgs.filter(m => !m.isDeletedForEveryone && !selfDeletedIds.includes(m.id));
+        const selfLast = validSelfMsgs[validSelfMsgs.length - 1];
+        
         selfDiv.innerHTML = `<div style="position:relative;flex-shrink:0;"><img src="${me.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(me.name)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);"><span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid var(--bg-primary);"></span></div><div style="flex:1;overflow:hidden;"><div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${me.name} (أنت)</div><div style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${selfLast?selfLast.content.substring(0,30):'لا توجد رسائل'}</div></div>`;
         sidebar.appendChild(selfDiv);
 
         team.forEach(member => {
             const key = ChatManager._getPrivateKey(me, member.id);
             const msgs = Store.get(key) || [];
-            const lastMsg = msgs[msgs.length - 1];
+            
+            // Filter out deleted messages for preview
+            const deletedKey = 'chat_deleted_' + key;
+            const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+            const validMsgs = msgs.filter(m => !m.isDeletedForEveryone && !deletedIds.includes(m.id));
+            const lastMsg = validMsgs[validMsgs.length - 1];
+            
             const unread = ChatManager._getConvUnread(key);
-            const isOnline = (Store._onlineUsers||[]).includes(member.id);
+            const isOnline = AuthManager.isUserOnline(member.id);
             const isSelected = !ChatManager._isSelfChat && ChatManager.currentReceiverId === member.id;
             const div = document.createElement('div');
             div.className = 'chat-user-item' + (isSelected ? ' selected' : '');
@@ -281,7 +313,13 @@ const ChatManager = {
         rooms.forEach(room => {
             const key = ChatManager._getRoomKey(room.id);
             const msgs = Store.get(key) || [];
-            const lastMsg = msgs[msgs.length-1];
+            
+            // Filter out deleted messages for preview
+            const deletedKey = 'chat_deleted_' + key;
+            const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+            const validMsgs = msgs.filter(m => !m.isDeletedForEveryone && !deletedIds.includes(m.id));
+            const lastMsg = validMsgs[validMsgs.length - 1];
+            
             const unread = ChatManager._getConvUnread(key);
             const isSelected = ChatManager.currentReceiverId === room.id;
             const div = document.createElement('div');
@@ -307,8 +345,12 @@ const ChatManager = {
         if (av) { av.src = member.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(member.name); av.style.display='block'; }
         const statusEl = document.getElementById('chat-active-status');
         if (statusEl && !isSelf) {
-            const isOnline = (Store._onlineUsers||[]).includes(member.id);
-            statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${isOnline?'var(--success)':'var(--text-secondary)'};display:inline-block;"></span> ${isOnline?'متصل الآن':'غير متصل'}`;
+            const isOnline = AuthManager.isUserOnline(member.id);
+            const lastSeen = AuthManager.getUserLastSeen(member.id);
+            const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الآن' : 'Online') : 
+                                (lastSeen ? (document.documentElement.dir === 'rtl' ? 'آخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
+            
+            statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${isOnline?'var(--success)':'var(--text-secondary)'};display:inline-block;"></span> ${lastSeenText}`;
         }
         const convKey = isSelf ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, member.id);
         ChatManager._clearUnread(convKey);
@@ -434,8 +476,8 @@ const ChatManager = {
             div.innerHTML = `
                 <img src="${msg.senderAvatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.senderName)}" loading="lazy" class="msg-avatar">
                 <div class="msg-bubble-container">
-                    ${!isMe && ChatManager.currentType !== 'private' ? `<div style="font-size:0.7rem;opacity:0.7;margin-bottom:4px;font-weight:700;">${msg.senderName}</div>` : ''}
                     <div class="msg-bubble" onclick="ChatManager.showMsgMenu(event, '${msg.id}', ${isMe})">
+                        ${!isMe && ChatManager.currentType !== 'private' ? `<div class="msg-sender-name">${msg.senderName}</div>` : ''}
                         ${attachmentHtml}
                         ${contentHtml}
                         <div class="msg-meta">
@@ -444,6 +486,8 @@ const ChatManager = {
                         </div>
                     </div>
                 </div>
+
+
             `;
             fragment.appendChild(div);
         });
@@ -682,18 +726,19 @@ const ChatManager = {
     },
 
     removeMember: (roomId, memberId, modalElement) => {
-        if (!confirm('هل أنت متأكد من حذف هذا العضو من المجموعة؟')) return;
-        const rooms = Store.get('chat_rooms') || [];
-        const room = rooms.find(r => r.id === roomId);
-        if (room) {
-            room.members = (room.members || []).filter(id => id !== memberId);
-            if (room.admins) room.admins = room.admins.filter(id => id !== memberId);
-            Store.set('chat_rooms', rooms);
-            NotificationManager.add('تم حذف العضو من المجموعة', 'fa-user-times', 'success');
-            Store.log('Removed Member', `${memberId} from ${room.name}`);
-            modalElement.remove();
-            ChatManager.toggleProfileSidebar();
-        }
+        askConfirm('هل أنت متأكد من حذف هذا العضو من المجموعة؟', () => {
+            const rooms = Store.get('chat_rooms') || [];
+            const room = rooms.find(r => r.id === roomId);
+            if (room) {
+                room.members = (room.members || []).filter(id => id !== memberId);
+                if (room.admins) room.admins = room.admins.filter(id => id !== memberId);
+                Store.set('chat_rooms', rooms);
+                NotificationManager.add('تم حذف العضو من المجموعة', 'fa-user-times', 'success');
+                Store.log('Removed Member', `${memberId} from ${room.name}`);
+                modalElement.remove();
+                ChatManager.toggleProfileSidebar();
+            }
+        });
     },
 
     showAddMembersModal: (roomId) => {
@@ -1032,23 +1077,21 @@ const ChatManager = {
 
         if (modal.querySelector('#btn-del-all')) {
             modal.querySelector('#btn-del-all').onclick = () => {
-                if (!confirm('هل أنت متأكد من حذف هذه المحادثة لدى جميع الأطراف؟ لا يمكن التراجع عن هذا الإجراء.')) return;
-                
-                const convKey = isPrivate
-                    ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
-                    : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+                askConfirm('هل أنت متأكد من حذف هذه المحادثة لدى جميع الأطراف؟ لا يمكن التراجع عن هذا الإجراء.', () => {
+                    const convKey = isPrivate
+                        ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+                        : ChatManager._getRoomKey(ChatManager.currentReceiverId);
 
-                if (isPrivate) {
-                    // Wiping private chat for everyone (if I'm the one who started it or just allowed in this platform)
-                    Store.set(convKey, []);
-                } else {
-                    // Group clear
-                    Store.set(convKey, []);
-                }
+                    if (isPrivate) {
+                        Store.set(convKey, []);
+                    } else {
+                        Store.set(convKey, []);
+                    }
 
-                ChatManager.renderMessages();
-                NotificationManager.add('تم حذف المحادثة لدى الجميع بنجاح', 'fa-trash', 'success');
-                modal.remove();
+                    ChatManager.renderMessages();
+                    NotificationManager.add('تم حذف المحادثة لدى الجميع بنجاح', 'fa-trash', 'success');
+                    modal.remove();
+                });
             };
         }
 
@@ -1066,9 +1109,15 @@ const ChatManager = {
         let top = e.clientY;
         let left = e.clientX;
         const menuHeight = 220;
+        const menuWidth = 180; // slightly larger than min-width to be safe
+
         if (top + menuHeight > window.innerHeight) {
             top = window.innerHeight - menuHeight - 10;
         }
+        if (left + menuWidth > window.innerWidth) {
+            left = window.innerWidth - menuWidth - 10;
+        }
+        if (left < 10) left = 10;
 
         const menu = document.createElement('div');
         menu.className = 'chat-msg-menu glass-effect';
@@ -1103,7 +1152,6 @@ const ChatManager = {
             if (isMe) {
                 menu.appendChild(createBtn('fa-pen', 'تعديل الرسالة', 'var(--warning)', () => ChatManager.editMessage(msgId)));
                 menu.appendChild(createBtn('fa-trash-alt', 'حذف لدى الجميع', 'var(--danger)', () => ChatManager.deleteMessageForEveryone(msgId)));
-                menu.appendChild(createBtn('fa-user-slash', 'حذف للكل ولدي', 'var(--danger)', () => ChatManager.deleteMessageForBoth(msgId)));
             }
             
             menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
@@ -1141,46 +1189,7 @@ const ChatManager = {
     },
 
     deleteMessageForMe: (msgId) => {
-        if (!confirm(LangManager.t('Are you sure you want to delete this message?'))) return;
-        const me = AuthManager.currentUser;
-        const convKey = ChatManager.currentType === 'private'
-            ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
-            : ChatManager._getRoomKey(ChatManager.currentReceiverId);
-            
-        const deletedKey = 'chat_deleted_' + convKey;
-        const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
-        if (!deletedIds.includes(msgId)) {
-            deletedIds.push(msgId);
-            localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
-        }
-        ChatManager.renderMessages();
-    },
-
-    deleteMessageForEveryone: (msgId) => {
-        if (!confirm(LangManager.t('Are you sure you want to delete this message?'))) return;
-        const { msgs, key } = ChatManager._getMsgAndKey(msgId);
-        const msg = msgs.find(m => m.id === msgId);
-        if (msg) {
-            msg.isDeletedForEveryone = true;
-            msg.content = '';
-            msg.attachment = null;
-            ChatManager._updateFirebaseMessages(key, msgs);
-            ChatManager.renderMessages();
-        }
-    },
-
-    deleteMessageForBoth: (msgId) => {
-        if (!confirm(LangManager.t('Are you sure you want to delete this message for everyone and yourself?'))) return;
-        const { msgs, key } = ChatManager._getMsgAndKey(msgId);
-        const msg = msgs.find(m => m.id === msgId);
-        if (msg) {
-            // Delete for everyone (global)
-            msg.isDeletedForEveryone = true;
-            msg.content = '';
-            msg.attachment = null;
-            ChatManager._updateFirebaseMessages(key, msgs);
-
-            // Delete for me (local hide)
+        askConfirm(LangManager.t('Are you sure you want to delete this message?'), () => {
             const me = AuthManager.currentUser;
             const convKey = ChatManager.currentType === 'private'
                 ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
@@ -1192,21 +1201,64 @@ const ChatManager = {
                 deletedIds.push(msgId);
                 localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
             }
+            ChatManager.render(); // Full re-render to update sidebar preview
+        });
+    },
 
-            ChatManager.renderMessages();
-            NotificationManager.add('تم الحذف لدى الجميع وليدك', 'fa-check-circle', 'success');
-        }
+    deleteMessageForEveryone: (msgId) => {
+        askConfirm(LangManager.t('Are you sure you want to delete this message?'), () => {
+            const { msgs, key } = ChatManager._getMsgAndKey(msgId);
+            const msg = msgs.find(m => m.id === msgId);
+            if (msg) {
+                msg.isDeletedForEveryone = true;
+                msg.content = '';
+                msg.attachment = null;
+                ChatManager._updateFirebaseMessages(key, msgs);
+                ChatManager.render(); // Full re-render to update sidebar preview
+            }
+        });
+    },
+
+    deleteMessageForBoth: (msgId) => {
+        askConfirm(LangManager.t('Are you sure you want to delete this message for everyone and yourself?'), () => {
+            const { msgs, key } = ChatManager._getMsgAndKey(msgId);
+            const msg = msgs.find(m => m.id === msgId);
+            if (msg) {
+                // Delete for everyone (global)
+                msg.isDeletedForEveryone = true;
+                msg.content = '';
+                msg.attachment = null;
+                ChatManager._updateFirebaseMessages(key, msgs);
+
+                // Delete for me (local hide)
+                const me = AuthManager.currentUser;
+                const convKey = ChatManager.currentType === 'private'
+                    ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+                    : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+                    
+                const deletedKey = 'chat_deleted_' + convKey;
+                const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+                if (!deletedIds.includes(msgId)) {
+                    deletedIds.push(msgId);
+                    localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+                }
+
+                ChatManager.render(); // Full re-render
+                NotificationManager.add('تم الحذف لدى الجميع وليدك', 'fa-check-circle', 'success');
+            }
+        });
     },
 
     editMessage: (msgId) => {
         const { msg, msgs, key } = ChatManager._getMsgAndKey(msgId);
         if (!msg || !msg.content) return;
-        const newText = prompt('تعديل الرسالة:', msg.content.replace(' (معدلة)', ''));
-        if (newText !== null && newText.trim() !== '') {
-            msg.content = newText.trim() + ' (معدلة)';
-            ChatManager._updateFirebaseMessages(key, msgs);
-            ChatManager.renderMessages();
-        }
+        askPrompt('تعديل الرسالة:', msg.content.replace(' (معدلة)', ''), (newText) => {
+            if (newText !== null && newText.trim() !== '') {
+                msg.content = newText.trim() + ' (معدلة)';
+                ChatManager._updateFirebaseMessages(key, msgs);
+                ChatManager.renderMessages();
+            }
+        });
     },
 
     _updateFirebaseMessages: (key, newMsgs) => {

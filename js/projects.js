@@ -88,7 +88,7 @@ const ProjectsManager = {
         const progress = parseInt(document.getElementById('project-progress').value) || 0;
         const status = document.getElementById('project-status').value;
 
-        if (!name) return alert('برجاء إدخال اسم المشروع');
+        if (!name) { showAlert('برجاء إدخال اسم المشروع'); return; }
 
         const newProject = {
             id: Date.now(),
@@ -107,10 +107,11 @@ const ProjectsManager = {
     },
 
     deleteProject: (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
-        ProjectsManager.projects = ProjectsManager.projects.filter(p => p.id !== id);
-        ProjectsManager.saveToStorage();
-        ProjectsManager.render();
+        askConfirm('هل أنت متأكد من حذف هذا المشروع؟', () => {
+            ProjectsManager.projects = ProjectsManager.projects.filter(p => p.id !== id);
+            ProjectsManager.saveToStorage();
+            ProjectsManager.render();
+        });
     }
 };
 

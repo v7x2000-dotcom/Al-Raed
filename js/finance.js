@@ -96,12 +96,12 @@ const FinanceManager = {
         const dueDate = document.getElementById('finance-due-date').value;
 
         if (!desc || isNaN(amt) || !date) {
-            alert('Please fill out all required fields.');
+            showAlert('Please fill out all required fields.');
             return;
         }
 
         if (type === 'debt' && !person) {
-            alert('Please specify the debtor/creditor.');
+            showAlert('Please specify the debtor/creditor.');
             return;
         }
 
@@ -136,12 +136,13 @@ const FinanceManager = {
     },
 
     deleteEntry: (id, type) => {
-        if (!confirm('Are you sure you want to delete this record?')) return;
-        let records = Store.get('finance') || [];
-        Store.set('finance', records.filter(r => r.id !== id));
-        
-        if (type === 'expense') FinanceManager.renderExpenses();
-        else FinanceManager.renderDebts();
+        askConfirm('Are you sure you want to delete this record?', () => {
+            let records = Store.get('finance') || [];
+            Store.set('finance', records.filter(r => r.id !== id));
+            
+            if (type === 'expense') FinanceManager.renderExpenses();
+            else FinanceManager.renderDebts();
+        });
     },
 
     toggleDebtStatus: (id) => {

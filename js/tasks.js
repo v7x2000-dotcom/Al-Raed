@@ -56,7 +56,7 @@ const TasksManager = {
                 
                 const id = idEl ? idEl.value : '';
                 const title = titleEl.value.trim();
-                if(!title) return alert('Title is required!');
+                if(!title) { showAlert('Title is required!'); return; }
 
                 const task = {
                     id: id || Date.now().toString(),
@@ -273,13 +273,13 @@ const TasksManager = {
     },
 
     deleteTask: (id) => {
-        if(confirm('Are you sure you want to delete this task?')) {
+        askConfirm('Are you sure you want to delete this task?', () => {
             let tasks = Store.get('tasks');
             tasks = tasks.filter(t => t.id !== id);
             Store.set('tasks', tasks);
             TasksManager.render();
             if(typeof App !== 'undefined') App.updateDashboardStats();
-        }
+        });
     },
 
     updateTaskStatus: (id, status) => {

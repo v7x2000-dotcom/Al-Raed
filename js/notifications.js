@@ -235,13 +235,14 @@ const NotificationManager = {
     },
 
     clearAll: () => {
-        if (!confirm(LangManager.t('Are you sure you want to clear all notifications?'))) return;
-        const me = AuthManager?.currentUser;
-        if (!me) return;
-        const all = Store.get('notifications') || {};
-        all[me.id] = [];
-        Store.set('notifications', all);
-        NotificationManager.loadNotifications();
+        askConfirm(LangManager.t('Are you sure you want to clear all notifications?'), () => {
+            const me = AuthManager?.currentUser;
+            if (!me) return;
+            const all = Store.get('notifications') || {};
+            all[me.id] = [];
+            Store.set('notifications', all);
+            NotificationManager.loadNotifications();
+        });
     }
 };
 

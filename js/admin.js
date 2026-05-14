@@ -7,6 +7,14 @@ const AdminPanel = {
 
     init: () => {
         AdminPanel.refresh();
+        // Auto-refresh the admin panel data every 3 seconds to sync automatically
+        setInterval(() => {
+            // Only refresh if the admin panel is visible to save resources
+            const adminPanel = document.getElementById('admin-panel');
+            if (adminPanel && adminPanel.classList.contains('active')) {
+                AdminPanel.refresh();
+            }
+        }, 3000);
         // Close modal buttons
         document.querySelectorAll('#admin-reset-modal .close-modal, #admin-reset-modal .cancel-modal, #admin-manage-user-modal .close-modal').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -56,7 +64,7 @@ const AdminPanel = {
                 ? `<img src="${user.avatar}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:0.5rem;">`
                 : `<img src="https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=2563eb&color=fff&bold=true&size=64" style="width:32px;height:32px;border-radius:50%;vertical-align:middle;margin-right:0.5rem;">`;
 
-            const joined = user.joinedAt ? new Date(user.joinedAt).toLocaleDateString() : '—';
+            const joined = (user.createdAt || user.joinedAt) ? new Date(user.createdAt || user.joinedAt).toLocaleDateString() : '—';
             const isSuperAdmin = user.role === 'Super Admin';
             const isMe = user.id === me?.id;
 
@@ -179,7 +187,10 @@ const AdminPanel = {
 
     confirmReset: () => {
         const newPass = document.getElementById('admin-new-password').value.trim();
-        if (!newPass || newPass.length < 4) { alert('Password must be at least 4 characters.'); return; }
+        if (!newPass || newPass.length < 4) { 
+            showAlert('Password must be at least 4 characters.'); 
+            return; 
+        }
 
         let users = Store.get('users') || [];
         const idx = users.findIndex(u => u.id === AdminPanel._resetTargetId);
@@ -199,7 +210,7 @@ const AdminPanel = {
         
         // Master Admin protection
         if (user.email === 'mod18hk@gmail.com') { 
-            alert(typeof LangManager !== 'undefined' ? LangManager.t('Cannot delete the Master Admin.') : 'لا يمكن حذف المسؤول الأساسي.'); 
+            showAlert(typeof LangManager !== 'undefined' ? LangManager.t('Cannot delete the Master Admin.') : 'لا يمكن حذف المسؤول الأساسي.'); 
             return; 
         }
 
@@ -207,28 +218,27 @@ const AdminPanel = {
             ? `هل أنت متأكد من حذف "${user.name}" نهائياً؟ سيتمكن من إنشاء حساب جديد بنفس البريد لاحقاً.`
             : `Are you sure you want to permanently delete "${user.name}"? They will be able to register again.`;
 
-        if (!confirm(confirmMsg)) return;
+        askConfirm(confirmMsg, () => {
+            // 1. Remove from users list
+            const updatedUsers = users.filter(u => u.id !== userId);
+            Store.set('users', updatedUsers);
 
-        // 1. Remove from users list
-        const updatedUsers = users.filter(u => u.id !== userId);
-        Store.set('users', updatedUsers);
+            // 2. Remove from team list (sync)
+            let team = Store.get('team') || [];
+            Store.set('team', team.filter(t => t.id !== userId));
 
-        // 2. Remove from team list (sync)
-        let team = Store.get('team') || [];
-        Store.set('team', team.filter(t => t.id !== userId));
+            // 3. Optional: Remove from banned list if they were banned before
+            let banned = Store.get('bannedEmails') || [];
+            if (banned.includes(user.email)) {
+                Store.set('bannedEmails', banned.filter(e => e !== user.email));
+            }
 
-        // 3. Optional: Remove from banned list if they were banned before, 
-        // to ensure they can "create a new account normally" as requested.
-        let banned = Store.get('bannedEmails') || [];
-        if (banned.includes(user.email)) {
-            Store.set('bannedEmails', banned.filter(e => e !== user.email));
-        }
-
-        Store.log('المسؤول: حذف مستخدم', user.name);
-        AuthManager.showToast(typeof LangManager !== 'undefined' ? `✅ تم حذف المستخدم "${user.name}" بنجاح.` : `✅ User "${user.name}" deleted.`);
-        
-        AdminPanel.refresh();
-        if (typeof TeamManager !== 'undefined') TeamManager.render();
+            Store.log('المسؤول: حذف مستخدم', user.name);
+            AuthManager.showToast(typeof LangManager !== 'undefined' ? `✅ تم حذف المستخدم "${user.name}" بنجاح.` : `✅ User "${user.name}" deleted.`);
+            
+            AdminPanel.refresh();
+            if (typeof TeamManager !== 'undefined') TeamManager.render();
+        });
     },
 
     banUser: (userId) => {
@@ -237,7 +247,7 @@ const AdminPanel = {
         if (!user) return;
         
         if (user.email === 'mod18hk@gmail.com') { 
-            alert(typeof LangManager !== 'undefined' ? LangManager.t('Cannot ban the Master Admin.') : 'لا يمكن حظر المسؤول الأساسي.'); 
+            showAlert(typeof LangManager !== 'undefined' ? LangManager.t('Cannot ban the Master Admin.') : 'لا يمكن حظر المسؤول الأساسي.'); 
             return; 
         }
 
@@ -245,24 +255,24 @@ const AdminPanel = {
             ? `هل أنت متأكد من حظر البريد "${user.email}" نهائياً؟ لن يتمكن من التسجيل مرة أخرى أبداً.`
             : `Are you sure you want to PERMANENTLY BAN "${user.email}"? They will never be able to register again.`;
 
-        if (!confirm(confirmMsg)) return;
+        askConfirm(confirmMsg, () => {
+            // Add to banned emails
+            let banned = Store.get('bannedEmails') || [];
+            if(!banned.includes(user.email)) {
+                banned.push(user.email);
+                Store.set('bannedEmails', banned);
+            }
 
-        // Add to banned emails
-        let banned = Store.get('bannedEmails') || [];
-        if(!banned.includes(user.email)) {
-            banned.push(user.email);
-            Store.set('bannedEmails', banned);
-        }
-
-        // Delete the user data
-        Store.set('users', users.filter(u => u.id !== userId));
-        let team = Store.get('team') || [];
-        Store.set('team', team.filter(t => t.id !== userId));
-        
-        Store.log('المسؤول: حظر مستخدم', user.email);
-        AuthManager.showToast(typeof LangManager !== 'undefined' ? `🚫 تم حظر البريد "${user.email}" نهائياً.` : `🚫 Email "${user.email}" has been permanently banned.`);
-        AdminPanel.refresh();
-        if (typeof TeamManager !== 'undefined') TeamManager.render();
+            // Delete the user data
+            Store.set('users', users.filter(u => u.id !== userId));
+            let team = Store.get('team') || [];
+            Store.set('team', team.filter(t => t.id !== userId));
+            
+            Store.log('المسؤول: حظر مستخدم', user.email);
+            AuthManager.showToast(typeof LangManager !== 'undefined' ? `🚫 تم حظر البريد "${user.email}" نهائياً.` : `🚫 Email "${user.email}" has been permanently banned.`);
+            AdminPanel.refresh();
+            if (typeof TeamManager !== 'undefined') TeamManager.render();
+        });
     }
 };
 

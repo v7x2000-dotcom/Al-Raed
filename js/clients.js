@@ -73,7 +73,7 @@ const ClientsManager = {
         const contact = document.getElementById('client-contact').value.trim();
         const phone = document.getElementById('client-phone').value.trim();
 
-        if (!name) return alert('برجاء إدخال اسم العميل');
+        if (!name) { showAlert('برجاء إدخال اسم العميل'); return; }
 
         const newClient = {
             id: Date.now(),
@@ -91,10 +91,11 @@ const ClientsManager = {
     },
 
     deleteClient: (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذا العميل؟')) return;
-        ClientsManager.clients = ClientsManager.clients.filter(c => c.id !== id);
-        ClientsManager.saveToStorage();
-        ClientsManager.render();
+        askConfirm('هل أنت متأكد من حذف هذا العميل؟', () => {
+            ClientsManager.clients = ClientsManager.clients.filter(c => c.id !== id);
+            ClientsManager.saveToStorage();
+            ClientsManager.render();
+        });
     }
 };
 

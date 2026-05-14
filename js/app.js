@@ -286,6 +286,23 @@ const App = {
         });
     },
 
+    formatTimeAgo: (timestamp) => {
+        if (!timestamp) return '';
+        const seconds = Math.floor((Date.now() - timestamp) / 1000);
+        const isAr = document.documentElement.dir === 'rtl';
+
+        if (seconds < 60) return isAr ? 'الآن' : 'just now';
+        
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return isAr ? `منذ ${minutes} دقيقة` : `${minutes}m ago`;
+        
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return isAr ? `منذ ${hours} ساعة` : `${hours}h ago`;
+        
+        const days = Math.floor(hours / 24);
+        return isAr ? `منذ ${days} يوم` : `${days}d ago`;
+    },
+
     initSettings: () => {
         // Language - delegate to LangManager
         document.getElementById('setting-lang')?.addEventListener('change', (e) => {
@@ -680,10 +697,100 @@ const App = {
     }
 };
 
+/**
+ * ConfirmManager - Handles global confirmation modals with a premium UI
+ */
+const ConfirmManager = {
+    _onConfirm: null,
+    _onCancel: null,
+
+    /**
+     * Shows a confirmation modal
+     * @param {Object} options - { title, msg, icon, onConfirm, onCancel }
+     */
+    ask: ({ title, msg, icon, onConfirm, onCancel }) => {
+        const modal = document.getElementById('global-confirm-modal');
+        if (!modal) {
+            // Fallback to native if modal not found
+            if (confirm(msg)) onConfirm?.();
+            else onCancel?.();
+            return;
+        }
+
+        document.getElementById('confirm-title').textContent = title || 'تأكيد الإجراء';
+        document.getElementById('confirm-msg').textContent = msg || '';
+        document.getElementById('confirm-icon').innerHTML = `<i class="fas fa-${icon || 'exclamation-circle'}"></i>`;
+        
+        ConfirmManager._onConfirm = onConfirm;
+        ConfirmManager._onCancel = onCancel;
+
+        modal.classList.remove('hidden');
+
+        // Setup button listeners (one-time use per call)
+        const yesBtn = document.getElementById('confirm-yes');
+        const noBtn = document.getElementById('confirm-no');
+
+        const cleanup = () => {
+            modal.classList.add('hidden');
+            yesBtn.onclick = null;
+            noBtn.onclick = null;
+        };
+
+        yesBtn.onclick = () => {
+            cleanup();
+            if (ConfirmManager._onConfirm) ConfirmManager._onConfirm();
+        };
+
+        noBtn.onclick = () => {
+            cleanup();
+            if (ConfirmManager._onCancel) ConfirmManager._onCancel();
+        };
+    }
+};
+
+// Global helpers for easy access
+window.askConfirm = (msg, onConfirm, title = 'تأكيد الإجراء', icon = 'trash-alt') => {
+    ConfirmManager.ask({
+        title,
+        msg,
+        icon,
+        onConfirm
+    });
+};
+
+window.showAlert = (msg) => {
+    const modal = document.getElementById('global-alert-modal');
+    if (!modal) return alert(msg);
+    document.getElementById('alert-msg').textContent = msg;
+    modal.classList.remove('hidden');
+};
+
+window.askPrompt = (title, defaultValue, onConfirm) => {
+    const modal = document.getElementById('global-prompt-modal');
+    if (!modal) {
+        const val = prompt(title, defaultValue);
+        if (val !== null) onConfirm(val);
+        return;
+    }
+    document.getElementById('prompt-title').textContent = title;
+    const input = document.getElementById('prompt-input');
+    input.value = defaultValue || '';
+    modal.classList.remove('hidden');
+    
+    document.getElementById('prompt-yes').onclick = () => {
+        modal.classList.add('hidden');
+        if (onConfirm) onConfirm(input.value);
+    };
+    document.getElementById('prompt-no').onclick = () => {
+        modal.classList.add('hidden');
+    };
+};
+
 window.App = App;
 
 document.addEventListener('DOMContentLoaded', () => {
     // App starts ONLY after successful auth (called from auth.js login)
     // AuthManager.init() calls App.init() after login
 });
+
 

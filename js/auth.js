@@ -167,6 +167,46 @@ const AuthManager = {
         AuthManager.login(newUser);
     },
 
+    presenceHeartbeat: null,
+
+    startPresenceHeartbeat: () => {
+        if (AuthManager.presenceHeartbeat) clearInterval(AuthManager.presenceHeartbeat);
+        
+        const updatePresence = () => {
+            const user = AuthManager.currentUser;
+            if (!user) return;
+            if (typeof firebase !== 'undefined' && firebase.apps.length) {
+                firebase.firestore().collection('presence').doc(user.id).set({
+                    name: user.name,
+                    userId: user.id,
+                    timestamp: Date.now(),
+                    status: 'online'
+                }).catch(err => console.warn('Presence heartbeat failed', err));
+            }
+        };
+
+        // Initial update
+        updatePresence();
+        // Update every 30 seconds
+        AuthManager.presenceHeartbeat = setInterval(updatePresence, 30000);
+
+        // Cleanup on window close
+        window.addEventListener('beforeunload', () => {
+            if (AuthManager.currentUser && typeof firebase !== 'undefined' && firebase.apps.length) {
+                // We use a small trick: navigator.sendBeacon is for analytics, but for Firestore we can't easily wait.
+                // However, deleting the doc might work in many browsers before they close.
+                firebase.firestore().collection('presence').doc(AuthManager.currentUser.id).delete().catch(() => {});
+            }
+        });
+    },
+
+    stopPresenceHeartbeat: () => {
+        if (AuthManager.presenceHeartbeat) {
+            clearInterval(AuthManager.presenceHeartbeat);
+            AuthManager.presenceHeartbeat = null;
+        }
+    },
+
     login: (user) => {
         // Always load fresh user data from store to get updates
         let users = Store.get('users') || [];
@@ -195,15 +235,8 @@ const AuthManager = {
         // Init app modules after login
         if (typeof App !== 'undefined') App.init();
 
-        // Announce online presence to all other clients via Firebase
-        if (typeof firebase !== 'undefined' && firebase.apps.length) {
-            firebase.firestore().collection('presence').doc(freshUser.id).set({
-                name: freshUser.name,
-                userId: freshUser.id,
-                timestamp: Date.now(),
-                status: 'online'
-            }).catch(err => console.warn('Presence sync delayed', err));
-        }
+        // Start heartbeat
+        AuthManager.startPresenceHeartbeat();
 
         // Notify welcome
         NotificationManager.add(`مرحباً بك، ${freshUser.name}! 👋`, 'fa-hand-wave', 'system');
@@ -215,7 +248,8 @@ const AuthManager = {
             Store.log('Logout', AuthManager.currentUser.name);
         }
 
-        // 1. Remove online presence
+        // 1. Stop Heartbeat & Remove online presence
+        AuthManager.stopPresenceHeartbeat();
         if (typeof firebase !== 'undefined' && firebase.apps.length && AuthManager.currentUser) {
             firebase.firestore().collection('presence').doc(AuthManager.currentUser.id).delete().catch(() => {});
         }
@@ -253,6 +287,9 @@ const AuthManager = {
                     AuthManager.updateUserUI();
                     AuthManager.applyRoleUI();
                     if (typeof App !== 'undefined') App.init();
+                    
+                    // Restart heartbeat on session restore
+                    AuthManager.startPresenceHeartbeat();
                 } else {
                     // User was deleted or not found
                     AuthManager.showLoginScreen();
@@ -312,6 +349,21 @@ const AuthManager = {
             AuthManager.currentUser.avatar = freshUser.avatar;
             localStorage.setItem('currentUser', JSON.stringify(AuthManager.currentUser));
         }
+    },
+
+    isUserOnline: (userId) => {
+        if (!userId) return false;
+        if (userId === AuthManager.currentUser?.id) return true;
+        const presence = Store._onlineUsers?.find(p => p.id === userId);
+        if (!presence) return false;
+        // Online if updated within last 60 seconds
+        return (Date.now() - (presence.timestamp || 0)) < 60000;
+    },
+
+    getUserLastSeen: (userId) => {
+        const presence = Store._onlineUsers?.find(p => p.id === userId);
+        if (!presence || !presence.timestamp) return null;
+        return presence.timestamp;
     },
 
     applyRoleUI: () => {
@@ -408,6 +460,127 @@ const AuthManager = {
         } else {
             processUpdate(null);
         }
+    },
+
+    submitExternalSupport: () => {
+        const name = document.getElementById('ext-support-name').value.trim();
+        const email = document.getElementById('ext-support-email').value.trim();
+        const msg = document.getElementById('ext-support-msg').value.trim();
+
+        if (!name || !email || !msg) {
+            AuthManager.showToast('يرجى ملء جميع الحقول.', 'error');
+            return;
+        }
+
+        const ticket = {
+            id: 'tkt_' + Date.now() + Math.random().toString(36).substr(2, 5),
+            userId: 'external',
+            userName: name + ' (خارجي: ' + email + ')',
+            title: 'مشكلة في الدخول / شكوى خارجية',
+            category: 'Technical',
+            status: 'Open',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            messages: [{
+                id: 'smsg_' + Date.now(),
+                senderId: 'external',
+                senderName: name,
+                senderRole: 'عضو خارجي',
+                content: msg,
+                timestamp: new Date().toISOString()
+            }]
+        };
+
+        const tickets = Store.get('support_tickets') || [];
+        tickets.push(ticket);
+        Store.set('support_tickets', tickets);
+        
+        AuthManager.showToast('✅ تم إرسال رسالتك للإدارة بنجاح. سنتواصل معك قريباً.');
+        document.getElementById('ext-support-name').value = '';
+        document.getElementById('ext-support-email').value = '';
+        document.getElementById('ext-support-msg').value = '';
+        document.getElementById('ext-support-modal').classList.add('hidden');
+    },
+
+    checkExternalTicketStatus: () => {
+        const email = document.getElementById('ext-check-email').value.trim().toLowerCase();
+        if (!email) {
+            AuthManager.showToast('يرجى إدخال البريد الإلكتروني.', 'error');
+            return;
+        }
+
+        const tickets = Store.get('support_tickets') || [];
+        // Filter tickets that have "email" in their userName or messages
+        const myTickets = tickets.filter(t => t.userName.toLowerCase().includes(email));
+
+        const list = document.getElementById('ext-ticket-list');
+        if (!list) return;
+
+        if (myTickets.length === 0) {
+            list.innerHTML = `
+                <div style="text-align:center; padding:2rem; color:var(--text-secondary);">
+                    <i class="fas fa-search-minus" style="font-size:2.5rem; opacity:0.4; margin-bottom:1rem; display:block;"></i>
+                    <p>عذراً، لم نجد أي شكاوى مسجلة لهذا البريد الإلكتروني.</p>
+                </div>
+            `;
+            return;
+        }
+
+        list.innerHTML = myTickets.map(t => `
+            <div class="glass-effect" style="padding:1rem; margin-bottom:0.75rem; border-radius:10px;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                    <span style="font-weight:700; color:var(--primary-color);">تذكرة #${t.id.substr(-5)}</span>
+                    <span class="badge" style="background:rgba(16,185,129,0.1); color:#10b981;">${t.status}</span>
+                </div>
+                <div style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:0.75rem;">
+                    آخر تحديث: ${new Date(t.updatedAt).toLocaleString('ar-EG')}
+                </div>
+                <div style="background:rgba(0,0,0,0.2); padding:0.75rem; border-radius:8px; max-height:200px; overflow-y:auto;">
+                    ${t.messages.map(m => `
+                        <div style="margin-bottom:0.75rem; text-align:${m.senderId === 'external' ? 'right' : 'left'}">
+                            <div style="font-size:0.75rem; font-weight:700; color:${m.senderId === 'external' ? 'var(--primary-color)' : '#8b5cf6'}">${m.senderName}</div>
+                            <div style="font-size:0.85rem; background:${m.senderId === 'external' ? 'rgba(37,99,235,0.1)' : 'rgba(139,92,246,0.1)'}; padding:0.5rem; border-radius:8px; display:inline-block; margin-top:4px;">
+                                ${m.content}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div style="margin-top:1rem; display:flex; gap:8px;">
+                    <input type="text" id="reply-${t.id}" placeholder="اكتب رداً..." style="flex:1; padding:0.5rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:0.85rem;">
+                    <button class="btn btn-primary" style="padding:0.5rem 1rem;" onclick="AuthManager.replyToExternalTicket('${t.id}')">رد</button>
+                </div>
+            </div>
+        `).join('');
+    },
+
+    replyToExternalTicket: (ticketId) => {
+        const input = document.getElementById(`reply-${ticketId}`);
+        const content = input?.value.trim();
+        if (!content) return;
+
+        const tickets = Store.get('support_tickets') || [];
+        const idx = tickets.findIndex(t => t.id === ticketId);
+        if (idx === -1) return;
+
+        const ticket = tickets[idx];
+        const newMsg = {
+            id: 'smsg_' + Date.now(),
+            senderId: 'external',
+            senderName: ticket.userName.split('(')[0].trim(),
+            senderRole: 'عضو خارجي',
+            content: content,
+            timestamp: new Date().toISOString()
+        };
+
+        ticket.messages.push(newMsg);
+        ticket.updatedAt = new Date().toISOString();
+        ticket.status = 'Open'; // Re-open if closed
+
+        tickets[idx] = ticket;
+        Store.set('support_tickets', tickets);
+        
+        AuthManager.checkExternalTicketStatus(); // Refresh view
+        AuthManager.showToast('✅ تم إرسال ردك بنجاح.');
     },
 
     changePassword: () => {

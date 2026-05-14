@@ -85,10 +85,11 @@
                     <label data-original="Password">Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" required>
                 </div>
-                <button class="btn btn-primary w-100" id="btn-login"><i class="fas fa-sign-in-alt"></i> <span
-                        data-original="Login">Login</span></button>
-                <p class="auth-switch"><span data-original="New here?">New here?</span> <a href="#"
-                        id="switch-to-register" data-original="Create an account">Create an account</a></p>
+                <button class="btn btn-primary w-100" id="btn-login" style="margin-top:0.5rem;"><i class="fas fa-sign-in-alt"></i> <span data-original="Login">دخول</span></button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-size:0.75rem;">
+                    <p class="auth-switch" style="margin:0;"><a href="#" id="switch-to-register" data-original="Create an account">جديد هنا؟ أنشئ حساباً جديداً</a></p>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:underline;" onclick="document.getElementById('ext-support-modal').classList.remove('hidden'); return false;"><i class="fas fa-headset"></i> مشكلة في الدخول؟ تواصل مع الدعم</a>
+                </div>
             </div>
 
             <div id="register-form" class="auth-form hidden">
@@ -115,10 +116,57 @@
                             style="color:var(--danger)">*</span></label>
                     <input type="password" id="reg-password" placeholder="••••••••" required>
                 </div>
-                <button class="btn btn-primary w-100" id="btn-register"><i class="fas fa-user-plus"></i> <span
-                        data-original="Create Account">Create Account</span></button>
-                <p class="auth-switch"><span data-original="Already have an account?">Already have an account?</span> <a
-                        href="#" id="switch-to-login" data-original="Login here">Login here</a></p>
+                <button class="btn btn-primary w-100" id="btn-register" style="margin-top:0.5rem;"><i class="fas fa-user-plus"></i> <span data-original="Create Account">إنشاء حساب</span></button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.75rem; font-size:0.75rem;">
+                    <p class="auth-switch" style="margin:0;"><a href="#" id="switch-to-login" data-original="Login here">لديك حساب بالفعل؟ سجل دخولك هنا</a></p>
+                    <a href="#" style="color:var(--text-secondary); text-decoration:underline;" onclick="document.getElementById('ext-support-modal').classList.remove('hidden'); return false;"><i class="fas fa-headset"></i> تواصل مع الدعم الفني</a>
+                </div>
+            </div>
+        </div>
+        
+
+
+        <div id="ext-support-modal" class="modal hidden">
+            <div class="modal-content glass-effect" style="max-width: 400px; max-height: 95vh; padding: 1.25rem; text-align: right;" dir="rtl">
+                <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;"><i class="fas fa-headset" style="color:var(--primary-color);"></i> تواصل مع الدعم الفني</h2>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem; line-height:1.4;">إذا واجهتك مشكلة في تسجيل الدخول أو الحساب، أرسل رسالة للإدارة.</p>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.3rem;">الاسم</label>
+                    <input type="text" id="ext-support-name" placeholder="أدخل اسمك" required style="padding: 0.6rem 0.8rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.3rem;">البريد الإلكتروني</label>
+                    <input type="email" id="ext-support-email" placeholder="أدخل إيميلك" required style="padding: 0.6rem 0.8rem;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.85rem; margin-bottom: 0.3rem;">تفاصيل المشكلة</label>
+                    <textarea id="ext-support-msg" rows="3" placeholder="اشرح مشكلتك هنا..." required style="padding: 0.6rem 0.8rem;"></textarea>
+                </div>
+                <div style="display:flex;gap:1rem;margin-top:1rem;">
+                    <button class="btn btn-primary" style="flex:1; padding: 0.75rem;" onclick="AuthManager.submitExternalSupport()">إرسال للإدارة</button>
+                    <button class="btn btn-outline" style="flex:1; padding: 0.75rem;" onclick="document.getElementById('ext-support-modal').classList.add('hidden')">إلغاء</button>
+                </div>
+                <div style="text-align:center; margin-top:1rem; border-top:1px solid var(--border-color); padding-top:0.75rem;">
+                    <a href="#" style="color:var(--primary-color); font-size:0.75rem; font-weight:600;" onclick="document.getElementById('ext-support-modal').classList.add('hidden'); document.getElementById('ext-tickets-modal').classList.remove('hidden'); return false;">متابعة حالة شكوى سابقة؟</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- External Tickets Status Modal -->
+        <div id="ext-tickets-modal" class="modal hidden">
+            <div class="modal-content glass-effect" style="max-width: 500px; max-height: 95vh; padding: 1.25rem; text-align: right;" dir="rtl">
+                <h2 style="font-size: 1.35rem; margin-bottom: 0.5rem;"><i class="fas fa-search" style="color:var(--primary-color);"></i> متابعة حالة الشكوى</h2>
+                <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:1rem;">أدخل بريدك الإلكتروني الذي استخدمته لتقديم الشكوى لمشاهدة رد الإدارة.</p>
+                <div style="display:flex; gap:0.5rem; margin-bottom:1rem;">
+                    <input type="email" id="ext-check-email" placeholder="أدخل إيميلك هنا..." style="flex:1; padding:0.6rem 0.8rem; border-radius:8px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); font-size:0.9rem;">
+                    <button class="btn btn-primary" style="padding: 0.6rem 1.2rem;" onclick="AuthManager.checkExternalTicketStatus()"><i class="fas fa-search"></i> بحث</button>
+                </div>
+                <div id="ext-ticket-list" style="max-height:400px; overflow-y:auto; margin-bottom:1rem;">
+                    <!-- Tickets will appear here -->
+                </div>
+                <div style="text-align:center;">
+                    <button class="btn btn-outline" onclick="document.getElementById('ext-tickets-modal').classList.add('hidden')">إغلاق</button>
+                </div>
             </div>
         </div>
     </div>
@@ -441,29 +489,29 @@
                                 </button>
                             </div>
 
+
                             <!-- Messages Area -->
                             <div id="chat-messages" class="chat-messages-area">
-                                <div id="chat-empty-state"
-                                    style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-secondary); gap:2rem; padding:2rem; text-align:center;">
-                                    <div style="position:relative;">
-                                        <div
-                                            style="width:120px; height:120px; border-radius:35px; background:linear-gradient(135deg, var(--bg-secondary), var(--bg-primary)); display:flex; align-items:center; justify-content:center; box-shadow:0 20px 40px rgba(0,0,0,0.1); border:1px solid var(--border-color); animation: pulse 3s infinite ease-in-out;">
-                                            <i class="fas fa-comments"
-                                                style="font-size:4rem; background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 10px 15px rgba(37,99,235,0.2)); transition: transform 0.3s ease;"></i>
-                                        </div>
-                                        <div
-                                            style="position:absolute; bottom:-10px; right:-10px; width:40px; height:40px; border-radius:12px; background:var(--success); color:white; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 16px rgba(16,185,129,0.3); border:3px solid var(--bg-primary);">
+                                <!-- State 1: Empty (No Selection) -->
+                                <div id="chat-empty-state">
+                                    <div class="empty-state-icon-box">
+                                        <i class="fas fa-comments"
+                                            style="font-size:3.5rem; color:var(--primary-color);"></i>
+                                        <div class="empty-state-check">
                                             <i class="fas fa-check" style="font-size:1.2rem;"></i>
                                         </div>
                                     </div>
-                                    <div style="max-width:320px;">
+                                    <div style="max-width:400px;">
                                         <h3
-                                            style="font-size:1.5rem; font-weight:800; color:var(--text-primary); margin-bottom:0.75rem;">
+                                            style="font-size:1.6rem; font-weight:800; color:var(--text-primary); margin-bottom:0.8rem;">
                                             ابدأ التواصل الآن</h3>
-                                        <p style="font-size:0.95rem; line-height:1.6; opacity:0.7;">اختر زميلاً من
-                                            القائمة الجانبية أو انضم لمجموعة عمل لبدء المحادثة في بيئة آمنة ومشفرة.</p>
+                                        <p style="font-size:0.95rem; line-height:1.6; opacity:0.8;">
+                                            اختر زميلاً من القائمة الجانبية لبدء محادثة فورية، أو قم بإنشاء مجموعة عمل
+                                            جديدة لتنسيق المهام مع الفريق.
+                                        </p>
                                     </div>
                                 </div>
+
                             </div>
 
                             <!-- Typing Indicator -->
@@ -814,8 +862,6 @@
                             <p class="subtitle" data-original="Full control over users, accounts, and platform data">
                                 Full control over users, accounts, and platform data</p>
                         </div>
-                        <button class="btn btn-primary" onclick="AdminPanel.refresh()"><i class="fas fa-sync"></i>
-                            Refresh</button>
                     </div>
 
                     <!-- Stats Row -->
@@ -1093,13 +1139,15 @@
                 <section id="wiki" class="view-section">
                     <div class="section-header">
                         <h1 data-original="Knowledge Base">Knowledge Base</h1>
-                        <button class="btn btn-primary admin-only" id="btn-add-wiki"><i class="fas fa-plus"></i> <span
-                                data-original="Publish Article">Publish Article</span></button>
+                        <button class="btn btn-primary admin-only" id="btn-add-wiki">
+                            <i class="fas fa-plus"></i> 
+                            <span class="mobile-hide" data-original="Publish Article">نشر مقال</span>
+                        </button>
                     </div>
                     <div class="wiki-container">
                         <aside class="wiki-sidebar">
-                            <h3 style="margin-bottom:1rem;" data-original="Categories">Categories</h3>
-                            <ul id="wiki-categories" style="list-style:none;"></ul>
+                            <h3 class="mobile-hide" style="margin-bottom:1rem;" data-original="Categories">التصنيفات</h3>
+                            <ul id="wiki-categories" class="wiki-cat-list" style="list-style:none;"></ul>
                         </aside>
 
                         <div class="wiki-content-area">
@@ -1715,6 +1763,42 @@
     <!-- Mobile Bottom Navigation -->
     <!-- Bottom Nav Removed -->
 
+    <!-- Global Confirm Modal -->
+    <div id="global-confirm-modal" class="modal hidden" style="z-index: 10000;">
+        <div class="modal-content glass-effect" style="max-width: 400px; text-align: center; padding: 2rem;">
+            <div id="confirm-icon" style="font-size: 3.5rem; color: var(--danger); margin-bottom: 1.5rem;">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h3 id="confirm-title" style="margin-bottom: 1rem; font-size: 1.25rem;">تأكيد الإجراء</h3>
+            <p id="confirm-msg" style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.5;"></p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="confirm-yes" class="btn btn-primary" style="background: var(--danger-gradient); flex: 1;">تأكيد</button>
+                <button id="confirm-no" class="btn btn-outline" style="flex: 1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
+    <!-- Global Alert Modal -->
+    <div id="global-alert-modal" class="modal hidden" style="z-index: 10001;">
+        <div class="modal-content glass-effect" style="max-width: 350px; text-align: center; padding: 1.5rem;">
+            <div style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 1rem;">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <p id="alert-msg" style="margin-bottom: 1.5rem; line-height: 1.5;"></p>
+            <button onclick="document.getElementById('global-alert-modal').classList.add('hidden')" class="btn btn-primary" style="width: 100%;">حسناً</button>
+        </div>
+    </div>
+
+    <!-- Global Prompt Modal -->
+    <div id="global-prompt-modal" class="modal hidden" style="z-index: 10002;">
+        <div class="modal-content glass-effect" style="max-width: 400px; padding: 1.5rem; text-align: right;" dir="rtl">
+            <h3 id="prompt-title" style="margin-bottom: 1rem; font-size: 1.15rem;">تعديل</h3>
+            <input type="text" id="prompt-input" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); margin-bottom: 1.5rem; font-size: 0.9rem;">
+            <div style="display: flex; gap: 1rem;">
+                <button id="prompt-yes" class="btn btn-primary" style="flex: 1;">حفظ</button>
+                <button id="prompt-no" class="btn btn-outline" style="flex: 1;">إلغاء</button>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
