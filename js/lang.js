@@ -32,6 +32,7 @@ const Translations = {
 
     // Auth
     'Al-Raed Platform':   'منصة الرائد',
+    'Al-Raed':            'منصة الرائد',
     'Login':              'تسجيل الدخول',
     'Email Address':      'البريد الإلكتروني',
     'Password':           'كلمة المرور',
