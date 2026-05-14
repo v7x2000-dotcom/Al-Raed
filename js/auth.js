@@ -135,7 +135,7 @@ const AuthManager = {
 
         const banned = Store.get('bannedEmails') || [];
         if (banned.includes(email)) {
-            errEl.textContent = 'This email has been permanently banned from the platform.';
+            errEl.textContent = 'هذا البريد الإلكتروني محظور نهائياً من المنصة.';
             errEl.classList.remove('hidden');
             return;
         }
@@ -341,16 +341,16 @@ const AuthManager = {
         const email = document.getElementById('setting-email')?.value.trim();
         const fileInput = document.getElementById('setting-avatar-file');
 
-        if (!name) { AuthManager.showToast('Name cannot be empty.', 'error'); return; }
+        if (!name) { AuthManager.showToast('لا يمكن ترك الاسم فارغاً.', 'error'); return; }
         if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-            AuthManager.showToast('Invalid email address.', 'error'); return;
+            AuthManager.showToast('بريد إلكتروني غير صالح.', 'error'); return;
         }
 
         // Check email uniqueness if changed
         if (email && email !== AuthManager.currentUser.email) {
             const users = Store.get('users') || [];
             if (users.find(u => u.email === email && u.id !== AuthManager.currentUser.id)) {
-                AuthManager.showToast('This email is already in use.', 'error'); return;
+                AuthManager.showToast('هذا البريد مستخدم بالفعل.', 'error'); return;
             }
         }
 
@@ -383,7 +383,7 @@ const AuthManager = {
                 if (typeof TeamManager !== 'undefined') TeamManager.render();
                 if (typeof ChatManager !== 'undefined') ChatManager.render();
                 Store.log('Profile Updated', name);
-                AuthManager.showToast('✅ Profile updated successfully!');
+                AuthManager.showToast('✅ تم تحديث الملف الشخصي بنجاح!');
             }
         };
 
@@ -415,13 +415,13 @@ const AuthManager = {
         const newP = document.getElementById('setting-new-pass').value;
         const confirm = document.getElementById('setting-confirm-pass')?.value;
 
-        if (!curr || !newP) { alert('Please fill both password fields.'); return; }
-        if (confirm && newP !== confirm) { alert('New passwords do not match.'); return; }
+        if (!curr || !newP) { alert('يرجى ملء جميع حقول كلمة المرور.'); return; }
+        if (confirm && newP !== confirm) { alert('كلمات المرور الجديدة غير متطابقة.'); return; }
 
         let users = Store.get('users') || [];
         const idx = users.findIndex(u => u.id === AuthManager.currentUser.id);
         if (idx > -1) {
-            if (users[idx].password !== curr) { alert('Current password is incorrect.'); return; }
+            if (users[idx].password !== curr) { alert('كلمة المرور الحالية غير صحيحة.'); return; }
             users[idx].password = newP;
             Store.set('users', users);
             AuthManager.currentUser.password = newP;
@@ -430,7 +430,7 @@ const AuthManager = {
             document.getElementById('setting-new-pass').value = '';
             if (document.getElementById('setting-confirm-pass')) document.getElementById('setting-confirm-pass').value = '';
             Store.log('Password Changed', AuthManager.currentUser.name);
-            AuthManager.showToast('✅ Password changed successfully!');
+            AuthManager.showToast('✅ تم تغيير كلمة المرور بنجاح!');
         }
     },
 

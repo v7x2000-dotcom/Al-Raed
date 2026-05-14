@@ -481,7 +481,13 @@ const Translations = {
     'Based on recent activity and current workload': 'استناداً إلى النشاط الأخير وحجم العمل الحالي',
 
     // Company Feed
+    'Company Feed': 'أخبار الشركة',
     'Stay updated with company news': 'ابقَ على اطلاع بآخر أخبار الشركة',
+    'No news yet': 'لا توجد أخبار بعد',
+    'Write your news here...': 'اكتب خبرك هنا...',
+    'Post published successfully': 'تم نشر الخبر بنجاح',
+    'Delete this post?': 'حذف هذا الخبر؟',
+    'Post deleted': 'تم حذف الخبر',
     'Create Post': 'نشر خبر',
     'Post Content': 'محتوى الخبر',
     'Post News': 'نشر الخبر',
@@ -507,14 +513,21 @@ const Translations = {
     'Add Option': 'إضافة اختيار',
     'Create Poll': 'بدء التصويت',
     'Vote': 'تصويت',
-    'Total Votes': 'إجمالي الأصوات'
+    'Total Votes': 'إجمالي الأصوات',
+    'No active polls': 'لا توجد تصويتات نشطة',
+    'Poll started': 'بدأ التصويت',
+    'Options': 'الخيارات',
 };
 
 const LangManager = {
-    currentLang: localStorage.getItem('al_raed_lang') || 'en',
+    currentLang: localStorage.getItem('al_raed_lang') || 'ar',
 
     init: () => {
-        const savedLang = localStorage.getItem('al_raed_lang') || 'en';
+        // Force Arabic as default
+        if (!localStorage.getItem('al_raed_lang')) {
+            localStorage.setItem('al_raed_lang', 'ar');
+        }
+        const savedLang = localStorage.getItem('al_raed_lang') || 'ar';
         LangManager.currentLang = savedLang;
 
         // Bind toggle button
