@@ -1,0 +1,23 @@
+{
+  "name": "الرائد - المساعد الشخصي",
+  "short_name": "الرائد",
+  "description": "منصة الرائد المتكاملة لإدارة الأعمال والمهام",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=R&background=2563eb&color=fff&size=192&bold=true",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=R&background=2563eb&color=fff&size=512&bold=true",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
