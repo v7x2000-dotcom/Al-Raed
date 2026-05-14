@@ -29,9 +29,13 @@ const NotificationManager = {
             }
         });
 
-        // Mark all as read
         document.getElementById('mark-all-read')?.addEventListener('click', () => {
             NotificationManager.markAllAsRead();
+        });
+
+        // Clear all
+        document.getElementById('clear-all-notifs')?.addEventListener('click', () => {
+            NotificationManager.clearAll();
         });
 
         // Listen for store updates
@@ -228,6 +232,16 @@ const NotificationManager = {
             Store.set('notifications', all);
             NotificationManager.loadNotifications();
         }
+    },
+
+    clearAll: () => {
+        if (!confirm(LangManager.t('Are you sure you want to clear all notifications?'))) return;
+        const me = AuthManager?.currentUser;
+        if (!me) return;
+        const all = Store.get('notifications') || {};
+        all[me.id] = [];
+        Store.set('notifications', all);
+        NotificationManager.loadNotifications();
     }
 };
 

@@ -261,12 +261,12 @@ const App = {
 
         const closeSidebar = () => {
             sidebar.classList.remove('open');
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) overlay.classList.remove('active');
         };
 
         toggle?.addEventListener('click', () => {
             const isOpen = sidebar.classList.toggle('open');
-            if (overlay) overlay.style.display = isOpen ? 'block' : 'none';
+            if (overlay) overlay.classList.toggle('active', isOpen);
         });
 
         if (overlay) overlay.addEventListener('click', closeSidebar);

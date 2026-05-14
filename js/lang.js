@@ -518,6 +518,12 @@ const Translations = {
     'No active polls': 'لا توجد تصويتات نشطة',
     'Poll started': 'بدأ التصويت',
     'Options': 'الخيارات',
+    'Delete for me': 'حذف لدي',
+    'Delete for everyone': 'حذف لدى الجميع',
+    'You deleted this message': 'لقد قمت بحذف هذه الرسالة',
+    'This message was deleted': 'تم حذف هذه الرسالة',
+    'Delete message?': 'حذف الرسالة؟',
+    'Are you sure you want to delete this message?': 'هل أنت متأكد من حذف هذه الرسالة؟',
 };
 
 const LangManager = {

@@ -358,12 +358,25 @@ const ChatManager = {
     getMessages: () => {
         const me = AuthManager.currentUser;
         if (!me || !ChatManager.currentReceiverId) return [];
+        
+        const convKey = ChatManager.currentType === 'private'
+            ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+            : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+            
+        const deletedIds = JSON.parse(localStorage.getItem('chat_deleted_' + convKey) || '[]');
+        
+        let msgs = [];
         if (ChatManager.currentType === 'private') {
-            if (ChatManager._isSelfChat) return JSON.parse(localStorage.getItem(ChatManager._getSelfKey(me))||'[]');
-            const key = ChatManager._getPrivateKey(me, ChatManager.currentReceiverId);
-            return Store.get(key) || JSON.parse(localStorage.getItem(key)||'[]');
+            if (ChatManager._isSelfChat) msgs = JSON.parse(localStorage.getItem(ChatManager._getSelfKey(me))||'[]');
+            else {
+                const key = ChatManager._getPrivateKey(me, ChatManager.currentReceiverId);
+                msgs = Store.get(key) || JSON.parse(localStorage.getItem(key)||'[]');
+            }
+        } else {
+            msgs = Store.get(ChatManager._getRoomKey(ChatManager.currentReceiverId)) || [];
         }
-        return Store.get(ChatManager._getRoomKey(ChatManager.currentReceiverId)) || [];
+        
+        return msgs.filter(m => !deletedIds.includes(m.id));
     },
 
     renderMessages: () => {
@@ -411,16 +424,23 @@ const ChatManager = {
                 }
             }
 
+            let contentHtml = `<div class="msg-text">${msg.content || ''}</div>`;
+            if (msg.isDeletedForEveryone) {
+                attachmentHtml = '';
+                const deletedText = isMe ? LangManager.t('You deleted this message') : LangManager.t('This message was deleted');
+                contentHtml = `<div class="msg-text" style="font-style:italic;opacity:0.6;display:flex;align-items:center;gap:6px;"><i class="fas fa-ban" style="font-size:0.7rem;"></i> ${deletedText}</div>`;
+            }
+
             div.innerHTML = `
                 <img src="${msg.senderAvatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.senderName)}" loading="lazy" class="msg-avatar">
                 <div class="msg-bubble-container">
                     ${!isMe && ChatManager.currentType !== 'private' ? `<div style="font-size:0.7rem;opacity:0.7;margin-bottom:4px;font-weight:700;">${msg.senderName}</div>` : ''}
                     <div class="msg-bubble" onclick="ChatManager.showMsgMenu(event, '${msg.id}', ${isMe})">
                         ${attachmentHtml}
-                        <div class="msg-text">${msg.content || ''}</div>
+                        ${contentHtml}
                         <div class="msg-meta">
                             <span class="msg-time">${time}</span>
-                            ${isMe ? checkmarks : ''}
+                            ${isMe && !msg.isDeletedForEveryone ? checkmarks : ''}
                         </div>
                     </div>
                 </div>
@@ -949,28 +969,103 @@ const ChatManager = {
 
     deleteConversation: () => {
         if (!ChatManager.currentReceiverId) return;
-        if (!confirm(LangManager.t('Are you sure you want to delete this conversation?'))) return;
-
         const me = AuthManager.currentUser;
-        if (ChatManager.currentType === 'private') {
-            const key = ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId);
-            localStorage.removeItem(key);
-        } else {
-            Store.set(ChatManager._getRoomKey(ChatManager.currentReceiverId), []);
+        if (!me) return;
+
+        const isPrivate = ChatManager.currentType === 'private';
+        const isGroup = ChatManager.currentType === 'group' || ChatManager.currentType === 'broadcast';
+        
+        // Find room if group
+        let room = null;
+        if (isGroup) {
+            room = (Store.get('chat_rooms') || []).find(r => r.id === ChatManager.currentReceiverId);
         }
 
-        ChatManager.renderMessages();
-        NotificationManager.add(LangManager.t('Delete Conversation'), 'fa-trash', 'chat');
+        const isAdmin = isGroup && room && (room.admins || [room.createdBy]).includes(me.id);
+
+        // Show Modal for choices
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.zIndex = '10100';
+        modal.innerHTML = `
+            <div class="modal-content glass-effect" style="max-width:380px; text-align:center; padding:2rem;">
+                <div style="width:60px; height:60px; border-radius:50%; background:rgba(239,68,68,0.1); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:1.5rem;">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <h3 style="margin-bottom:0.5rem;">${LangManager.t('حذف المحادثة')}</h3>
+                <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:2rem;">
+                    ${isPrivate ? 'هل تريد مسح هذه المحادثة من جهازك؟' : 'اختر نوع الحذف المفضل لهذه المجموعة'}
+                </p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button class="btn btn-primary" id="btn-del-me" style="width:100%; justify-content:center; background:rgba(37,99,235,0.1); color:var(--primary-color); border:1px solid var(--primary-color);">
+                        <i class="fas fa-user"></i> ${LangManager.t('Delete for me')}
+                    </button>
+                    ${(isPrivate || isAdmin) ? `
+                    <button class="btn btn-primary" id="btn-del-all" style="width:100%; justify-content:center; background:var(--danger); border-color:var(--danger); color:#fff;">
+                        <i class="fas fa-users"></i> ${LangManager.t('Delete for everyone')}
+                    </button>
+                    ` : ''}
+                    <button class="btn btn-secondary cancel-modal" style="width:100%; justify-content:center;">${LangManager.t('Cancel')}</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.querySelector('#btn-del-me').onclick = () => {
+            const convKey = isPrivate
+                ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+                : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+            
+            // For "Delete for me" (Conversation), we add all current IDs to the deleted list
+            const currentMsgs = ChatManager.getMessages();
+            const deletedKey = 'chat_deleted_' + convKey;
+            const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+            currentMsgs.forEach(m => {
+                if (!deletedIds.includes(m.id)) deletedIds.push(m.id);
+            });
+            localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+            
+            ChatManager.renderMessages();
+            NotificationManager.add('تم مسح المحادثة من جهازك بنجاح', 'fa-check-circle', 'info');
+            modal.remove();
+        };
+
+        if (modal.querySelector('#btn-del-all')) {
+            modal.querySelector('#btn-del-all').onclick = () => {
+                if (!confirm('هل أنت متأكد من حذف هذه المحادثة لدى جميع الأطراف؟ لا يمكن التراجع عن هذا الإجراء.')) return;
+                
+                const convKey = isPrivate
+                    ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+                    : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+
+                if (isPrivate) {
+                    // Wiping private chat for everyone (if I'm the one who started it or just allowed in this platform)
+                    Store.set(convKey, []);
+                } else {
+                    // Group clear
+                    Store.set(convKey, []);
+                }
+
+                ChatManager.renderMessages();
+                NotificationManager.add('تم حذف المحادثة لدى الجميع بنجاح', 'fa-trash', 'success');
+                modal.remove();
+            };
+        }
+
+        modal.querySelector('.cancel-modal').onclick = () => modal.remove();
     },
 
     
     // ─── Message Context Menu & Actions ─────────────────────────
     showMsgMenu: (e, msgId, isMe) => {
+        const { msg } = ChatManager._getMsgAndKey(msgId);
+        if (!msg) return;
+
         document.querySelectorAll('.chat-msg-menu').forEach(m => m.remove());
         
         let top = e.clientY;
         let left = e.clientX;
-        const menuHeight = 180; // Estimated max height
+        const menuHeight = 220;
         if (top + menuHeight > window.innerHeight) {
             top = window.innerHeight - menuHeight - 10;
         }
@@ -987,7 +1082,7 @@ const ChatManager = {
 
         const createBtn = (icon, text, color, onclick) => {
             const btn = document.createElement('button');
-            btn.innerHTML = `<i class="fas ${icon}" style="width:20px;"></i> ${text}`;
+            btn.innerHTML = `<i class="fas ${icon}" style="width:20px;"></i> ${LangManager.t(text)}`;
             btn.style.cssText = `
                 background: transparent; border: none; color: ${color}; text-align: right;
                 padding: 0.5rem 0.75rem; border-radius: 4px; cursor: pointer; font-size: 0.85rem;
@@ -999,15 +1094,20 @@ const ChatManager = {
             return btn;
         };
 
-        menu.appendChild(createBtn('fa-copy', 'نسخ النص', 'var(--text-primary)', () => ChatManager.copyMessage(msgId)));
-        menu.appendChild(createBtn('fa-share', 'توجيه الرسالة', 'var(--primary-color)', () => ChatManager.forwardMessage(msgId)));
+        if (msg.isDeletedForEveryone) {
+            menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
+        } else {
+            menu.appendChild(createBtn('fa-copy', 'نسخ النص', 'var(--text-primary)', () => ChatManager.copyMessage(msgId)));
+            menu.appendChild(createBtn('fa-share', 'توجيه الرسالة', 'var(--primary-color)', () => ChatManager.forwardMessage(msgId)));
 
-        if (isMe) {
-            menu.appendChild(createBtn('fa-pen', 'تعديل الرسالة', 'var(--warning)', () => ChatManager.editMessage(msgId)));
+            if (isMe) {
+                menu.appendChild(createBtn('fa-pen', 'تعديل الرسالة', 'var(--warning)', () => ChatManager.editMessage(msgId)));
+                menu.appendChild(createBtn('fa-trash-alt', 'حذف لدى الجميع', 'var(--danger)', () => ChatManager.deleteMessageForEveryone(msgId)));
+                menu.appendChild(createBtn('fa-user-slash', 'حذف للكل ولدي', 'var(--danger)', () => ChatManager.deleteMessageForBoth(msgId)));
+            }
+            
+            menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
         }
-        
-        // Deleting is available for all messages in the local chat view
-        menu.appendChild(createBtn('fa-trash', 'حذف الرسالة', 'var(--danger)', () => ChatManager.deleteMessage(msgId)));
 
         document.body.appendChild(menu);
 
@@ -1027,7 +1127,7 @@ const ChatManager = {
             ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
             : ChatManager._getRoomKey(ChatManager.currentReceiverId);
         
-        const msgs = JSON.parse(localStorage.getItem(key) || '[]');
+        const msgs = Store.get(key) || JSON.parse(localStorage.getItem(key) || '[]');
         const msg = msgs.find(m => m.id === msgId);
         return { msg, msgs, key };
     },
@@ -1036,16 +1136,66 @@ const ChatManager = {
         const { msg } = ChatManager._getMsgAndKey(msgId);
         if (msg && msg.content) {
             navigator.clipboard.writeText(msg.content);
-            NotificationManager.add('تم نسخ الرسالة بنجاح', 'fa-copy', 'system');
+            NotificationManager.add(LangManager.t('تم نسخ الرسالة بنجاح'), 'fa-copy', 'system');
         }
     },
 
-    deleteMessage: (msgId) => {
-        if (!confirm('هل أنت متأكد من حذف هذه الرسالة من المحادثة؟')) return;
-        const { msgs, key } = ChatManager._getMsgAndKey(msgId);
-        const newMsgs = msgs.filter(m => m.id !== msgId);
-        ChatManager._updateFirebaseMessages(key, newMsgs);
+    deleteMessageForMe: (msgId) => {
+        if (!confirm(LangManager.t('Are you sure you want to delete this message?'))) return;
+        const me = AuthManager.currentUser;
+        const convKey = ChatManager.currentType === 'private'
+            ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+            : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+            
+        const deletedKey = 'chat_deleted_' + convKey;
+        const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+        if (!deletedIds.includes(msgId)) {
+            deletedIds.push(msgId);
+            localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+        }
         ChatManager.renderMessages();
+    },
+
+    deleteMessageForEveryone: (msgId) => {
+        if (!confirm(LangManager.t('Are you sure you want to delete this message?'))) return;
+        const { msgs, key } = ChatManager._getMsgAndKey(msgId);
+        const msg = msgs.find(m => m.id === msgId);
+        if (msg) {
+            msg.isDeletedForEveryone = true;
+            msg.content = '';
+            msg.attachment = null;
+            ChatManager._updateFirebaseMessages(key, msgs);
+            ChatManager.renderMessages();
+        }
+    },
+
+    deleteMessageForBoth: (msgId) => {
+        if (!confirm(LangManager.t('Are you sure you want to delete this message for everyone and yourself?'))) return;
+        const { msgs, key } = ChatManager._getMsgAndKey(msgId);
+        const msg = msgs.find(m => m.id === msgId);
+        if (msg) {
+            // Delete for everyone (global)
+            msg.isDeletedForEveryone = true;
+            msg.content = '';
+            msg.attachment = null;
+            ChatManager._updateFirebaseMessages(key, msgs);
+
+            // Delete for me (local hide)
+            const me = AuthManager.currentUser;
+            const convKey = ChatManager.currentType === 'private'
+                ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
+                : ChatManager._getRoomKey(ChatManager.currentReceiverId);
+                
+            const deletedKey = 'chat_deleted_' + convKey;
+            const deletedIds = JSON.parse(localStorage.getItem(deletedKey) || '[]');
+            if (!deletedIds.includes(msgId)) {
+                deletedIds.push(msgId);
+                localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
+            }
+
+            ChatManager.renderMessages();
+            NotificationManager.add('تم الحذف لدى الجميع وليدك', 'fa-check-circle', 'success');
+        }
     },
 
     editMessage: (msgId) => {

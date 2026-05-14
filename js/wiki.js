@@ -8,10 +8,20 @@ const WikiManager = {
     init: () => {
         WikiManager.load();
         const btnAdd = document.getElementById('btn-add-wiki');
-        if (btnAdd) btnAdd.onclick = () => WikiManager.openModal();
-        
+        if (btnAdd) {
+            btnAdd.addEventListener('click', () => {
+                console.log('Wiki: Open Modal clicked');
+                WikiManager.openModal();
+            });
+        }
+
         const btnSave = document.getElementById('save-wiki');
-        if (btnSave) btnSave.onclick = () => WikiManager.saveArticle();
+        if (btnSave) {
+            btnSave.addEventListener('click', () => {
+                console.log('Wiki: Save Article clicked');
+                WikiManager.saveArticle();
+            });
+        }
     },
 
     load: () => {
