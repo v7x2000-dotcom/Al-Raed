@@ -102,7 +102,7 @@ const AdminPanel = {
             let team = Store.get('team') || [];
             const tidx = team.findIndex(t => t.id === userId);
             if (tidx > -1) { team[tidx].role = newRole; Store.set('team', team); }
-            Store.log('Admin: Role Changed', `${users[idx].name} → ${newRole}`);
+            Store.log('المسؤول: تغيير الرتبة', `${users[idx].name} ← ${newRole}`);
             AuthManager.showToast(`✅ Role updated to ${newRole}`);
             AdminPanel.refresh();
         }
@@ -187,7 +187,7 @@ const AdminPanel = {
             users[idx].password = newPass;
             Store.set('users', users);
             document.getElementById('admin-reset-modal').classList.add('hidden');
-            Store.log('Admin: Password Reset', users[idx].name);
+            Store.log('المسؤول: إعادة تعيين كلمة المرور', users[idx].name);
             AuthManager.showToast(`✅ Password reset successfully for ${users[idx].name}`);
         }
     },
@@ -224,7 +224,7 @@ const AdminPanel = {
             Store.set('bannedEmails', banned.filter(e => e !== user.email));
         }
 
-        Store.log('Admin: User Deleted', user.name);
+        Store.log('المسؤول: حذف مستخدم', user.name);
         AuthManager.showToast(typeof LangManager !== 'undefined' ? `✅ تم حذف المستخدم "${user.name}" بنجاح.` : `✅ User "${user.name}" deleted.`);
         
         AdminPanel.refresh();
@@ -259,7 +259,7 @@ const AdminPanel = {
         let team = Store.get('team') || [];
         Store.set('team', team.filter(t => t.id !== userId));
         
-        Store.log('Admin: User Banned', user.email);
+        Store.log('المسؤول: حظر مستخدم', user.email);
         AuthManager.showToast(typeof LangManager !== 'undefined' ? `🚫 تم حظر البريد "${user.email}" نهائياً.` : `🚫 Email "${user.email}" has been permanently banned.`);
         AdminPanel.refresh();
         if (typeof TeamManager !== 'undefined') TeamManager.render();

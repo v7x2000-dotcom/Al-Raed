@@ -376,6 +376,8 @@ const App = {
                 'Created Task': 'fa-plus-circle', 'Deleted Task': 'fa-trash',
                 'Updated Task': 'fa-edit', 'Added Team Member': 'fa-user-plus',
                 'Removed Team Member': 'fa-user-minus', 'Role Changed': 'fa-shield-alt',
+                'المسؤول: تغيير الرتبة': 'fa-shield-alt', 'المسؤول: حذف مستخدم': 'fa-trash',
+                'المسؤول: حظر مستخدم': 'fa-ban', 'المسؤول: إعادة تعيين كلمة المرور': 'fa-key',
                 'Profile Updated': 'fa-user-edit', 'User Registered': 'fa-user-check',
                 'Password Changed': 'fa-key', 'Sent group message': 'fa-comment',
                 'Created Calendar Event': 'fa-calendar-plus',
@@ -390,6 +392,10 @@ const App = {
                 'Added Team Member': isAr ? 'أضاف عضواً جديداً' : 'added a team member',
                 'Removed Team Member': isAr ? 'حذف عضواً من الفريق' : 'removed a team member',
                 'Role Changed': isAr ? 'غير الرتبة' : 'changed role',
+                'المسؤول: تغيير الرتبة': isAr ? 'تغيير الرتبة' : 'changed role',
+                'المسؤول: حذف مستخدم': isAr ? 'حذف مستخدم' : 'deleted user',
+                'المسؤول: حظر مستخدم': isAr ? 'حظر مستخدم' : 'banned user',
+                'المسؤول: إعادة تعيين كلمة المرور': isAr ? 'أعاد تعيين كلمة السر' : 'reset password',
                 'Profile Updated': isAr ? 'حدث الملف الشخصي' : 'updated profile',
                 'User Registered': isAr ? 'سجل حساباً جديداً' : 'registered a new account',
                 'Sent group message': isAr ? 'أرسل رسالة جماعية' : 'sent a group message',
@@ -402,6 +408,8 @@ const App = {
             const colorMap = {
                 'Created Task': '#3b82f6', 'Deleted Task': '#ef4444',
                 'Added Team Member': '#10b981', 'Role Changed': '#8b5cf6',
+                'المسؤول: تغيير الرتبة': '#8b5cf6', 'المسؤول: حذف مستخدم': '#ef4444',
+                'المسؤول: حظر مستخدم': '#f43f5e',
                 'Sent group message': '#6366f1'
             };
 

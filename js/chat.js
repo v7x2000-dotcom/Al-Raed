@@ -249,7 +249,7 @@ const ChatManager = {
         const selfKey = ChatManager._getSelfKey(me);
         const selfMsgs = JSON.parse(localStorage.getItem(selfKey) || '[]');
         const selfLast = selfMsgs[selfMsgs.length - 1];
-        selfDiv.innerHTML = `<div style="position:relative;flex-shrink:0;"><img src="${me.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(me.name)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);"><span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid var(--bg-primary);"></span></div><div style="flex:1;overflow:hidden;"><div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">📌 رسائلي المحفوظة</div><div style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${selfLast?selfLast.content.substring(0,30):'لا توجد رسائل'}</div></div>`;
+        selfDiv.innerHTML = `<div style="position:relative;flex-shrink:0;"><img src="${me.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(me.name)}" style="width:46px;height:46px;border-radius:50%;object-fit:cover;border:2px solid var(--primary-color);"><span style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;background:#22c55e;border-radius:50%;border:2px solid var(--bg-primary);"></span></div><div style="flex:1;overflow:hidden;"><div style="font-weight:700;font-size:0.9rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${me.name} (أنت)</div><div style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${selfLast?selfLast.content.substring(0,30):'لا توجد رسائل'}</div></div>`;
         sidebar.appendChild(selfDiv);
 
         team.forEach(member => {
@@ -302,7 +302,7 @@ const ChatManager = {
         const inputWrapper = document.querySelector('.chat-input-wrapper');
         if (header) { header.style.opacity='1'; header.style.pointerEvents='auto'; header.style.cursor='pointer'; header.onclick = ChatManager.toggleProfileSidebar; }
         if (inputWrapper) { inputWrapper.style.opacity='1'; inputWrapper.style.pointerEvents='auto'; }
-        document.getElementById('chat-active-name').textContent = isSelf ? '📌 رسائلي المحفوظة' : member.name;
+        document.getElementById('chat-active-name').textContent = isSelf ? `${member.name} (أنت)` : member.name;
         const av = document.getElementById('chat-active-avatar');
         if (av) { av.src = member.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(member.name); av.style.display='block'; }
         const statusEl = document.getElementById('chat-active-status');
