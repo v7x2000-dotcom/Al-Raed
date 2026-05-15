@@ -1328,6 +1328,22 @@ input:checked+.slider:before {
     display: none !important;
 }
 
+.permissions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    width: 100%;
+}
+
+@media (max-width: 600px) {
+    .permissions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Calendar */
 .calendar-container {
     padding: 1.5rem;
