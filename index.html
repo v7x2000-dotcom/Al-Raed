@@ -317,19 +317,19 @@
 
                     <!-- Quick Action Center -->
                     <div class="quick-action-bar">
-                        <button class="quick-action-btn" onclick="QuickActions.openTask()">
+                        <button class="quick-action-btn qa-task" onclick="QuickActions.openTask()">
                             <i class="fas fa-plus-circle"></i> <span data-original="New Task">مهمة جديدة</span>
                         </button>
-                        <button class="quick-action-btn" onclick="QuickActions.openProject()">
+                        <button class="quick-action-btn qa-project" onclick="QuickActions.openProject()">
                             <i class="fas fa-project-diagram"></i> <span data-original="New Project">مشروع جديد</span>
                         </button>
-                        <button class="quick-action-btn admin-only expense" onclick="QuickActions.openExpense()">
-                            <i class="fas fa-minus-circle"></i> <span data-original="Add Expense">تسجيل مصروف</span>
+                        <button class="quick-action-btn admin-only qa-expense" onclick="QuickActions.openExpense()">
+                            <i class="fas fa-minus-circle"></i> <span data-original="Add Expense">إضافة مصروف</span>
                         </button>
-                        <button class="quick-action-btn" onclick="QuickActions.openClient()">
+                        <button class="quick-action-btn qa-client" onclick="QuickActions.openClient()">
                             <i class="fas fa-user-plus"></i> <span data-original="New Client">عميل جديد</span>
                         </button>
-                        <button class="quick-action-btn" onclick="QuickActions.openTicket()">
+                        <button class="quick-action-btn qa-support" onclick="QuickActions.openTicket()">
                             <i class="fas fa-headset"></i> <span data-original="Support Ticket">دعم فني</span>
                         </button>
                     </div>
@@ -408,14 +408,16 @@
 
                 <!-- Tasks View -->
                 <section id="tasks" class="view-section">
-                    <div class="header-section flex-between">
-                        <div>
-                            <h1 data-original="Task Management">إدارة المهام</h1>
-                            <p class="subtitle" data-original="Organize and track your team's progress">نظم وتابع تقدمك
-                                ومهام فريقك</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-tasks"></i> إدارة المهام</h1>
+                                <p>نظم وتابع تقدمك ومهام فريقك بفعالية واحترافية</p>
+                            </div>
+                            <button class="btn btn-primary" id="btn-add-task">
+                                <i class="fas fa-plus"></i> مهمة جديدة
+                            </button>
                         </div>
-                        <button class="btn btn-primary" id="btn-add-task"><i class="fas fa-plus"></i> <span
-                                data-original="New Task">مهمة جديدة</span></button>
                     </div>
                     <div class="task-sections-container">
                         <!-- To Do Section -->
@@ -725,11 +727,12 @@
 
                 <!-- Finance Section -->
                 <section id="finance" class="view-section admin-only">
-                    <div class="header-section flex-between">
-                        <div>
-                            <h1><i class="fas fa-wallet" style="color:var(--primary-color)"></i> <span
-                                    data-original="Financial Management">Financial Management</span></h1>
-                            <p class="subtitle" data-original="Manage expenses and debts">Manage expenses and debts</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-wallet"></i> إدارة الشؤون المالية</h1>
+                                <p>متابعة المصروفات، الدخل، والديون والتقارير المالية</p>
+                            </div>
                         </div>
                     </div>
 
@@ -839,22 +842,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="glass-effect"
-                            style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;">
-                            <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
-                                <thead>
-                                    <tr style="border-bottom:2px solid var(--border-color);">
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Date">التاريخ</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Source">المصدر</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Description">الوصف
-                                        </th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Amount">المبلغ</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Actions">إجراءات
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="finance-income-list"></tbody>
-                            </table>
+                        <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr style="border-bottom:2px solid var(--border-color);">
+                                            <th style="padding:1.25rem 1rem;">التاريخ</th>
+                                            <th style="padding:1.25rem 1rem;">المصدر</th>
+                                            <th style="padding:1.25rem 1rem;">الوصف</th>
+                                            <th style="padding:1.25rem 1rem;">المبلغ</th>
+                                            <th style="padding:1.25rem 1rem; text-align:center;">إجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="finance-income-list"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 
@@ -887,34 +889,35 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="glass-effect"
-                            style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;">
-                            <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
-                                <thead>
-                                    <tr style="border-bottom:2px solid var(--border-color);">
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Date">التاريخ</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Debtor/Creditor">
-                                            المدين/الدائن</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Amount">المبلغ</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Due Date">تاريخ
-                                            الاستحقاق</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Status">الحالة</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Actions">الإجراءات
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody id="finance-debts-list"></tbody>
-                            </table>
+                        <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr style="border-bottom:2px solid var(--border-color);">
+                                            <th style="padding:1.25rem 1rem;">التاريخ</th>
+                                            <th style="padding:1.25rem 1rem;">المدين/الدائن</th>
+                                            <th style="padding:1.25rem 1rem;">المبلغ</th>
+                                            <th style="padding:1.25rem 1rem;">تاريخ الاستحقاق</th>
+                                            <th style="padding:1.25rem 1rem;">الحالة</th>
+                                            <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="finance-debts-list"></tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Profile Section -->
                 <section id="profile" class="view-section">
-                    <div class="header-section">
-                        <h1 data-original="My Profile">My Profile</h1>
-                        <p class="subtitle" data-original="Manage your personal information and account settings">Manage
-                            your personal information and account settings</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1 data-original="My Profile">My Profile</h1>
+                                <p data-original="Manage your personal information and account settings">Manage your personal information and account settings</p>
+                            </div>
+                        </div>
                     </div>
 
 
@@ -978,37 +981,39 @@
 
                 <!-- Audit Logs View (Admin Only) -->
                 <section id="audit" class="view-section admin-only">
-                    <div class="header-section">
-                        <h1 data-original="Audit Logs">Audit Logs</h1>
-                        <p class="subtitle" data-original="Platform activity and security monitoring">Platform activity
-                            and security monitoring</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1 data-original="Audit Logs">Audit Logs</h1>
+                                <p data-original="Platform activity and security monitoring">Platform activity and security monitoring</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="audit-container glass-effect"
-                        style="padding: 1.5rem; border-radius: var(--radius-lg); max-height: 70vh; overflow-y: auto;">
-                        <table style="width: 100%; text-align: left; border-collapse: collapse;">
-                            <thead>
-                                <tr style="border-bottom: 1px solid var(--border-color);">
-                                    <th style="padding: 1rem;">Timestamp</th>
-                                    <th style="padding: 1rem;">User</th>
-                                    <th style="padding: 1rem;">Action</th>
-                                    <th style="padding: 1rem;">Target</th>
-                                </tr>
-                            </thead>
-                            <tbody id="audit-list">
-                                <!-- Populated via JS -->
-                            </tbody>
-                        </table>
+                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
+                        <div class="table-container" style="max-height:70vh; overflow-y:auto;">
+                            <table>
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:1.25rem 1rem;">Timestamp</th>
+                                        <th style="padding:1.25rem 1rem;">User</th>
+                                        <th style="padding:1.25rem 1rem;">Action</th>
+                                        <th style="padding:1.25rem 1rem;">Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-list"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Admin Panel (Super Admin Only) -->
                 <section id="admin-panel" class="view-section admin-only">
-                    <div class="header-section flex-between">
-                        <div>
-                            <h1 data-original="Admin Panel"><i class="fas fa-user-shield"
-                                    style="color:var(--primary-color)"></i> Admin Panel</h1>
-                            <p class="subtitle" data-original="Full control over users, accounts, and platform data">
-                                Full control over users, accounts, and platform data</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-user-shield"></i> لوحة الإدارة العليا</h1>
+                                <p>التحكم الكامل في المستخدمين، الصلاحيات، وبيانات المنصة بشكل آمن</p>
+                            </div>
                         </div>
                     </div>
 
@@ -1038,50 +1043,48 @@
                     </div>
 
                     <!-- Users Table -->
-                    <div class="glass-effect"
-                        style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;margin-bottom:2rem;">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-                            <h3><i class="fas fa-users"></i> All Users</h3>
-                            <input type="text" id="admin-search-user" placeholder="Search users..."
-                                style="padding:0.5rem 1rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);"
-                                oninput="AdminPanel.filterUsers(this.value)">
+                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+                            <h3 style="margin:0;"><i class="fas fa-users" style="color:var(--primary-color)"></i> قائمة الموظفين</h3>
+                            <div class="search-box" style="flex:1; max-width:300px; position:relative;">
+                                <i class="fas fa-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary);"></i>
+                                <input type="text" id="admin-search-user" placeholder="بحث عن موظف..." 
+                                    style="width:100%; padding:0.7rem 2.5rem 0.7rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);"
+                                    oninput="AdminPanel.filterUsers(this.value)">
+                            </div>
                         </div>
-                        <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
-                            <thead>
-                                <tr style="border-bottom:2px solid var(--border-color);">
-                                    <th style="padding:0.75rem;text-align:right;">المستخدم</th>
-                                    <th style="padding:0.75rem;text-align:right;">البريد الإلكتروني</th>
-                                    <th style="padding:0.75rem;text-align:right;">الرتبة</th>
-                                    <th style="padding:0.75rem;text-align:right;">المسمى الوظيفي</th>
-                                    <th style="padding:0.75rem;text-align:right;">تاريخ الانضمام</th>
-                                    <th style="padding:0.75rem;text-align:center;">الإجراءات</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-users-table"></tbody>
-                        </table>
-                    </div>
-
-                    <!-- Audit Logs (Moved into Admin Panel) -->
-                    <div class="glass-effect table-responsive">
-                        <div
-                            style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
-                            <h3><i class="fas fa-shield-alt"></i> سجل المراجعة (Audit Logs)</h3>
-                        </div>
-                        <div style="max-height:400px;overflow-y:auto;">
-                            <table
-                                style="width: 100%; text-align: left; border-collapse: collapse; font-size:0.875rem;">
+                        <div class="table-container">
+                            <table>
                                 <thead>
-                                    <tr style="border-bottom: 1px solid var(--border-color);">
-                                        <th style="padding: 1rem;">Timestamp</th>
-                                        <th style="padding: 1rem;">User</th>
-                                        <th style="padding: 1rem;">Action</th>
-                                        <th style="padding: 1rem;">Target</th>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:1.25rem 1rem;">المستخدم</th>
+                                        <th style="padding:1.25rem 1rem;">البريد الإلكتروني</th>
+                                        <th style="padding:1.25rem 1rem;">الرتبة</th>
+                                        <th style="padding:1.25rem 1rem;">المسمى الوظيفي</th>
+                                        <th style="padding:1.25rem 1rem;">تاريخ الانضمام</th>
+                                        <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
                                     </tr>
                                 </thead>
-                                <tbody id="audit-list">
-                                    <!-- Populated via JS -->
-                                </tbody>
+                                <tbody id="admin-users-table"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                            <h3 style="margin:0;"><i class="fas fa-shield-alt" style="color:var(--primary-color)"></i> سجل المراجعة (Audit Logs)</h3>
+                        </div>
+                        <div class="table-container" style="max-height:400px; overflow-y:auto;">
+                            <table>
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:1.25rem 1rem;">Timestamp</th>
+                                        <th style="padding:1.25rem 1rem;">User</th>
+                                        <th style="padding:1.25rem 1rem;">Action</th>
+                                        <th style="padding:1.25rem 1rem;">Target</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="audit-list"></tbody>
                             </table>
                         </div>
                     </div>
@@ -1110,7 +1113,10 @@
                                 style="border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;position:relative;border:1px solid var(--border-color);">
                                 <div id="admin-support-ticket-header"
                                     style="padding:1rem;border-bottom:1px solid var(--border-color);background:rgba(37,99,235,0.05);display:flex;justify-content:space-between;align-items:center;">
-                                    <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
+                                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                                        <button class="btn btn-icon support-back-btn" onclick="SupportManager.toggleMobileView(false, true)" style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
+                                        <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
+                                    </div>
                                     <div id="admin-support-ticket-status"></div>
                                 </div>
                                 <div id="admin-support-ticket-messages"
@@ -1179,18 +1185,18 @@
                     </div>
                 </section>
 
-                <!-- Help Desk / Support Section -->
+                <!-- Support / Technical Help -->
                 <section id="support" class="view-section">
-                    <div class="header-section flex-between">
-                        <div>
-                            <h1><i class="fas fa-headset" style="color:var(--primary-color)"></i> مركز الدعم والمساعدة
-                            </h1>
-                            <p class="subtitle">تواصل مع الدعم الفني لحل المشكلات وتقديم الاقتراحات</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-headset"></i> الدعم الفني</h1>
+                                <p>إرسال بلاغات الأعطال، طلبات الصيانة، والمتابعة التقنية</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="SupportManager.showRequestModal()">
+                                <i class="fas fa-plus"></i> تذكرة جديدة
+                            </button>
                         </div>
-                        <button class="btn btn-primary" id="btn-new-ticket"
-                            onclick="SupportManager.showNewTicketModal()">
-                            <i class="fas fa-plus"></i> تذكرة جديدة
-                        </button>
                     </div>
 
                     <div class="support-grid"
@@ -1212,7 +1218,10 @@
                             style="border-radius:var(--radius-lg);display:flex;flex-direction:column;overflow:hidden;position:relative;">
                             <div id="support-ticket-header"
                                 style="padding:1rem;border-bottom:1px solid var(--border-color);background:rgba(37,99,235,0.05);display:flex;justify-content:space-between;align-items:center;">
-                                <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
+                                <div style="display:flex; align-items:center; gap:0.75rem;">
+                                    <button class="btn btn-icon support-back-btn" onclick="SupportManager.toggleMobileView(false, false)" style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
+                                    <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
+                                </div>
                                 <div id="support-ticket-status"></div>
                             </div>
                             <div id="support-ticket-messages"
@@ -1238,103 +1247,105 @@
                     </div>
                 </section>
 
-                <!-- Drive View -->
+                <!-- Shared Drive -->
                 <section id="drive" class="view-section">
-                    <div class="header-section flex-between">
-                        <div>
-                            <h1 data-original="Cloud Drive"><i class="fas fa-cloud"
-                                    style="color:var(--primary-color)"></i> السحابة (الأرشيف)</h1>
-                            <p class="subtitle" data-original="Store and share files with your team">أرشفة الملفات
-                                والمستندات بشكل منظم واحترافي</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-cloud"></i> سحابة الرائد</h1>
+                                <p>تخزين ومشاركة الملفات مع فريقك بشكل آمن ومنظم</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="DriveManager.showUploadModal()">
+                                <i class="fas fa-upload"></i> رفع ملف
+                            </button>
                         </div>
-                        <button class="btn btn-primary" onclick="DriveManager.showUploadModal()">
-                            <i class="fas fa-upload"></i> <span data-original="Upload File">رفع ملف</span>
-                        </button>
-                        <input type="file" id="drive-upload-input" style="display:none;" multiple>
                     </div>
 
-                    <div style="display: flex; gap: 1.5rem; min-height: 500px; flex-wrap: wrap;">
-                        <!-- Categories Sidebar -->
-                        <div class="glass-effect"
-                            style="width: 250px; border-radius:var(--radius-lg); padding: 1.5rem; border:1px solid var(--border-color); flex-shrink: 0;">
-                            <h3 style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
-                                <i class="fas fa-folder-tree" style="color:var(--primary-color);"></i> التصنيفات
-                            </h3>
-                            <ul id="drive-categories"
-                                style="list-style:none; display:flex; flex-direction:column; gap:0.5rem; padding:0;">
-                                <!-- Categories injected here -->
-                            </ul>
-                        </div>
-
-                        <!-- Files Area -->
-                        <div class="glass-effect"
-                            style="border-radius:var(--radius-lg);padding:1.5rem; flex: 1; min-width: 300px; border:1px solid var(--border-color);">
-                            <div
-                                style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border-color);padding-bottom:1rem;">
-                                <div id="drive-current-category-title" style="font-weight:700;font-size:1.1rem;">كل
-                                    الملفات</div>
-                                <div style="display:flex;gap:0.5rem;align-items:center;">
-                                    <i class="fas fa-hard-drive" style="color:var(--text-secondary);"></i>
-                                    <span id="drive-usage" style="font-size:0.875rem;color:var(--text-secondary);">0 MB
-                                        used</span>
+                    <div class="drive-container">
+                        <aside class="drive-sidebar glass-effect">
+                            <h3 style="margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-folder-tree"></i> التصنيفات</h3>
+                            <ul id="drive-categories" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.5rem;"></ul>
+                        </aside>
+                        <div class="drive-main">
+                            <div class="glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); height:100%;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border-color);padding-bottom:1rem;">
+                                    <div id="drive-current-category-title" style="font-weight:700;">كل الملفات</div>
+                                    <div id="drive-usage" style="font-size:0.85rem;color:var(--text-secondary);">0 MB مستخدم</div>
                                 </div>
-                            </div>
-                            <div id="drive-grid"
-                                style="display:grid;grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));gap:1.5rem;">
-                                <!-- Files will be injected here -->
+                                <div id="drive-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:1.5rem;"></div>
                             </div>
                         </div>
                     </div>
+                    <input type="file" id="drive-upload-input" style="display:none;" multiple>
                 </section>
 
                 <!-- Projects View -->
                 <section id="projects" class="view-section">
-                    <div class="section-header">
-                        <h1 data-original="Projects">Projects</h1>
-                        <button class="btn btn-primary admin-only" id="btn-add-project"><i class="fas fa-plus"></i>
-                            <span data-original="New Project">New Project</span></button>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-project-diagram"></i> إدارة المشاريع</h1>
+                                <p>تابع سير العمل والمشاريع الجارية لفريقك</p>
+                            </div>
+                            <button class="btn btn-primary admin-only" id="btn-add-project">
+                                <i class="fas fa-plus"></i> مشروع جديد
+                            </button>
+                        </div>
                     </div>
-                    <div class="stats-grid" id="projects-stats"></div>
+                    <div class="stats-grid" id="projects-stats" style="margin-bottom:2rem;"></div>
                     <div class="team-grid" id="projects-grid"></div>
                 </section>
 
                 <!-- Clients CRM View -->
                 <section id="clients" class="view-section">
-                    <div class="section-header">
-                        <h1 data-original="Clients">Clients</h1>
-                        <button class="btn btn-primary admin-only" id="btn-add-client"><i class="fas fa-plus"></i> <span
-                                data-original="New Client">New Client</span></button>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-user-tie"></i> إدارة العملاء</h1>
+                                <p>إدارة بيانات العملاء، التواصل، وحالة الصفقات الجارية</p>
+                            </div>
+                            <button class="btn btn-primary admin-only" id="btn-add-client">
+                                <i class="fas fa-plus"></i> عميل جديد
+                            </button>
+                        </div>
                     </div>
-                    <div class="glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); overflow-x:auto;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <thead>
-                                <tr style="border-bottom:2px solid var(--border-color); text-align:left;">
-                                    <th style="padding:1rem;">Client</th>
-                                    <th style="padding:1rem;">Contact</th>
-                                    <th style="padding:1rem;">Status</th>
-                                    <th style="padding:1rem;">Total Deals</th>
-                                    <th style="padding:1rem;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="clients-table-body"></tbody>
-                        </table>
+
+                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:1.25rem 1rem;">العميل</th>
+                                        <th style="padding:1.25rem 1rem;">التواصل</th>
+                                        <th style="padding:1.25rem 1rem;">الحالة</th>
+                                        <th style="padding:1.25rem 1rem;">إجمالي الصفقات</th>
+                                        <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-table-body"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Wiki / Knowledge Base View -->
                 <section id="wiki" class="view-section">
-                    <div class="section-header">
-                        <h1 data-original="Knowledge Base">Knowledge Base</h1>
-                        <button class="btn btn-primary admin-only" id="btn-add-wiki">
-                            <i class="fas fa-plus"></i>
-                            <span class="mobile-hide" data-original="Publish Article">نشر مقال</span>
-                        </button>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-book-open"></i> قاعدة المعرفة</h1>
+                                <p>دليل الموظف، السياسات، والتعليمات التقنية المنظمة</p>
+                            </div>
+                            <button class="btn btn-primary admin-only" id="btn-add-wiki">
+                                <i class="fas fa-plus"></i> نشر مقال
+                            </button>
+                        </div>
                     </div>
+
                     <div class="wiki-container">
-                        <aside class="wiki-sidebar">
-                            <h3 class="mobile-hide" style="margin-bottom:1rem;" data-original="Categories">التصنيفات
-                            </h3>
-                            <ul id="wiki-categories" class="wiki-cat-list" style="list-style:none;"></ul>
+                        <aside class="wiki-sidebar glass-effect">
+                            <h3 style="margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-folder-tree"></i> التصنيفات</h3>
+                            <ul id="wiki-categories" class="wiki-cat-list" style="list-style:none; padding:0;"></ul>
                         </aside>
 
                         <div class="wiki-content-area">
@@ -1345,41 +1356,44 @@
 
                 <!-- Company Feed -->
                 <section id="feed-section" class="view-section">
-                    <div class="section-header">
-                        <div class="header-left">
-                            <h1 data-original="Company Feed">Company Feed</h1>
-                            <p data-original="Stay updated with company news">ابقَ على اطلاع بآخر أخبار الشركة</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-newspaper"></i> أخبار الشركة</h1>
+                                <p>ابقَ على اطلاع بآخر أخبار وفعاليات المؤسسة</p>
+                            </div>
+                            <button class="btn btn-primary admin-only" onclick="FeedManager.showCreatePostModal()">
+                                <i class="fas fa-plus"></i> نشر خبر
+                            </button>
                         </div>
-                        <button class="btn btn-primary admin-only" onclick="FeedManager.showCreatePostModal()">
-                            <i class="fas fa-plus"></i> <span data-original="Create Post">نشر خبر</span>
-                        </button>
                     </div>
-                    <div id="feed-container"
-                        style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto;">
-                    </div>
+                    <div id="feed-container" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto;"></div>
                 </section>
 
                 <!-- Expense Tracking -->
                 <section id="expenses-section" class="view-section">
-                    <div class="section-header">
-                        <div class="header-left">
-                            <h1 data-original="Expense Tracking">Expense Tracking</h1>
-                            <p data-original="Manage reimbursements and work expenses">إدارة المصروفات وطلبات الصرف</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-file-invoice-dollar"></i> إدارة النفقات</h1>
+                                <p>إدارة المصروفات، طلبات الصرف، والمستحقات المالية</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="ExpenseManager.showRequestModal()">
+                                <i class="fas fa-plus"></i> طلب صرف
+                            </button>
                         </div>
-                        <button class="btn btn-primary" onclick="ExpenseManager.showRequestModal()">
-                            <i class="fas fa-plus"></i> <span data-original="Request Reimbursement">طلب صرف</span>
-                        </button>
                     </div>
-                    <div class="card glass-effect" style="padding:1.5rem;">
+                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
                         <div class="table-container">
                             <table>
                                 <thead>
-                                    <tr>
-                                        <th data-original="Description">الوصف</th>
-                                        <th data-original="Amount">المبلغ</th>
-                                        <th data-original="Status">الحالة</th>
-                                        <th data-original="Date">التاريخ</th>
-                                        <th data-original="Actions">الإجراءات</th>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:1.25rem 1rem;">الموظف</th>
+                                        <th style="padding:1.25rem 1rem;">الوصف</th>
+                                        <th style="padding:1.25rem 1rem;">المبلغ</th>
+                                        <th style="padding:1.25rem 1rem;">الحالة</th>
+                                        <th style="padding:1.25rem 1rem;">التاريخ</th>
+                                        <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody id="expenses-list"></tbody>
@@ -1390,29 +1404,95 @@
 
                 <!-- Quick Polls -->
                 <section id="polls-section" class="view-section">
-                    <div class="section-header">
-                        <div class="header-left">
-                            <h1 data-original="Quick Polls">Quick Polls</h1>
-                            <p data-original="Participate in team decisions">شارك في قرارات الفريق</p>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-poll-h"></i> التصويت السريع</h1>
+                                <p>شارك برأيك في قرارات الفريق والتحسينات المستقبلية</p>
+                            </div>
+                            <button class="btn btn-primary admin-only" onclick="PollsManager.showCreatePollModal()">
+                                <i class="fas fa-plus"></i> تصويت جديد
+                            </button>
                         </div>
-                        <button class="btn btn-primary admin-only" onclick="PollsManager.showCreatePollModal()">
-                            <i class="fas fa-plus"></i> <span data-original="New Poll">تصويت جديد</span>
-                        </button>
                     </div>
-                    <div id="polls-container"
-                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
-                    </div>
+                    <div id="polls-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;"></div>
                 </section>
 
                 <!-- Inventory View -->
                 <section id="inventory" class="view-section admin-only">
-                    <div class="section-header">
-                        <h1 data-original="Inventory">Inventory</h1>
-                        <button class="btn btn-primary" id="btn-add-inventory"><i class="fas fa-plus"></i> <span
-                                data-original="Add Inventory Item">Add Inventory Item</span></button>
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-boxes"></i> إدارة المخزون</h1>
+                                <p>متابعة الأصول، الأجهزة، والمستلزمات المكتبية</p>
+                            </div>
+                            <button class="btn btn-primary" id="btn-add-inventory">
+                                <i class="fas fa-plus"></i> إضافة صنف
+                            </button>
+                        </div>
                     </div>
-                    <div class="stats-grid" id="inventory-stats"></div>
+                    <div class="stats-grid" id="inventory-stats" style="margin-bottom:2rem;"></div>
                     <div class="team-grid" id="inventory-grid"></div>
+                </section>
+
+                <!-- Settings View -->
+                <section id="settings" class="view-section">
+                    <div class="section-header-premium glass-effect">
+                        <div class="header-content">
+                            <div class="header-text">
+                                <h1><i class="fas fa-cog"></i> إعدادات المنصة</h1>
+                                <p>تخصيص تجربة الاستخدام، اللغة، ومظهر النظام</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="settings-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
+                        <!-- Appearance & Language -->
+                        <div class="glass-effect" style="padding:2rem; border-radius:var(--radius-lg);">
+                            <h3 style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
+                                <i class="fas fa-paint-brush" style="color:var(--primary-color)"></i> المظهر واللغة
+                            </h3>
+                            
+                            <div class="form-group" style="margin-bottom:1.5rem;">
+                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">لغة العرض (Language)</label>
+                                <select id="setting-lang" class="glass-input" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                    <option value="ar">العربية (Arabic)</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">مظهر المنصة (Theme Mode)</label>
+                                <select id="setting-theme" class="glass-input" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                    <option value="light">الوضع الفاتح (Light)</option>
+                                    <option value="dark">الوضع الداكن (Dark)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Account Actions -->
+                        <div class="glass-effect" style="padding:2rem; border-radius:var(--radius-lg);">
+                            <h3 style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
+                                <i class="fas fa-user-shield" style="color:var(--primary-color)"></i> إجراءات الحساب
+                            </h3>
+                            
+                            <div style="display:flex; flex-direction:column; gap:1rem;">
+                                <button class="btn btn-outline" onclick="document.querySelector('.nav-item[data-target=profile]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                    <i class="fas fa-user-edit"></i> تعديل ملفي الشخصي
+                                </button>
+                                <button class="btn btn-outline admin-only" onclick="document.querySelector('.nav-item[data-target=team]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                    <i class="fas fa-users-cog"></i> إدارة الفريق
+                                </button>
+                                <button class="btn btn-outline admin-only" onclick="document.querySelector('.nav-item[data-target=audit]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                    <i class="fas fa-history"></i> عرض سجل المراجعة
+                                </button>
+                                <hr style="border:0; border-top:1px solid var(--border-color); margin:0.5rem 0;">
+                                <button class="btn btn-primary" id="btn-logout" style="width:100%; justify-content:center; padding:1rem; background:var(--danger-gradient);">
+                                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </section>
 
                 <!-- Support Modals etc -->

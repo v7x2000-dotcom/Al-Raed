@@ -44,15 +44,15 @@ const WikiManager = {
         const isAr = typeof LangManager !== 'undefined' && LangManager.currentLang === 'ar';
         const catList = document.getElementById('wiki-categories');
         if (catList) {
-            catList.innerHTML = WikiManager.categories.map(cat => `
+            catList.innerHTML = `
+                <li class="wiki-cat-item all-articles" onclick="WikiManager.renderArticles(WikiManager.articles)">
+                    <i class="fas fa-th-large"></i> <span>${isAr ? 'عرض الكل' : 'View All'}</span>
+                </li>
+            ` + WikiManager.categories.map(cat => `
                 <li class="wiki-cat-item" onclick="WikiManager.filterByCategory('${cat}')">
                     <i class="fas fa-folder"></i> <span>${typeof LangManager !== 'undefined' ? LangManager.t(cat) : cat}</span>
                 </li>
-            `).join('') + `
-                <li class="wiki-cat-item all-articles" onclick="WikiManager.renderArticles(WikiManager.articles)">
-                    <i class="fas fa-list"></i> <span>${isAr ? 'عرض الكل' : 'View All'}</span>
-                </li>
-            `;
+            `).join('');
         }
         
         WikiManager.renderArticles(WikiManager.articles);

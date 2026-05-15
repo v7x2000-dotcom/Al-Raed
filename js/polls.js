@@ -19,9 +19,10 @@ const PollsManager = {
 
         if (polls.length === 0) {
             container.innerHTML = `
-                <div style="grid-column: 1 / -1; text-align:center; padding:4rem; opacity:0.5;">
-                    <i class="fas fa-poll-h" style="font-size:3rem; margin-bottom:1rem;"></i>
-                    <p>${LangManager.t('No active polls')}</p>
+                <div style="grid-column: 1 / -1; text-align:center; padding:5rem 2rem; border-radius:24px;" class="glass-effect">
+                    <i class="fas fa-poll-h" style="font-size:4rem; background:var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom:1.5rem; display:block;"></i>
+                    <h3 style="margin-bottom:0.5rem; font-size:1.25rem;">${LangManager.currentLang==='ar'?'لا توجد استطلاعات نشطة':'No Active Polls'}</h3>
+                    <p style="color:var(--text-secondary); max-width:300px; margin:0 auto; font-size:0.9rem;">${LangManager.currentLang==='ar'?'شارك رأيك في مستقبل الشركة! ستظهر الاستطلاعات الجديدة هنا.':'Your voice matters! New company polls will be shown here for team voting.'}</p>
                 </div>
             `;
             return;

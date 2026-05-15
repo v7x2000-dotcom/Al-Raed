@@ -326,45 +326,113 @@ input:checked+.slider:before {
     font-weight: 500;
 }
 
-/* Quick Action Bar */
+/* Quick Action Bar - Modern Grid System */
 .quick-action-bar {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    padding: 0.5rem 0.75rem;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 2.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);
-    overflow-x: auto;
-    flex-wrap: wrap;
 }
 
 .quick-action-btn {
-    padding: 0.75rem 1.25rem;
-    border-radius: var(--radius-md);
-    background: var(--bg-secondary);
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    padding: 0.8rem 0.4rem;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    transition: var(--transition);
-    font-weight: 600;
-    font-size: 0.9rem;
+    gap: 0.35rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    font-size: 0.82rem;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .quick-action-btn:hover {
-    background: var(--primary-color);
-    color: #fff;
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     border-color: var(--primary-color);
+    background: rgba(59, 130, 246, 0.08);
 }
 
 .quick-action-btn i {
     font-size: 1rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    transition: transform 0.3s;
+    flex-shrink: 0;
 }
+
+.quick-action-btn:hover i {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/* Action Specific Colors & Icons */
+.qa-task i    { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.qa-project i { background: rgba(99, 102, 241, 0.1); color: #6366f1; }
+.qa-expense i { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.qa-client i  { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.qa-support i { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+/* Responsive Grid for Mobile */
+@media (max-width: 992px) {
+    .quick-action-bar {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.8rem;
+        padding: 0.8rem;
+    }
+    
+    .quick-action-btn {
+        padding: 0.85rem;
+        font-size: 0.85rem;
+        gap: 0.6rem;
+    }
+
+    .quick-action-btn.qa-support {
+        grid-column: span 2;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .quick-action-bar {
+        gap: 0.6rem;
+    }
+    .quick-action-btn {
+        gap: 0.4rem;
+        padding: 0.75rem 0.5rem;
+        flex-direction: column;
+        text-align: center;
+        height: auto;
+    }
+    .quick-action-btn i {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        margin-bottom: 4px;
+    }
+    .quick-action-btn span {
+        font-size: 0.8rem;
+    }
+}
+
 
 /* Dashboard Widgets */
 .dashboard-widgets {
@@ -2362,7 +2430,22 @@ html[dir="rtl"] table {
 }
 html[dir="rtl"] th, html[dir="rtl"] td {
     text-align: right !important;
+    border: none;
 }
+
+.table-container th {
+    color: var(--primary-color);
+    font-weight: 800;
+    white-space: nowrap;
+    padding: 1.25rem 1rem;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.table-container th:first-child, .table-container th:last-child { border-radius: 0; }
+html[dir="rtl"] .table-container th:first-child, html[dir="rtl"] .table-container th:last-child { border-radius: 0; }
+
 html[dir="rtl"] .calendar-header h2 {
     order: 0;
 }
@@ -2799,37 +2882,34 @@ html[dir="rtl"] .wiki-cat-item:hover { transform: translateX(-5px); }
     .wiki-article-full h1 { font-size: 1.75rem; }
 }
 
-/* Mobile-Specific Wiki FAB (Floating Action Button) for Publish */
+
+/* Wiki mobile layout — no FAB, button stays inside header */
 @media (max-width: 768px) {
-    #wiki .section-header {
-        position: relative;
-        flex-direction: row !important;
-        justify-content: space-between !important;
-        align-items: center !important;
-    }
-    
     #btn-add-wiki {
-        position: fixed;
-        bottom: 80px;
-        left: 20px;
-        z-index: 9999;
-        width: 56px;
-        height: 56px;
-        border-radius: 50%;
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 8px 25px rgba(37,99,235,0.4);
-        background: var(--primary-gradient);
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        border-radius: var(--radius-lg) !important;
+        padding: 0.85rem 1rem !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0.5rem !important;
+        box-shadow: none !important;
+        z-index: auto !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        background: var(--primary-gradient) !important;
     }
-    html[dir="rtl"] #btn-add-wiki { left: auto; right: 20px; }
-    
-    #btn-add-wiki span { display: none; }
-    #btn-add-wiki i { font-size: 1.25rem; margin: 0; }
-    
+
+    #btn-add-wiki span { display: inline !important; }
+    #btn-add-wiki i { font-size: 1rem; margin: 0; }
+
     .wiki-grid { grid-template-columns: 1fr; }
 }
+
 
 /* Dashboard Greeting Premium */
 .greeting-box {
@@ -2975,71 +3055,7 @@ html[dir="rtl"] .msg-wrapper.msg-sent .msg-bubble-container {
     border-bottom-left-radius: 4px;
 }
 
-/* Quick Action Bar */
-.quick-action-bar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2.5rem;
-    overflow-x: auto;
-    padding-bottom: 1rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--primary-color) transparent;
-}
 
-.quick-action-bar::-webkit-scrollbar {
-    height: 4px;
-}
-
-.quick-action-bar::-webkit-scrollbar-thumb {
-    background: var(--primary-color);
-    border-radius: 10px;
-}
-
-.quick-action-btn {
-    flex: 1;
-    min-width: 150px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 1rem 1.25rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    color: var(--text-primary);
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.quick-action-btn i {
-    font-size: 1.2rem;
-    background: var(--primary-gradient);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.quick-action-btn span {
-    font-weight: 700;
-    font-size: 0.85rem;
-}
-
-.quick-action-btn:hover {
-    transform: translateY(-4px);
-    background: var(--bg-primary);
-    border-color: var(--primary-color);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-}
-
-.quick-action-btn:active {
-    transform: translateY(-1px);
-}
-
-/* Specific Action Colors (Subtle) */
-.quick-action-btn.backup i { background: linear-gradient(135deg, #10b981, #059669); -webkit-text-fill-color: transparent; }
-.quick-action-btn.expense i { background: linear-gradient(135deg, #ef4444, #dc2626); -webkit-text-fill-color: transparent; }
 
 /* Command Palette */
 #command-palette-modal {
@@ -4377,150 +4393,741 @@ html[dir="rtl"] .visa-info {
     }
 }
 
-/* ===================== PREMIUM RESPONSIVE REDESIGN (2026) ===================== */
-@media (max-width: 1024px) {
-    :root {
-        --sidebar-width: 80px;
+/* Targeted Support Mobile Layout (Only affects Support) */
+@media (max-width: 768px) {
+    .support-grid {
+        display: block !important;
+        position: relative;
+        height: 550px !important;
+        overflow: hidden;
+    }
+    .support-grid > div {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--bg-primary);
+        transition: transform 0.3s ease, opacity 0.2s;
+    }
+    .support-grid > div:last-child {
+        transform: translateX(-100%);
+        opacity: 0;
+        z-index: 1;
+    }
+    .support-grid.mobile-active > div:first-child {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    .support-grid.mobile-active > div:last-child {
+        transform: translateX(0);
+        opacity: 1;
+        z-index: 2;
+    }
+    .support-back-btn {
+        display: inline-flex !important;
+        margin-left: 10px;
+    }
+}
+.support-back-btn { display: none; }
+
+/* Professional Scrollable Table for Admin Users (Classic Look) */
+@media (max-width: 768px) {
+    .glass-effect:has(#admin-users-table) {
+        overflow-x: auto !important;
+        padding: 0.5rem !important;
+    }
+
+    #admin-users-table {
+        min-width: 700px; /* Force table to maintain structure */
+        border-collapse: separate;
+        border-spacing: 0 0.5rem;
+    }
+
+    #admin-users-table th {
+        white-space: nowrap !important;
+        padding: 1.25rem 0.75rem !important;
+        font-size: 0.8rem !important; /* Slightly smaller for mobile headers */
+        font-weight: 800;
+        color: var(--primary-color);
+        text-align: right !important;
+    }
+
+    #admin-users-table td {
+        white-space: nowrap !important;
+        padding: 1rem 0.75rem !important;
+        font-size: 0.85rem !important;
+    }
+
+    #admin-users-table thead {
+        display: table-header-group !important;
+    }
+
+    #admin-users-table tr {
+        display: table-row !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        border-bottom: 1px solid var(--border-color) !important;
+    }
+
+    #admin-users-table td:before {
+        display: none !important; /* Remove card labels */
+    }
+
+    /* Keep Search area clean */
+    .admin-header-flex {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
     
-    .sidebar .logo h2, .sidebar .nav-item span {
-        display: none;
-    }
-    
-    .sidebar .nav-item {
-        justify-content: center;
-        padding: 1rem;
-    }
-    
-    .content-wrapper {
-        padding: 1.25rem;
+    #admin-search-user {
+        min-width: 200px;
     }
 }
 
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+/* Support Header Premium Mobile Adjustments */
+@media (max-width: 600px) {
+    .support-header-premium {
+        padding: 1.5rem !important;
+        text-align: center;
     }
-    
-    .dashboard-grid {
-        grid-template-columns: 1fr;
+    .support-header-premium > div > div {
+        flex-direction: column !important;
+        align-items: center !important;
     }
-    
-    .header-section, .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-    
-    .header-section button, .section-header button {
-        width: 100%;
+    .support-header-premium h1 {
+        font-size: 1.5rem !important;
         justify-content: center;
+    }
+    .support-header-premium p {
+        font-size: 0.9rem !important;
+    }
+    .support-header-premium button {
+        width: 100%;
+    }
+}
+
+/* Wiki / Knowledge Base Responsive Layout */
+.wiki-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+.wiki-sidebar {
+    width: 280px;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+}
+.wiki-content-area {
+    flex: 1;
+    min-width: 0;
+}
+.wiki-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.wiki-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s;
+    border: 1px solid transparent;
+}
+.wiki-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 992px) {
+    .wiki-container {
+        flex-direction: column;
+    }
+    .wiki-sidebar {
+        width: 100%;
+        position: static;
+        overflow-x: auto;
+        padding: 1rem;
+    }
+    #wiki-categories {
+        display: flex !important;
+        gap: 1rem;
+        flex-direction: row !important;
+    }
+    .wiki-cat-item {
+        white-space: nowrap;
+        padding: 0.5rem 1rem !important;
+        background: rgba(255,255,255,0.05);
+        border-radius: 30px;
+        cursor: pointer;
+    }
+}
+
+/* Premium Section Headers - Base Styles */
+.section-header-premium {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    text-align: center; /* Centered by default as per user preference */
+}
+
+.section-header-premium .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.section-header-premium h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.section-header-premium h1 i {
+    color: var(--primary-color);
+}
+
+.section-header-premium p {
+    color: var(--text-secondary);
+    margin-top: 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.section-header-premium .btn-primary {
+    padding: 1rem 2.5rem;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 450px;
+    font-size: 1.1rem;
+    justify-content: center;
+    box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+}
+
+/* Responsive Overrides for Section Headers */
+@media (max-width: 992px) {
+    .section-header-premium {
+        padding: 1.5rem !important;
+    }
+    .section-header-premium h1 {
+        font-size: 1.6rem !important;
+    }
+    .section-header-premium .btn-primary {
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.5rem !important;
+    }
+    .stat-card {
+        padding: 1.25rem 0.75rem !important;
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 0.5rem !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    .stat-card:active {
+        transform: scale(0.95) !important;
+    }
+    .stat-icon {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 1.4rem !important;
+        margin: 0 auto !important;
+    }
+    .stat-info h3 {
+        font-size: 1.25rem !important;
+        margin: 0 !important;
+    }
+    .stat-info p {
+        font-size: 0.7rem !important;
+        margin: 0 !important;
+        white-space: nowrap;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        gap: 0.35rem !important;
+    }
+    .stat-card {
+        padding: 0.75rem 0.25rem !important;
+    }
+    .stat-icon {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 1.1rem !important;
+    }
+    .stat-info h3 {
+        font-size: 1.1rem !important;
+    }
+    .stat-info p {
+        font-size: 0.65rem !important;
     }
 }
 
 @media (max-width: 600px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
+    .section-header-premium h1 {
+        font-size: 1.3rem !important;
     }
-    
-    .topbar {
-        padding: 0 1rem;
-    }
-    
-    .username {
-        display: none;
-    }
-    
-    /* Extreme Glassmorphism on Mobile */
-    .glass-effect {
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        background: rgba(var(--bg-secondary-rgb, 255, 255, 255), 0.7);
-    }
-    
-    /* Table to Card Transformation for ALL tables */
-    .glass-effect table, .glass-effect table thead, .glass-effect table tbody, .glass-effect table th, .glass-effect table td, .glass-effect table tr {
-        display: block;
-    }
-    
-    .glass-effect table thead tr {
-        position: absolute;
-        top: -9999px;
-        left: -9999px;
-    }
-    
-    .glass-effect table tr {
-        border: 1px solid var(--border-color);
-        border-radius: var(--radius-md);
-        margin-bottom: 1rem;
-        padding: 0.5rem;
-        background: rgba(255,255,255,0.02);
-    }
-    
-    .glass-effect table td {
-        border: none;
-        border-bottom: 1px solid rgba(var(--border-color-rgb, 0, 0, 0), 0.05);
-        position: relative;
-        padding-left: 50% !important;
-        text-align: right !important;
-        min-height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .glass-effect table td:last-child {
-        border-bottom: 0;
-    }
-    
-    .glass-effect table td:before {
-        content: attr(data-label);
-        font-weight: 800;
-        font-size: 0.7rem;
-        color: var(--primary-color);
-        text-transform: uppercase;
-        margin-left: 1rem;
-    }
-    
-    /* Fix for specific table cells that contain avatars or long text */
-    .glass-effect table td img {
-        margin-right: 0 !important;
-        margin-left: 0.5rem;
-    }
-    
-    /* Responsive Modals */
-    .modal-content {
-        width: 95% !important;
-        margin: 1rem auto !important;
-        padding: 1.25rem !important;
-    }
-    
-    .modal-body {
-        max-height: 70vh;
-        overflow-y: auto;
-    }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    
-    /* Micro-interactions for Mobile */
-    .btn:active, .glass-effect:active {
-        transform: scale(0.97);
-        transition: transform 0.1s;
+    .section-header-premium p {
+        font-size: 0.85rem !important;
     }
 }
 
-/* Specific optimizations for Finance Cards */
-@media (max-width: 480px) {
-    .visa-card {
-        aspect-ratio: auto;
-        min-height: 200px;
+/* Table Container Responsive Fix */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-md);
+    padding-bottom: 5px; /* Space for scrollbar */
+}
+
+.table-container table {
+    width: 100%;
+    min-width: 700px; /* Force minimum width for horizontal scroll on mobile */
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+
+.wiki-card-actions .btn-icon {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.wiki-card-actions .btn-icon.edit:hover { color: var(--primary-color); border-color: var(--primary-color); }
+.wiki-card-actions .btn-icon.delete:hover { color: var(--danger); border-color: var(--danger); }
+
+/* Table to Card for Expenses */
+table.mobile-cards {
+    display: block;
+    width: 100% !important;
+    min-width: 0 !important;
+}
+table.mobile-cards thead {
+    display: none;
+}
+#expenses-list.mobile-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.5rem;
+}
+.expense-mobile-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.expense-mobile-card .card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.expense-mobile-card .label {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+.expense-mobile-card .value {
+    font-weight: 600;
+}
+
+/* Wiki / Knowledge Base Responsive Layout */
+.wiki-container {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+.wiki-sidebar {
+    width: 280px;
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+    position: sticky;
+    top: 2rem;
+}
+.wiki-content-area {
+    flex: 1;
+    min-width: 0;
+}
+.wiki-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+.wiki-card {
+    padding: 1.5rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s;
+    border: 1px solid transparent;
+}
+.wiki-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--primary-color);
+}
+
+@media (max-width: 992px) {
+    .wiki-container {
+        flex-direction: column;
     }
-    
-    .visa-number {
-        font-size: 1rem;
-        letter-spacing: 1px;
+    .wiki-sidebar {
+        width: 100%;
+        position: static;
+        overflow-x: auto;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    .wiki-sidebar h3 {
+        text-align: center;
+        margin-bottom: 1.25rem !important;
+    }
+    #wiki-categories {
+        display: flex !important;
+        gap: 0.75rem;
+        flex-direction: row !important;
+        padding-bottom: 0.5rem;
+        -webkit-overflow-scrolling: touch;
+    }
+    .wiki-cat-item {
+        white-space: nowrap;
+        padding: 0.8rem 1.2rem !important;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+    }
+    .wiki-cat-item:hover {
+        background: rgba(37,99,235,0.1);
+        border-color: var(--primary-color);
+    }
+    .wiki-cat-item i {
+        color: var(--primary-color);
+    }
+}
+
+.wiki-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.wiki-tag {
+    background: rgba(37,99,235,0.1);
+    color: var(--primary-color);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+.wiki-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.read-more {
+    color: var(--primary-color);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.article-view-container .back-btn {
+    margin-bottom: 1.5rem;
+}
+.wiki-article-full {
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+}
+.wiki-article-full header {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
+}
+.wiki-article-full .meta {
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+.wiki-article-full h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+.article-content {
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+.article-content p {
+    margin-bottom: 1.25rem;
+}
+
+/* ================================================
+   PREMIUM TABLE SYSTEM
+   ================================================ */
+
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--radius-lg);
+}
+
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    min-width: 520px;
+}
+
+/* Table header */
+.table-container table thead tr,
+table thead tr {
+    border-bottom: none;
+}
+
+.table-container table th,
+table thead th {
+    padding: 1rem 1.25rem;
+    text-align: right;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    background: transparent;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+/* First and last header cells get rounded corners */
+.table-container table thead tr th:first-child {
+    border-radius: var(--radius-md) 0 0 0;
+}
+.table-container table thead tr th:last-child {
+    border-radius: 0 var(--radius-md) 0 0;
+}
+
+/* Table body rows */
+.table-container table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+    transition: background 0.18s ease;
+}
+
+.table-container table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.table-container table tbody tr:hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+/* Alternating row stripes (subtle) */
+.table-container table tbody tr:nth-child(even) {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.table-container table tbody tr:nth-child(even):hover {
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.table-container table td {
+    padding: 1rem 1.25rem;
+    color: var(--text-primary);
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+/* Empty state in tables */
+.table-container table td.empty-cell {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* Scrollbar styling for table container */
+.table-container::-webkit-scrollbar {
+    height: 4px;
+}
+.table-container::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 2px;
+}
+.table-container::-webkit-scrollbar-thumb {
+    background: rgba(37, 99, 235, 0.3);
+    border-radius: 2px;
+}
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* ================================================
+   PREMIUM SECTION HEADER SYSTEM
+   ================================================ */
+
+.section-header-premium {
+    position: relative;
+    overflow: hidden;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-color);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(30, 41, 59, 0.4) 100%);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--glass-shadow);
+    box-sizing: border-box;
+}
+
+.section-header-premium::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.section-header-premium .header-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.section-header-premium .header-text {
+    width: 100%;
+    text-align: center;
+}
+
+.section-header-premium .header-text h1 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0 0 0.4rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    line-height: 1.3;
+}
+
+.section-header-premium .header-text h1 i {
+    color: var(--primary-color);
+    font-size: 1.35rem;
+}
+
+.section-header-premium .header-text p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Action button — always centered below the text */
+.section-header-premium .header-content > .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.8rem;
+    font-size: 0.92rem;
+    font-weight: 700;
+    border-radius: var(--radius-lg);
+    white-space: nowrap;
+    flex-shrink: 0;
+    max-width: 100%;
+}
+
+/* ── Mobile ─────────────────────────────────────── */
+@media (max-width: 992px) {
+    .section-header-premium {
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .section-header-premium {
+        padding: 1.25rem 1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .section-header-premium .header-text h1 {
+        font-size: 1.25rem;
+    }
+
+    .section-header-premium .header-text p {
+        font-size: 0.85rem;
+    }
+
+    .section-header-premium .header-content > .btn {
+        width: 100%;
+        padding: 0.85rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .section-header-premium .header-text h1 {
+        font-size: 1.15rem;
+        gap: 0.4rem;
+    }
+    .section-header-premium .header-text p {
+        font-size: 0.78rem;
     }
 }

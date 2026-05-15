@@ -162,6 +162,14 @@ const SupportManager = {
         });
     },
 
+    toggleMobileView: (active, isAdmin = false) => {
+        const grid = isAdmin ? document.querySelector('#admin-panel .support-grid') : document.querySelector('#support .support-grid');
+        if (grid) {
+            if (active) grid.classList.add('mobile-active');
+            else grid.classList.remove('mobile-active');
+        }
+    },
+
     viewTicket: (ticketId) => {
         const p = SupportManager.getPrefix();
         const tickets = SupportManager.getTickets();
@@ -174,6 +182,9 @@ const SupportManager = {
         const me = AuthManager.currentUser;
         const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
 
+        // Trigger mobile view slide
+        SupportManager.toggleMobileView(true, p === 'admin-');
+
         // Update header
         const header = document.getElementById(p + 'support-ticket-header');
         if (!header) return;
@@ -182,9 +193,12 @@ const SupportManager = {
         const statusText = ticket.status === 'Open' ? 'مفتوحة' : 'مغلقة';
 
         header.innerHTML = `
-            <div>
-                <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.2rem;">${ticket.title}</div>
-                <div style="font-size:0.8rem;color:var(--text-secondary);">بواسطة: ${ticket.userName} | القسم: ${ticket.category}</div>
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+                <button class="btn btn-icon support-back-btn" onclick="SupportManager.toggleMobileView(false, ${p === 'admin-'})" style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
+                <div>
+                    <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.2rem;">${ticket.title}</div>
+                    <div style="font-size:0.8rem;color:var(--text-secondary);">بواسطة: ${ticket.userName} | القسم: ${ticket.category}</div>
+                </div>
             </div>
             <div style="display:flex;align-items:center;gap:1rem;">
                 <span style="font-size:0.85rem;color:${statusColor};background:${statusColor}22;padding:4px 10px;border-radius:12px;font-weight:600;"><i class="fas fa-circle" style="font-size:0.5rem;margin-right:4px;"></i> ${statusText}</span>

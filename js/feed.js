@@ -19,9 +19,10 @@ const FeedManager = {
 
         if (posts.length === 0) {
             container.innerHTML = `
-                <div class="card glass-effect" style="text-align:center; padding:3rem; opacity:0.6;">
-                    <i class="fas fa-newspaper" style="font-size:3rem; margin-bottom:1rem;"></i>
-                    <p>${LangManager.t('No news yet')}</p>
+                <div class="card glass-effect" style="text-align:center; padding:5rem 2rem; border-radius:24px;">
+                    <i class="fas fa-newspaper" style="font-size:4rem; background:var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom:1.5rem; display:block;"></i>
+                    <h3 style="margin-bottom:0.5rem; font-size:1.25rem;">${LangManager.currentLang==='ar'?'لا توجد أخبار حالياً':'No News Available'}</h3>
+                    <p style="color:var(--text-secondary); max-width:300px; margin:0 auto; font-size:0.9rem;">${LangManager.currentLang==='ar'?'سيتم عرض آخر مستجدات وفعاليات الشركة هنا بمجرد نشرها.':'Stay tuned! Company news and updates will appear here once published.'}</p>
                 </div>
             `;
             return;
