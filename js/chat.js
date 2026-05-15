@@ -341,6 +341,11 @@ const ChatManager = {
         const inputWrapper = document.querySelector('.chat-input-wrapper');
         if (header) { header.style.opacity='1'; header.style.pointerEvents='auto'; header.style.cursor='pointer'; header.onclick = ChatManager.toggleProfileSidebar; }
         if (inputWrapper) { inputWrapper.style.opacity='1'; inputWrapper.style.pointerEvents='auto'; }
+        
+        // Hide Smart Link Button in Private Chats
+        const btnSmartLink = document.getElementById('btn-chat-smart-link');
+        if (btnSmartLink) btnSmartLink.style.display = 'none';
+
         document.getElementById('chat-active-name').textContent = isSelf ? `${member.name} (أنت)` : member.name;
         const av = document.getElementById('chat-active-avatar');
         if (av) { av.src = member.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(member.name); av.style.display='block'; }
@@ -1563,22 +1568,74 @@ const ChatManager = {
 
     // ─── Nav Badge ────────────────────────────────────────────────────
     _updateNavBadge: () => {
-        const total = ChatManager._getTotalUnread();
+        const me = AuthManager.currentUser;
+        if (!me) return;
+        
+        let total = 0;
+        let privateUnread = 0;
+        let groupUnread = 0;
+        let broadcastUnread = 0;
+        
+        const lastRead = JSON.parse(localStorage.getItem('chat_last_read') || '{}');
+        
+        // Private
+        (Store.get('team') || []).filter(m => m.id !== me.id).forEach(m => {
+            const k = ChatManager._getPrivateKey(me, m.id);
+            const lr = lastRead[k] || 0;
+            const unread = (Store.get(k) || []).filter(msg => msg.senderId !== me.id && new Date(msg.timestamp).getTime() > lr).length;
+            privateUnread += unread;
+            total += unread;
+        });
+
+        // Groups and Broadcasts
+        (Store.get('chat_rooms') || []).filter(r => r.members?.includes(me.id)).forEach(r => {
+            const k = ChatManager._getRoomKey(r.id);
+            const lr = lastRead[k] || 0;
+            const unread = (Store.get(k) || []).filter(msg => msg.senderId !== me.id && new Date(msg.timestamp).getTime() > lr).length;
+            if (r.type === 'group') groupUnread += unread;
+            if (r.type === 'broadcast') broadcastUnread += unread;
+            total += unread;
+        });
+
+        // Main App Sidebar Badge
         const navItem = document.querySelector('.nav-item[data-target="chat-section"]');
-        if (!navItem) return;
-        let badge = navItem.querySelector('.chat-nav-badge');
-        if (total > 0) {
-            if (!badge) {
-                badge = document.createElement('span');
-                badge.className = 'chat-nav-badge';
-                badge.style.cssText = 'position:absolute;top:4px;right:4px;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 3px;';
-                navItem.style.position = 'relative';
-                navItem.appendChild(badge);
+        if (navItem) {
+            let badge = navItem.querySelector('.chat-nav-badge');
+            if (total > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'chat-nav-badge';
+                    badge.style.cssText = 'position:absolute;top:4px;right:4px;background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;border-radius:50%;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 3px;';
+                    navItem.style.position = 'relative';
+                    navItem.appendChild(badge);
+                }
+                badge.textContent = total > 99 ? '99+' : total;
+            } else if (badge) {
+                badge.remove();
             }
-            badge.textContent = total > 99 ? '99+' : total;
-        } else {
-            if (badge) badge.remove();
         }
+
+        // Chat Tabs Badges (Private, Groups, Broadcast)
+        const updateTabBadge = (type, count) => {
+            const tab = document.querySelector(`.chat-tab[data-type="${type}"]`);
+            if (!tab) return;
+            let badge = tab.querySelector('.chat-tab-badge');
+            if (count > 0) {
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'chat-tab-badge';
+                    badge.style.cssText = 'background:#ef4444;color:#fff;font-size:0.65rem;font-weight:700;border-radius:50%;min-width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;padding:0 3px;margin-inline-start:5px;';
+                    tab.appendChild(badge);
+                }
+                badge.textContent = count > 99 ? '99+' : count;
+            } else if (badge) {
+                badge.remove();
+            }
+        };
+
+        updateTabBadge('private', privateUnread);
+        updateTabBadge('group', groupUnread);
+        updateTabBadge('broadcast', broadcastUnread);
     },
 
     // ─── Sound Notification ──────────────────────────────────────────────

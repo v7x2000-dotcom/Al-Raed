@@ -147,6 +147,28 @@ const AuthManager = {
             role = 'Super Admin';
         }
 
+        const defaultPermissions = {
+            "dashboard": true,
+            "tasks": true,
+            "team": false,
+            "chat-section": true,
+            "calendar": true,
+            "finance": false,
+            "reports": false,
+            "drive": true,
+            "settings": true,
+            "support": true,
+            "profile": true,
+            "projects": true,
+            "clients": true,
+            "inventory": false,
+            "wiki": true,
+            "feed-section": true,
+            "expenses-section": true,
+            "polls-section": true,
+            "admin-panel": false
+        };
+
         const newUser = {
             id: 'u_' + Date.now(),
             name,
@@ -156,7 +178,8 @@ const AuthManager = {
             title: title || 'Member',
             avatar: null,
             status: 'active',
-            joinedAt: Date.now()
+            joinedAt: Date.now(),
+            permissions: defaultPermissions
         };
 
         AuthManager.currentUser = newUser;
@@ -373,24 +396,72 @@ const AuthManager = {
     },
 
     applyRoleUI: () => {
-        const role = AuthManager.currentUser?.role;
+        // Refresh session data from Store to catch latest permissions sync
+        if (AuthManager.currentUser) {
+            const users = Store.get('users') || [];
+            const fresh = users.find(u => u.id === AuthManager.currentUser.id);
+            if (fresh) {
+                AuthManager.currentUser = { ...AuthManager.currentUser, ...fresh };
+            }
+        }
+
+        const user = AuthManager.currentUser;
+        if (!user) return;
+        
+        const role = user.role;
         const isAdmin = role === 'Super Admin' || role === 'Manager';
         const isSuperAdmin = role === 'Super Admin';
 
-        // Show/hide admin-only elements (visible to Super Admin AND Manager)
+        // 1. Class-based basic restrictions
         document.querySelectorAll('.admin-only').forEach(el => {
             el.style.display = isAdmin ? '' : 'none';
         });
 
-        // Show/hide super-admin-only elements (ONLY Super Admin)
         document.querySelectorAll('.superadmin-only').forEach(el => {
             el.style.display = isSuperAdmin ? '' : 'none';
         });
 
-        // Show/hide non-admin elements
         document.querySelectorAll('.member-only').forEach(el => {
             el.style.display = isAdmin ? 'none' : '';
         });
+
+        // 2. Granular Permissions Enforcement for Navigation
+        // Ensure legacy users have a permissions object
+        const defaultPermissions = {
+            "dashboard": true, "tasks": true, "team": false, "chat-section": true, "calendar": true,
+            "finance": false, "reports": false, "drive": true, "settings": true, "support": true,
+            "profile": true, "projects": true, "clients": true, "inventory": false, "wiki": true,
+            "feed-section": true, "expenses-section": true, "polls-section": true, "admin-panel": false
+        };
+        const perms = user.permissions || defaultPermissions;
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            const target = item.getAttribute('data-target');
+            if (!target) return;
+            
+            // Super Admin bypass for Admin Panel ONLY (to prevent self-lockout)
+            if (isSuperAdmin && target === 'admin-panel') {
+                item.style.display = '';
+                return;
+            }
+
+            // Check if permission explicitly denied (applies to everyone, even Super Admin now)
+            if (perms[target] === false) {
+                item.style.display = 'none';
+            } else if (!item.classList.contains('admin-only') && !item.classList.contains('superadmin-only')) {
+                // If permission is true, and it's not restricted by hardcoded role classes
+                item.style.display = '';
+            }
+        });
+
+        // 3. Security: Kick user out of forbidden sections if they are currently viewing one
+        const activeSection = document.querySelector('.view-section.active');
+        if (activeSection) {
+            const sectionId = activeSection.id;
+            if (perms[sectionId] === false || (activeSection.classList.contains('admin-only') && !isAdmin) || (activeSection.classList.contains('superadmin-only') && !isSuperAdmin)) {
+                if (typeof App !== 'undefined') App.navigateTo('dashboard');
+            }
+        }
     },
 
     saveProfile: () => {
@@ -440,7 +511,6 @@ const AuthManager = {
                 AuthManager.updateUserUI();
                 if (typeof TeamManager !== 'undefined') TeamManager.render();
                 if (typeof ChatManager !== 'undefined') ChatManager.render();
-                Store.log('Profile Updated', name);
                 AuthManager.showToast('✅ تم تحديث الملف الشخصي بنجاح!');
             }
         };

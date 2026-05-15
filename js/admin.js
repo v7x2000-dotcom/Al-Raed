@@ -16,10 +16,11 @@ const AdminPanel = {
             }
         }, 3000);
         // Close modal buttons
-        document.querySelectorAll('#admin-reset-modal .close-modal, #admin-reset-modal .cancel-modal, #admin-manage-user-modal .close-modal').forEach(btn => {
+        document.querySelectorAll('#admin-reset-modal .close-modal, #admin-reset-modal .cancel-modal, #admin-manage-user-modal .close-modal, #admin-permissions-modal .close-modal, #admin-permissions-modal .cancel-modal').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.getElementById('admin-reset-modal').classList.add('hidden');
                 document.getElementById('admin-manage-user-modal').classList.add('hidden');
+                document.getElementById('admin-permissions-modal').classList.add('hidden');
             });
         });
 
@@ -69,26 +70,136 @@ const AdminPanel = {
             const isMe = user.id === me?.id;
 
             return `
-                <tr style="border-bottom:1px solid var(--border-color);transition:background 0.2s;cursor:pointer;" 
+                <tr style="border-bottom:1px solid var(--border-color);transition:background 0.2s;" 
                     onmouseenter="this.style.background='var(--bg-primary)'" 
-                    onmouseleave="this.style.background='transparent'"
-                    onclick="AdminPanel.openManageModal('${user.id}')">
-                    <td style="padding:0.875rem 0.75rem;">
+                    onmouseleave="this.style.background='transparent'">
+                    <td style="padding:0.875rem 0.75rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">
                         ${avatar}
                         <span style="font-weight:600;">${user.name}${isMe ? ' <span style="font-size:0.7rem;background:rgba(16,185,129,0.1);color:#10b981;padding:2px 6px;border-radius:10px;">You</span>' : ''}</span>
                     </td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem;">${user.email}</td>
-                    <td style="padding:0.875rem 0.75rem;">
+                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.email}</td>
+                    <td style="padding:0.875rem 0.75rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">
                         ${isSuperAdmin
                             ? '<span style="background:rgba(139,92,246,0.1);color:#8b5cf6;padding:0.2rem 0.6rem;border-radius:10px;font-size:0.8rem;font-weight:600;">Super Admin</span>'
                             : `<span style="font-size:0.85rem;padding:0.2rem 0.6rem;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;">${typeof LangManager !== 'undefined' ? LangManager.t(user.role) : user.role}</span>`
                         }
                     </td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem;">${user.title || '—'}</td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem;">${joined}</td>
+                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.title || '—'}</td>
+                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${joined}</td>
+                    <td style="padding:0.875rem 0.75rem;text-align:center;">
+                        ${!isMe ? `
+                        <button class="btn btn-outline" style="padding:0.4rem 0.8rem; font-size:0.75rem; border-radius:8px;" onclick="AdminPanel.openPermissionsModal('${user.id}')" title="إدارة الصلاحيات">
+                            <i class="fas fa-user-lock"></i> الصلاحيات
+                        </button>` : ''}
+                    </td>
                 </tr>
             `;
         }).join('');
+    },
+
+    _permissionsTargetId: null,
+
+    openPermissionsModal: (userId) => {
+        const users = Store.get('users') || [];
+        const user = users.find(u => u.id === userId);
+        if (!user) return;
+
+        AdminPanel._permissionsTargetId = userId;
+        document.getElementById('admin-permissions-target-name').textContent = user.name;
+
+        const defaultPermissions = { "dashboard": true, "tasks": true, "team": false, "chat-section": true, "calendar": true, "finance": false, "reports": false, "drive": true, "settings": true, "support": true, "profile": true, "projects": true, "clients": true, "inventory": false, "wiki": true, "feed-section": true, "expenses-section": true, "polls-section": true, "admin-panel": false };
+        const perms = user.permissions || defaultPermissions;
+
+        const modules = [
+            { id: 'dashboard', icon: 'fa-chart-line', name: 'لوحة القيادة' },
+            { id: 'tasks', icon: 'fa-tasks', name: 'المهام' },
+            { id: 'chat-section', icon: 'fa-comments', name: 'المحادثات' },
+            { id: 'drive', icon: 'fa-cloud', name: 'السحابة والأرشيف' },
+            { id: 'finance', icon: 'fa-wallet', name: 'المالية' },
+            { id: 'calendar', icon: 'fa-calendar-alt', name: 'التقويم' },
+            { id: 'reports', icon: 'fa-file-alt', name: 'التقارير' },
+            { id: 'team', icon: 'fa-users', name: 'إدارة الفريق' },
+            { id: 'projects', icon: 'fa-project-diagram', name: 'المشاريع' },
+            { id: 'clients', icon: 'fa-user-tie', name: 'العملاء' },
+            { id: 'wiki', icon: 'fa-book-open', name: 'قاعدة المعرفة' },
+            { id: 'feed-section', icon: 'fa-newspaper', name: 'أخبار الشركة' },
+            { id: 'expenses-section', icon: 'fa-file-invoice-dollar', name: 'طلبات الصرف' },
+            { id: 'polls-section', icon: 'fa-poll-h', name: 'التصويتات' },
+            { id: 'inventory', icon: 'fa-boxes', name: 'المخزن' },
+            { id: 'admin-panel', icon: 'fa-shield-alt', name: 'لوحة التحكم (المدير)' }
+        ];
+
+        const list = document.getElementById('admin-permissions-list');
+        list.innerHTML = modules.map(m => `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-secondary); padding:0.8rem; border-radius:var(--radius-md); border:1px solid var(--border-color);">
+                <div style="display:flex; align-items:center; gap:0.5rem; font-size:0.85rem; font-weight:600;">
+                    <i class="fas ${m.icon}" style="color:var(--primary-color); width:20px; text-align:center;"></i> ${m.name}
+                </div>
+                <label style="position:relative; display:inline-block; width:40px; height:20px;">
+                    <input type="checkbox" id="perm-${m.id}" style="opacity:0; width:0; height:0;" ${perms[m.id] !== false ? 'checked' : ''}>
+                    <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:${perms[m.id] !== false ? '#10b981' : 'var(--text-secondary)'}; transition:.4s; border-radius:20px;">
+                        <span style="position:absolute; content:''; height:14px; width:14px; left:${perms[m.id] !== false ? '23px' : '3px'}; bottom:3px; background-color:white; transition:.4s; border-radius:50%;"></span>
+                    </span>
+                </label>
+            </div>
+        `).join('');
+
+        // Handle toggle visual switch
+        modules.forEach(m => {
+            const chk = document.getElementById(`perm-${m.id}`);
+            if (chk) {
+                chk.addEventListener('change', (e) => {
+                    const spanBg = e.target.nextElementSibling;
+                    const spanCircle = spanBg.querySelector('span');
+                    if (e.target.checked) {
+                        spanBg.style.backgroundColor = '#10b981';
+                        spanCircle.style.left = '23px';
+                    } else {
+                        spanBg.style.backgroundColor = 'var(--text-secondary)';
+                        spanCircle.style.left = '3px';
+                    }
+                });
+            }
+        });
+
+        document.getElementById('admin-permissions-modal').classList.remove('hidden');
+    },
+
+    savePermissions: () => {
+        if (!AdminPanel._permissionsTargetId) return;
+
+        let users = Store.get('users') || [];
+        const idx = users.findIndex(u => u.id === AdminPanel._permissionsTargetId);
+        if (idx === -1) return;
+
+        const modules = ['dashboard', 'tasks', 'team', 'chat-section', 'calendar', 'finance', 'reports', 'drive', 'settings', 'support', 'profile', 'projects', 'clients', 'inventory', 'wiki', 'feed-section', 'expenses-section', 'polls-section', 'admin-panel'];
+        
+        let newPerms = {};
+        modules.forEach(m => {
+            const chk = document.getElementById(`perm-${m}`);
+            newPerms[m] = chk ? chk.checked : false;
+        });
+
+        users[idx].permissions = newPerms;
+        Store.set('users', users);
+
+        // Update team store as well
+        let team = Store.get('team') || [];
+        const tidx = team.findIndex(t => t.id === AdminPanel._permissionsTargetId);
+        if (tidx !== -1) {
+            team[tidx].permissions = newPerms;
+            Store.set('team', team);
+        }
+
+        // If editing self, update current session and UI immediately
+        if (AuthManager.currentUser && AuthManager.currentUser.id === AdminPanel._permissionsTargetId) {
+            AuthManager.currentUser.permissions = newPerms;
+            localStorage.setItem('currentUser', JSON.stringify(AuthManager.currentUser));
+            AuthManager.applyRoleUI();
+        }
+
+        AuthManager.showToast('✅ تم حفظ الصلاحيات بنجاح!');
+        document.getElementById('admin-permissions-modal').classList.add('hidden');
     },
 
     filterUsers: (query) => {

@@ -19,6 +19,8 @@ const Translations = {
     'Clients':        'العملاء',
     'Inventory':      'المخزن',
     'Knowledge Base': 'قاعدة المعرفة',
+    'Role':           'الرتبة',
+    'Rank':           'الرتبة',
 
     // Dashboard
     'Dashboard Overview': 'نظرة عامة',
@@ -193,7 +195,7 @@ const Translations = {
     'Initial Progress (%)': 'نسبة الإنجاز المبدئية (%)',
     'Planning': 'تخطيط',
     'On Hold': 'قيد الانتظار',
-    'Completed': 'مكتمل',
+    'Completed': 'مكتملة',
     'Save Project': 'حفظ المشروع',
     'Client CRM': 'إدارة العملاء',
     'New Client': 'عميل جديد',
@@ -340,13 +342,19 @@ const Translations = {
     'Save Changes': 'حفظ التغييرات',
     'Upload Photo': 'رفع صورة',
     'Task Overview': 'ملخص المهام',
-    'Financial Forecasting (AI)': 'توقعات مالية (ذكاء اصطناعي)',
-    'Recent Activity': 'آخر الأنشطة',
-    'AI Smart Briefing': 'ملخص ذكي',
-    'Analyzing data...': 'جاري تحليل البيانات...',
-    'Active Tasks': 'المهام النشطة',
     'Upcoming Events': 'المواعيد القادمة',
     'Team Members': 'أعضاء الفريق',
+    'Financial Pulse': 'النبض المالي',
+    'Task Performance': 'أداء المهام',
+    'AI Revenue Forecast': 'توقعات الإيرادات (AI)',
+    'Financial Forecasting (AI)': 'توقعات مالية (ذكاء اصطناعي)',
+    'Income': 'الدخل',
+    'Expenses': 'المصروفات',
+    'To Do': 'قيد الانتظار',
+    'In Progress': 'قيد التنفيذ',
+    'Completed': 'مكتملة',
+    'Jan': 'يناير', 'Feb': 'فبراير', 'Mar': 'مارس', 'Apr': 'أبريل', 'May': 'مايو', 'Jun': 'يونيو',
+    'Jul': 'يوليو', 'Aug': 'أغسطس', 'Sep': 'سبتمبر', 'Oct': 'أكتوبر', 'Nov': 'نوفمبر', 'Dec': 'ديسمبر',
     'Sun': 'أحد', 'Mon': 'اثنين', 'Tue': 'ثلاثاء', 'Wed': 'أربعاء', 'Thu': 'خميس', 'Fri': 'جمعة', 'Sat': 'سبت',
 
     // Detailed Descriptions & Subtitles
@@ -525,6 +533,15 @@ const Translations = {
     'This message was deleted': 'تم حذف هذه الرسالة',
     'Delete message?': 'حذف الرسالة؟',
     'Are you sure you want to delete this message?': 'هل أنت متأكد من حذف هذه الرسالة؟',
+    'PLATINUM': 'بلاتينية',
+    'GOLD': 'ذهبية',
+    'Currency Symbol': 'ج.م',
+    'No expenses recorded': 'لا توجد مصروفات مسجلة',
+    'No income recorded': 'لا توجد سجلات دخل',
+    'No debts recorded': 'لا توجد ديون مسجلة',
+    'Total Monthly Expenses': 'إجمالي مصاريف الشهر',
+    'Monthly Expenses': 'مصاريف الشهر',
+    'Total Balance': 'المبلغ الإجمالي',
 };
 
 const LangManager = {

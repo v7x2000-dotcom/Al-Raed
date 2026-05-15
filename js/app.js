@@ -126,6 +126,7 @@ const App = {
                 if (typeof TeamManager !== 'undefined') TeamManager.render();
                 if (typeof ChatManager !== 'undefined') ChatManager.loadUsers();
                 if (typeof AdminPanel !== 'undefined') AdminPanel.refresh();
+                if (typeof AuthManager !== 'undefined') AuthManager.applyRoleUI();
             }
             if (!e.key || e.key === 'tasks') {
                 if (typeof TasksManager !== 'undefined') TasksManager.render();
@@ -146,6 +147,16 @@ const App = {
     },
 
     navigateTo: (target) => {
+        const user = AuthManager.currentUser;
+        if (user && user.role !== 'Super Admin') {
+            const defaultPermissions = { "dashboard": true, "tasks": true, "chat-section": true, "calendar": true, "drive": true, "settings": true, "profile": true, "projects": true, "clients": true, "wiki": true, "feed-section": true, "expenses-section": true, "polls-section": true, "support": true };
+            const perms = user.permissions || defaultPermissions;
+            if (perms[target] === false) {
+                if (typeof AuthManager !== 'undefined') AuthManager.showToast('عذراً، ليس لديك صلاحية للوصول لهذا القسم.', 'error');
+                target = 'dashboard';
+            }
+        }
+
         const navLink = document.querySelector(`.nav-item[data-target="${target}"]`);
         if (navLink) {
             navLink.click();
@@ -167,11 +178,23 @@ const App = {
             item.addEventListener('click', (e) => {
                 e.preventDefault();
 
+                const target = item.getAttribute('data-target');
+                
+                // Permission Check
+                const user = AuthManager.currentUser;
+                if (user && user.role !== 'Super Admin') {
+                    const defaultPermissions = { "dashboard": true, "tasks": true, "chat-section": true, "calendar": true, "drive": true, "settings": true, "profile": true, "projects": true, "clients": true, "wiki": true, "feed-section": true, "expenses-section": true, "polls-section": true, "support": true };
+                    const perms = user.permissions || defaultPermissions;
+                    if (perms[target] === false) {
+                        if (typeof AuthManager !== 'undefined') AuthManager.showToast('عذراً، ليس لديك صلاحية للوصول لهذا القسم.', 'error');
+                        return;
+                    }
+                }
+
                 navItems.forEach(n => n.classList.remove('active'));
                 sections.forEach(s => s.classList.remove('active'));
 
                 item.classList.add('active');
-                const target = item.getAttribute('data-target');
                 const section = document.getElementById(target);
                 if (section) section.classList.add('active');
 
@@ -359,7 +382,7 @@ const App = {
         const doneTasks = tasks.filter(t => t.status === 'done').length;
         const totalTasks = tasks.length;
         const todayStr = new Date().toISOString().slice(0, 10);
-        const upcoming = events.filter(e => e.date >= todayStr).length + tasks.filter(t => t.deadline >= todayStr && t.status !== 'done').length;
+        const upcoming = events.filter(e => e.date >= todayStr).length;
 
         // AI Briefing
         const briefingCard = document.getElementById('ai-briefing-card');
@@ -409,7 +432,8 @@ const App = {
                 'Added Team Member': isAr ? 'أضاف عضواً جديداً' : 'added a team member',
                 'Removed Team Member': isAr ? 'حذف عضواً من الفريق' : 'removed a team member',
                 'Role Changed': isAr ? 'غير الرتبة' : 'changed role',
-                'المسؤول: تغيير الرتبة': isAr ? 'تغيير الرتبة' : 'changed role',
+                'admin: role changed': isAr ? 'قام بتغيير الرتبة' : 'admin: role changed',
+                'المسؤول: تغيير الرتبة': isAr ? 'قام بتغيير الرتبة' : 'changed role',
                 'المسؤول: حذف مستخدم': isAr ? 'حذف مستخدم' : 'deleted user',
                 'المسؤول: حظر مستخدم': isAr ? 'حظر مستخدم' : 'banned user',
                 'المسؤول: إعادة تعيين كلمة المرور': isAr ? 'أعاد تعيين كلمة السر' : 'reset password',
@@ -420,6 +444,13 @@ const App = {
                 'Added Project': isAr ? 'بدأ مشروعاً جديداً' : 'started a new project',
                 'Added Client': isAr ? 'أضاف عميلاً جديداً' : 'added a new client',
                 'Added Inventory Item': isAr ? 'أضاف صنفاً للمخزن' : 'added an inventory item'
+            };
+
+            const roleTranslations = {
+                'Super Admin': isAr ? 'مدير عام' : 'Super Admin',
+                'Manager': isAr ? 'مدير' : 'Manager',
+                'Member': isAr ? 'موظف' : 'Member',
+                'Admin': isAr ? 'مسؤول' : 'Admin'
             };
 
             const colorMap = {
@@ -437,8 +468,20 @@ const App = {
                         <div class="activity-icon" style="width:36px; height:36px; border-radius:50%; background:${colorMap[log.action] || 'var(--bg-primary)'}20; color:${colorMap[log.action] || 'var(--text-secondary)'}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <i class="fas ${iconMap[log.action] || 'fa-circle'}"></i>
                         </div>
-                        <div class="activity-details" style="flex:1;">
-                            <p style="margin:0; font-size:0.9rem;"><strong>${log.userName}</strong> ${actionTranslations[log.action] || log.action.toLowerCase()}${log.target ? ': <em style="color:var(--primary-color)">' + log.target + '</em>' : ''}</p>
+                        <div class="activity-details" style="flex:1; text-align: ${isAr ? 'right' : 'left'};">
+                            <p style="margin:0; font-size:0.9rem; direction: ${isAr ? 'rtl' : 'ltr'};">
+                                <strong>${log.userName}</strong> ${(actionTranslations[log.action] || actionTranslations[log.action.toLowerCase()] || log.action.toLowerCase())}
+                                ${log.target ? ': <em style="color:var(--primary-color)">' + 
+                                    (isAr ? (function(t){
+                                        let res = t;
+                                        Object.keys(roleTranslations).forEach(r => { 
+                                            const reg = new RegExp(r, 'g');
+                                            res = res.replace(reg, roleTranslations[r]); 
+                                        });
+                                        return res;
+                                    })(log.target) : log.target) 
+                                + '</em>' : ''}
+                            </p>
                             <span class="activity-time" style="font-size:0.75rem; color:var(--text-secondary); opacity:0.7;">${new Date(log.timestamp).toLocaleString(isAr ? 'ar-EG' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
                         </div>
                     </li>
@@ -452,24 +495,36 @@ const App = {
             const projects = Store.get('projects') || [];
             const tasks = Store.get('tasks') || [];
             const doneTasks = tasks.filter(t => t.status === 'done').length;
-            const expenses = records.filter(r => r.type === 'expense');
-            const totalExp = expenses.reduce((sum, e) => sum + e.amount, 0);
+            const income = records.filter(r => r.type === 'income');
+            const totalInc = income.reduce((sum, i) => sum + i.amount, 0);
 
             let finalForecast = 0;
-            if (totalExp > 0 || projects.length > 0 || tasks.length > 0) {
-                const baseEst = totalExp > 0 ? (totalExp * 1.6) : 500;
-                const projectEst = projects.length * 1200;
-                finalForecast = Math.round(baseEst + projectEst);
+            if (totalInc > 0) {
+                // If we have income history, use it + project potential
+                const avgInc = totalInc / Math.max(1, income.length);
+                const projectPotential = projects.length * 500; 
+                finalForecast = Math.round(avgInc + projectPotential);
+            } else if (projects.length > 0) {
+                // If no income but have projects, forecast based on projects only
+                finalForecast = projects.length * 1000; 
+            } else {
+                // No income, no projects = 0 forecast
+                finalForecast = 0;
             }
 
             const isAr = document.documentElement.dir === 'rtl';
-            const currency = isAr ? 'جنيه' : '$';
-            const growthRate = tasks.length > 0 ? (doneTasks / tasks.length * 40).toFixed(0) : 0;
+            const currency = isAr ? 'ج.م' : '$';
+            const growthRate = (totalInc > 0 && tasks.length > 0) ? (doneTasks / tasks.length * 25).toFixed(0) : 0;
 
             forecastEl.innerHTML = `
                 <div style="text-align:center; width:100%;">
-                    <div style="font-size:1.5rem; font-weight:800; color:var(--success); margin-bottom:0.5rem;">+${finalForecast.toLocaleString()} ${currency}</div>
-                    <div style="font-size:0.8rem; color:var(--text-secondary); opacity:0.8;">${LangManager.t('Growth forecast for next month')}: <span style="color:var(--success); font-weight:700;">+${growthRate > 0 ? growthRate : (finalForecast > 0 ? 5 : 0)}%</span></div>
+                    <div style="font-size:1.5rem; font-weight:800; color:${finalForecast > 0 ? 'var(--success)' : 'var(--text-secondary)'}; margin-bottom:0.5rem;">
+                        ${finalForecast > 0 ? '+' : ''}${finalForecast.toLocaleString()} ${currency}
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-secondary); opacity:0.8;">
+                        ${isAr ? 'توقعات النمو:' : 'Growth forecast:'} 
+                        <span style="color:var(--success); font-weight:700;">+${growthRate > 0 ? growthRate : (finalForecast > 0 ? 5 : 0)}%</span>
+                    </div>
                     <div style="margin-top:1.5rem; height:8px; background:rgba(0,0,0,0.05); border-radius:10px; overflow:hidden;">
                         <div style="width:${finalForecast > 0 ? Math.min(100, 20 + parseInt(growthRate)) : 0}%; height:100%; background:var(--success-gradient); border-radius:10px; transition: width 1s ease-out;"></div>
                     </div>
@@ -590,15 +645,18 @@ const App = {
 
         const tasks = Store.get('tasks') || [];
         const todo = tasks.filter(t => t.status === 'todo').length;
-        const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+        const inProgress = tasks.filter(t => t.status === 'inprogress').length;
         const done = tasks.filter(t => t.status === 'done').length;
+        const total = tasks.length;
 
         if (window.myTasksChart) window.myTasksChart.destroy();
+
+        const noData = total === 0;
 
         window.myTasksChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['To Do', 'In Progress', 'Completed'],
+                labels: noData ? [LangManager.t('No Tasks')] : [LangManager.t('To Do'), LangManager.t('In Progress'), LangManager.t('Completed')],
                 datasets: [{
                     data: [todo, inProgress, done],
                     backgroundColor: ['#94a3b8', '#3b82f6', '#10b981'],
@@ -609,10 +667,11 @@ const App = {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                cutout: '70%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { color: '#94a3b8', font: { weight: '600' } } }
-                },
-                cutout: '70%'
+                    legend: { position: 'bottom', labels: { color: '#94a3b8', padding: 20, usePointStyle: true } },
+                    tooltip: { enabled: !noData }
+                }
             }
         });
     },
@@ -622,35 +681,41 @@ const App = {
         if (!ctx) return;
 
         const records = Store.get('finance') || [];
-        const incomes = records.filter(r => r.type === 'income');
-        const expenses = records.filter(r => r.type === 'expense');
-
+        
         // Group by month (last 6 months)
         const labels = [];
         const incomeData = [];
         const expenseData = [];
+        const debtsData = [];
 
         for (let i = 5; i >= 0; i--) {
             const d = new Date();
             d.setMonth(d.getMonth() - i);
-            const monthLabel = d.toLocaleString('default', { month: 'short' });
+            const monthRaw = d.toLocaleString('en-US', { month: 'short' });
+            const monthLabel = typeof LangManager !== 'undefined' ? LangManager.t(monthRaw) : monthRaw;
             labels.push(monthLabel);
 
             const m = d.getMonth();
             const y = d.getFullYear();
 
-            const monthIncomes = incomes.filter(r => {
-                const rd = new Date(r.timestamp);
-                return rd.getMonth() === m && rd.getFullYear() === y;
-            }).reduce((sum, r) => sum + r.amount, 0);
+            const monthIncome = records.filter(r => {
+                const rd = new Date(r.date || r.createdAt);
+                return r.type === 'income' && rd.getMonth() === m && rd.getFullYear() === y;
+            }).reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
 
-            const monthExpenses = expenses.filter(r => {
-                const rd = new Date(r.timestamp);
-                return rd.getMonth() === m && rd.getFullYear() === y;
-            }).reduce((sum, r) => sum + r.amount, 0);
+            const monthExpense = records.filter(r => {
+                const rd = new Date(r.date || r.createdAt);
+                return r.type === 'expense' && rd.getMonth() === m && rd.getFullYear() === y;
+            }).reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
 
-            incomeData.push(monthIncomes);
-            expenseData.push(monthExpenses);
+            const monthDebt = records.filter(r => {
+                const rd = new Date(r.date || r.createdAt);
+                return r.type === 'debt' && rd.getMonth() === m && rd.getFullYear() === y;
+            }).reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
+
+            incomeData.push(monthIncome);
+            expenseData.push(monthExpense);
+            debtsData.push(monthDebt);
         }
 
         if (window.myFinanceChart) window.myFinanceChart.destroy();
@@ -661,7 +726,7 @@ const App = {
                 labels: labels,
                 datasets: [
                     {
-                        label: 'Income',
+                        label: LangManager.t('Income'),
                         data: incomeData,
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
@@ -669,10 +734,18 @@ const App = {
                         tension: 0.4
                     },
                     {
-                        label: 'Expenses',
+                        label: LangManager.t('Expenses'),
                         data: expenseData,
                         borderColor: '#ef4444',
                         backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: LangManager.t('Debts'),
+                        data: debtsData,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
                         fill: true,
                         tension: 0.4
                     }

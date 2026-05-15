@@ -227,7 +227,7 @@ const FinanceManager = {
                         </span>
                     </td>
                     <td data-label="الوصف" style="padding:1rem;font-weight:500;">${e.description}</td>
-                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;color:var(--danger);">$${parseFloat(e.amount).toLocaleString()}</td>
+                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;color:var(--danger);">${parseFloat(e.amount).toLocaleString()} ${LangManager.t('Currency Symbol')}</td>
                     <td style="padding:1rem;">
                         <div style="display:flex;gap:0.5rem;">
                             <button onclick="App.exportToInvoice({person: 'Expense', desc: '${e.description}', amount: ${e.amount}, status: 'Paid'})" class="btn btn-icon" title="Invoice"><i class="fas fa-file-invoice"></i></button>
@@ -238,9 +238,9 @@ const FinanceManager = {
             `;
         }).join('');
 
-        if (expenses.length === 0) list.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-receipt" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> No expenses recorded</td></tr>';
+        if (expenses.length === 0) list.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-receipt" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> ${LangManager.t('No expenses recorded')}</td></tr>`;
 
-        document.getElementById('finance-total-expenses').textContent = '$' + total.toLocaleString();
+        document.getElementById('finance-total-expenses').textContent = total.toLocaleString() + ' ' + LangManager.t('Currency Symbol');
     },
 
     renderIncome: () => {
@@ -257,7 +257,7 @@ const FinanceManager = {
                     <td data-label="التاريخ" style="padding:1rem;">${new Date(i.date).toLocaleDateString()}</td>
                     <td data-label="مصدر الدخل" style="padding:1rem;font-weight:700;color:var(--success);">${i.person || 'عام'}</td>
                     <td data-label="الوصف" style="padding:1rem;">${i.description}</td>
-                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;color:var(--success);">$${parseFloat(i.amount).toLocaleString()}</td>
+                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;color:var(--success);">${parseFloat(i.amount).toLocaleString()} ${LangManager.t('Currency Symbol')}</td>
                     <td style="padding:1rem;">
                         <div style="display:flex;gap:0.5rem;">
                             <button onclick="FinanceManager.deleteEntry('${i.id}', 'income')" class="btn btn-icon" style="color:var(--danger)"><i class="fas fa-trash"></i></button>
@@ -267,10 +267,10 @@ const FinanceManager = {
             `;
         }).join('');
 
-        if (income.length === 0) list.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-hand-holding-usd" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> لا توجد سجلات دخل</td></tr>';
+        if (income.length === 0) list.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-hand-holding-usd" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> ${LangManager.t('No income recorded')}</td></tr>`;
 
         const totalEl = document.getElementById('finance-total-income');
-        if (totalEl) totalEl.textContent = '$' + total.toLocaleString();
+        if (totalEl) totalEl.textContent = total.toLocaleString() + ' ' + LangManager.t('Currency Symbol');
     },
 
     renderDebts: () => {
@@ -299,7 +299,7 @@ const FinanceManager = {
                         <div style="font-weight:700;">${d.person}</div>
                         <div style="font-size:0.75rem;color:var(--text-secondary);">${d.description}</div>
                     </td>
-                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;">$${parseFloat(d.amount).toLocaleString()}</td>
+                    <td data-label="المبلغ" style="padding:1rem;font-weight:700;">${parseFloat(d.amount).toLocaleString()} ${LangManager.t('Currency Symbol')}</td>
                     <td data-label="تاريخ الاستحقاق" style="padding:1rem;${dueWarning}">${d.dueDate ? new Date(d.dueDate).toLocaleDateString() : '-'}</td>
                     <td data-label="الحالة" style="padding:1rem;">
                         <span style="background:${statusBg};color:${statusColor};padding:6px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:4px;" onclick="FinanceManager.toggleDebtStatus('${d.id}')">
@@ -317,9 +317,9 @@ const FinanceManager = {
             `;
         }).join('');
 
-        if (debts.length === 0) list.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-hand-holding-usd" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> No debts recorded</td></tr>';
+        if (debts.length === 0) list.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-secondary);opacity:0.6;"><i class="fas fa-hand-holding-usd" style="font-size:2rem;margin-bottom:0.5rem;display:block;"></i> ${LangManager.t('No debts recorded')}</td></tr>`;
 
-        document.getElementById('finance-total-debts').textContent = '$' + totalUnpaid.toLocaleString();
-        document.getElementById('finance-paid-debts').textContent = '$' + totalPaid.toLocaleString();
+        document.getElementById('finance-total-debts').textContent = totalUnpaid.toLocaleString() + ' ' + LangManager.t('Currency Symbol');
+        document.getElementById('finance-paid-debts').textContent = totalPaid.toLocaleString() + ' ' + LangManager.t('Currency Symbol');
     }
 };

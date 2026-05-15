@@ -133,7 +133,6 @@ const CalendarManager = {
         if (!daysContainer) return;
         daysContainer.innerHTML = '';
 
-        const tasks  = Store.get('tasks')  || [];
         const events = Store.get('events') || [];
 
         const firstDay   = new Date(year, month, 1).getDay();
@@ -152,18 +151,11 @@ const CalendarManager = {
             const isToday = i === today.getDate() && month === today.getMonth() && year === today.getFullYear();
 
             const dayEvents = events.filter(e => e.date === dateStr);
-            const dayTasks  = tasks.filter(t => t.deadline === dateStr);
 
             let html = '';
             dayEvents.forEach(e => {
                 html += `<div class="cal-task" style="background:var(--primary-color);color:white;cursor:pointer;" title="${e.title}" onclick="CalendarManager.openModal(${JSON.stringify(e).replace(/"/g, '&quot;')})">
                     <i class="fas fa-calendar"></i> ${e.title.length > 12 ? e.title.substring(0,12)+'…' : e.title}
-                </div>`;
-            });
-            dayTasks.forEach(t => {
-                const color = t.priority === 'high' ? '#ef4444' : t.priority === 'medium' ? '#f59e0b' : '#10b981';
-                html += `<div class="cal-task" style="background:${color}20;color:${color};border-left:2px solid ${color};" title="${t.title}">
-                    <i class="fas fa-tasks"></i> ${t.title.length > 12 ? t.title.substring(0,12)+'…' : t.title}
                 </div>`;
             });
 
