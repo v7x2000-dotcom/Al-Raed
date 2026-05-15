@@ -77,16 +77,16 @@ const AdminPanel = {
                         ${avatar}
                         <span style="font-weight:600;">${user.name}${isMe ? ' <span style="font-size:0.7rem;background:rgba(16,185,129,0.1);color:#10b981;padding:2px 6px;border-radius:10px;">You</span>' : ''}</span>
                     </td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.email}</td>
-                    <td style="padding:0.875rem 0.75rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">
+                    <td data-label="البريد" style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.email}</td>
+                    <td data-label="الرتبة" style="padding:0.875rem 0.75rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">
                         ${isSuperAdmin
                             ? '<span style="background:rgba(139,92,246,0.1);color:#8b5cf6;padding:0.2rem 0.6rem;border-radius:10px;font-size:0.8rem;font-weight:600;">Super Admin</span>'
                             : `<span style="font-size:0.85rem;padding:0.2rem 0.6rem;border-radius:10px;background:rgba(37,99,235,0.1);color:#2563eb;">${typeof LangManager !== 'undefined' ? LangManager.t(user.role) : user.role}</span>`
                         }
                     </td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.title || '—'}</td>
-                    <td style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${joined}</td>
-                    <td style="padding:0.875rem 0.75rem;text-align:center;">
+                    <td data-label="المسمى" style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${user.title || '—'}</td>
+                    <td data-label="الانضمام" style="padding:0.875rem 0.75rem;color:var(--text-secondary);font-size:0.85rem; cursor:pointer; text-align:right;" onclick="AdminPanel.openManageModal('${user.id}')">${joined}</td>
+                    <td data-label="الإجراءات" style="padding:0.875rem 0.75rem;text-align:center;">
                         ${!isMe ? `
                         <button class="btn btn-outline" style="padding:0.4rem 0.8rem; font-size:0.75rem; border-radius:8px;" onclick="AdminPanel.openPermissionsModal('${user.id}')" title="إدارة الصلاحيات">
                             <i class="fas fa-user-lock"></i> الصلاحيات

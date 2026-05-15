@@ -4376,3 +4376,151 @@ html[dir="rtl"] .visa-info {
         max-width: 100%;
     }
 }
+
+/* ===================== PREMIUM RESPONSIVE REDESIGN (2026) ===================== */
+@media (max-width: 1024px) {
+    :root {
+        --sidebar-width: 80px;
+    }
+    
+    .sidebar .logo h2, .sidebar .nav-item span {
+        display: none;
+    }
+    
+    .sidebar .nav-item {
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .content-wrapper {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header-section, .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .header-section button, .section-header button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 600px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .topbar {
+        padding: 0 1rem;
+    }
+    
+    .username {
+        display: none;
+    }
+    
+    /* Extreme Glassmorphism on Mobile */
+    .glass-effect {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        background: rgba(var(--bg-secondary-rgb, 255, 255, 255), 0.7);
+    }
+    
+    /* Table to Card Transformation for ALL tables */
+    .glass-effect table, .glass-effect table thead, .glass-effect table tbody, .glass-effect table th, .glass-effect table td, .glass-effect table tr {
+        display: block;
+    }
+    
+    .glass-effect table thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+    }
+    
+    .glass-effect table tr {
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        background: rgba(255,255,255,0.02);
+    }
+    
+    .glass-effect table td {
+        border: none;
+        border-bottom: 1px solid rgba(var(--border-color-rgb, 0, 0, 0), 0.05);
+        position: relative;
+        padding-left: 50% !important;
+        text-align: right !important;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    
+    .glass-effect table td:last-child {
+        border-bottom: 0;
+    }
+    
+    .glass-effect table td:before {
+        content: attr(data-label);
+        font-weight: 800;
+        font-size: 0.7rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+        margin-left: 1rem;
+    }
+    
+    /* Fix for specific table cells that contain avatars or long text */
+    .glass-effect table td img {
+        margin-right: 0 !important;
+        margin-left: 0.5rem;
+    }
+    
+    /* Responsive Modals */
+    .modal-content {
+        width: 95% !important;
+        margin: 1rem auto !important;
+        padding: 1.25rem !important;
+    }
+    
+    .modal-body {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    /* Micro-interactions for Mobile */
+    .btn:active, .glass-effect:active {
+        transform: scale(0.97);
+        transition: transform 0.1s;
+    }
+}
+
+/* Specific optimizations for Finance Cards */
+@media (max-width: 480px) {
+    .visa-card {
+        aspect-ratio: auto;
+        min-height: 200px;
+    }
+    
+    .visa-number {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+}
