@@ -8,12 +8,17 @@ const TasksManager = {
     bindEvents: () => {
         const btnAdd = document.getElementById('btn-add-task');
         const modal = document.getElementById('task-modal');
-        if (!modal || !btnAdd) {
-            console.warn('TasksManager: Required DOM elements (btn-add-task or task-modal) not found.');
+        const viewModal = document.getElementById('task-view-modal');
+        if (!modal || !btnAdd || !viewModal) {
+            console.warn('TasksManager: Required DOM elements not found.');
             return;
         }
         const btnClose = modal.querySelector('.close-modal');
         const btnCancel = modal.querySelector('.cancel-modal');
+        
+        const btnCloseView = viewModal.querySelector('.close-modal');
+        const btnCancelView = viewModal.querySelector('.cancel-modal');
+        const btnEditView = document.getElementById('btn-edit-viewed-task');
 
         const openModal = () => {
             document.getElementById('task-id').value = '';
@@ -22,8 +27,7 @@ const TasksManager = {
             document.getElementById('task-priority').value = 'medium';
             document.getElementById('task-status').value = 'todo';
             document.getElementById('task-deadline').value = '';
-            document.getElementById('task-attachment').value = '';
-            document.getElementById('task-modal-title').textContent = 'New Task';
+            document.getElementById('task-modal-title').innerHTML = '<i class="fas fa-plus-circle"></i> إضافة مهمة جديدة';
             TasksManager.currentSubtasks = [];
             TasksManager.renderSubtasksEditor();
             modal.classList.remove('hidden');
@@ -33,6 +37,16 @@ const TasksManager = {
         if (btnAdd) btnAdd.addEventListener('click', openModal);
         if (btnClose) btnClose.addEventListener('click', closeModal);
         if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+        if (btnCloseView) btnCloseView.addEventListener('click', () => viewModal.classList.add('hidden'));
+        if (btnCancelView) btnCancelView.addEventListener('click', () => viewModal.classList.add('hidden'));
+        if (btnEditView) {
+            btnEditView.addEventListener('click', () => {
+                const id = btnEditView.dataset.id;
+                viewModal.classList.add('hidden');
+                TasksManager.editTask(id);
+            });
+        }
 
         const btnAddSubtask = document.getElementById('btn-add-subtask');
         if (btnAddSubtask) {
@@ -65,9 +79,7 @@ const TasksManager = {
                     priority: document.getElementById('task-priority')?.value || 'medium',
                     status: document.getElementById('task-status')?.value || 'todo',
                     deadline: document.getElementById('task-deadline')?.value || '',
-                    attachment: document.getElementById('task-attachment')?.value || '',
                     subtasks: TasksManager.currentSubtasks || [],
-                    timeSpent: parseInt(document.getElementById('task-time')?.dataset.time || 0) || 0,
                     isRunning: false
                 };
 
@@ -109,7 +121,6 @@ const TasksManager = {
     },
 
     currentSubtasks: [],
-    timerIntervals: {},
 
     renderSubtasksEditor: () => {
         const container = document.getElementById('subtasks-container');
@@ -144,28 +155,6 @@ const TasksManager = {
         TasksManager.renderSubtasksEditor();
     },
 
-    formatTime: (seconds) => {
-        const h = Math.floor(seconds / 3600);
-        const m = Math.floor((seconds % 3600) / 60);
-        const s = seconds % 60;
-        return `${h}h ${m}m ${s}s`;
-    },
-
-    toggleTimer: (id) => {
-        let tasks = Store.get('tasks') || [];
-        const task = tasks.find(t => t.id === id);
-        if(!task) return;
-
-        task.isRunning = !task.isRunning;
-        if(task.isRunning) {
-            task.lastStarted = Date.now();
-        } else {
-            const elapsed = Math.floor((Date.now() - (task.lastStarted || Date.now())) / 1000);
-            task.timeSpent = (task.timeSpent || 0) + elapsed;
-        }
-        Store.set('tasks', tasks);
-        TasksManager.render();
-    },
 
     toggleSubtaskInCard: (taskId, subtaskIdx) => {
         let tasks = Store.get('tasks') || [];
@@ -174,6 +163,23 @@ const TasksManager = {
             task.subtasks[subtaskIdx].done = !task.subtasks[subtaskIdx].done;
             Store.set('tasks', tasks);
             TasksManager.render();
+        }
+    },
+
+    toggleSection: (status) => {
+        const list = document.getElementById(`${status}-list`);
+        const header = list.previousElementSibling;
+        const arrow = header.querySelector('.section-arrow');
+        
+        const isActive = list.classList.contains('active');
+        
+        // Toggle current
+        if (isActive) {
+            list.classList.remove('active');
+            arrow.style.transform = 'rotate(0deg)';
+        } else {
+            list.classList.add('active');
+            arrow.style.transform = 'rotate(180deg)';
         }
     },
 
@@ -197,42 +203,24 @@ const TasksManager = {
             card.className = 'task-card';
             card.draggable = true;
             card.dataset.id = task.id;
+            card.onclick = (e) => {
+                // Don't open modal if clicking on buttons or checkboxes
+                if (e.target.closest('.task-actions') || e.target.closest('.subtask-item') || e.target.type === 'checkbox') return;
+                TasksManager.viewTask(task.id);
+            };
             
             card.innerHTML = `
-                <h4>${task.title}</h4>
-                <p>${task.desc || (typeof LangManager !== 'undefined' ? LangManager.t('No description') : 'No description')}</p>
-                
-                ${task.subtasks && task.subtasks.length > 0 ? `
-                <div style="margin: 0.5rem 0; font-size: 0.85rem;">
-                    <strong>${typeof LangManager !== 'undefined' ? LangManager.t('Sub-tasks') : 'Sub-tasks'}:</strong>
-                    ${task.subtasks.map((st, i) => `
-                        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.25rem;">
-                            <input type="checkbox" ${st.done ? 'checked' : ''} onclick="TasksManager.toggleSubtaskInCard('${task.id}', ${i})">
-                            <span style="text-decoration: ${st.done ? 'line-through' : 'none'}">${st.title}</span>
-                        </div>
-                    `).join('')}
-                </div>` : ''}
-
-                ${task.attachment ? `
-                <div style="margin: 0.5rem 0; font-size: 0.85rem;">
-                    <a href="${task.attachment}" target="_blank" style="color: var(--primary-color);"><i class="fas fa-link"></i> ${typeof LangManager !== 'undefined' ? LangManager.t('View Attachment') : 'View Attachment'}</a>
-                </div>` : ''}
-
-                <div style="margin: 0.5rem 0; font-size: 0.85rem; display:flex; align-items:center; gap:0.5rem;">
-                    <i class="fas fa-stopwatch"></i> ${TasksManager.formatTime(task.timeSpent || 0)}
-                    <button class="btn btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="TasksManager.toggleTimer('${task.id}')">
-                        ${task.isRunning ? `<i class="fas fa-pause text-danger"></i> ${typeof LangManager !== 'undefined' ? LangManager.t('Stop') : 'Stop'}` : `<i class="fas fa-play text-success"></i> ${typeof LangManager !== 'undefined' ? LangManager.t('Start') : 'Start'}`}
-                    </button>
-                </div>
-
-                <div class="task-meta" style="margin-top: 0.5rem;">
-                    <span class="priority-badge priority-${task.priority}">${typeof LangManager !== 'undefined' ? LangManager.t(task.priority.charAt(0).toUpperCase() + task.priority.slice(1)) : task.priority}</span>
+                <div class="task-card-header">
+                    <h4>${task.title}</h4>
                     <div class="task-actions">
-                        <button class="edit-task" onclick="TasksManager.editTask('${task.id}')"><i class="fas fa-edit"></i></button>
-                        <button class="delete-task" onclick="TasksManager.deleteTask('${task.id}')"><i class="fas fa-trash"></i></button>
+                        <button class="edit-task" onclick="event.stopPropagation(); TasksManager.editTask('${task.id}')"><i class="fas fa-edit"></i></button>
+                        <button class="delete-task" onclick="event.stopPropagation(); TasksManager.deleteTask('${task.id}')"><i class="fas fa-trash"></i></button>
                     </div>
                 </div>
-                ${task.deadline ? `<div style="margin-top:0.5rem;font-size:0.75rem;color:var(--text-secondary)"><i class="far fa-clock"></i> ${task.deadline}</div>` : ''}
+                <div class="task-card-footer">
+                    <span class="priority-badge priority-${task.priority}">${TasksManager.getPriorityLabel(task.priority)}</span>
+                    ${task.deadline ? `<span class="task-deadline-pill"><i class="far fa-clock"></i> ${task.deadline}</span>` : ''}
+                </div>
             `;
 
             if(task.status === 'todo') todoList.appendChild(card);
@@ -252,6 +240,51 @@ const TasksManager = {
         document.getElementById('count-done').textContent = counts.done;
     },
 
+    viewTask: (id) => {
+        const tasks = Store.get('tasks') || [];
+        const task = tasks.find(t => t.id === id);
+        if(!task) return;
+
+        const modal = document.getElementById('task-view-modal');
+        const titleEl = document.getElementById('view-task-title');
+        const bodyEl = document.getElementById('view-task-body');
+        const editBtn = document.getElementById('btn-edit-viewed-task');
+
+        titleEl.textContent = task.title;
+        editBtn.dataset.id = task.id;
+
+        bodyEl.innerHTML = `
+            <div class="view-item">
+                <label>الوصف:</label>
+                <p>${task.desc || 'لا يوجد وصف'}</p>
+            </div>
+            <div class="view-row">
+                <div class="view-item">
+                    <label>الأولوية:</label>
+                    <span class="priority-badge priority-${task.priority}">${TasksManager.getPriorityLabel(task.priority)}</span>
+                </div>
+                <div class="view-item">
+                    <label>الموعد النهائي:</label>
+                    <span>${task.deadline || 'غير محدد'}</span>
+                </div>
+            </div>
+            ${task.subtasks && task.subtasks.length > 0 ? `
+            <div class="view-item">
+                <label>المهام الفرعية (${task.subtasks.filter(s=>s.done).length}/${task.subtasks.length}):</label>
+                <div class="view-subtasks">
+                    ${task.subtasks.map((st, i) => `
+                        <div class="subtask-item">
+                            <input type="checkbox" ${st.done ? 'checked' : ''} onclick="TasksManager.toggleSubtaskInCard('${task.id}', ${i}); TasksManager.viewTask('${task.id}')">
+                            <span style="text-decoration: ${st.done ? 'line-through' : 'none'}">${st.title}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>` : ''}
+        `;
+
+        modal.classList.remove('hidden');
+    },
+
     editTask: (id) => {
         const tasks = Store.get('tasks');
         const task = tasks.find(t => t.id === id);
@@ -263,17 +296,21 @@ const TasksManager = {
         document.getElementById('task-priority').value = task.priority;
         document.getElementById('task-status').value = task.status;
         document.getElementById('task-deadline').value = task.deadline || '';
-        document.getElementById('task-attachment').value = task.attachment || '';
         
         TasksManager.currentSubtasks = task.subtasks ? JSON.parse(JSON.stringify(task.subtasks)) : [];
         TasksManager.renderSubtasksEditor();
 
-        document.getElementById('task-modal-title').textContent = 'Edit Task';
+        document.getElementById('task-modal-title').innerHTML = '<i class="fas fa-edit"></i> تعديل المهمة';
         document.getElementById('task-modal').classList.remove('hidden');
     },
 
+    getPriorityLabel: (p) => {
+        const labels = { 'low': 'منخفضة', 'medium': 'متوسطة', 'high': 'عالية' };
+        return labels[p] || p;
+    },
+
     deleteTask: (id) => {
-        askConfirm('Are you sure you want to delete this task?', () => {
+        askConfirm('هل أنت متأكد من حذف هذه المهمة؟', () => {
             let tasks = Store.get('tasks');
             tasks = tasks.filter(t => t.id !== id);
             Store.set('tasks', tasks);

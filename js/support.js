@@ -12,11 +12,11 @@ const SupportManager = {
                 const me = AuthManager.currentUser;
                 const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
                 const currentTicketsStr = JSON.stringify(Store.get('support_tickets') || []);
-                
+
                 if (lastTicketsState !== currentTicketsStr) {
                     const oldT = JSON.parse(lastTicketsState);
                     const newT = JSON.parse(currentTicketsStr);
-                    
+
                     if (newT.length > oldT.length && isAdmin) {
                         // New ticket created
                         const latest = newT[newT.length - 1];
@@ -36,7 +36,7 @@ const SupportManager = {
                             }
                         }
                     }
-                    
+
                     lastTicketsState = currentTicketsStr;
                     SupportManager.renderTicketsList();
                     if (SupportManager.currentTicketId) {
@@ -45,7 +45,7 @@ const SupportManager = {
                 }
             }
         });
-        
+
         // Listen for enter key in reply
         const replyInput = document.getElementById('support-reply-input');
         const adminReplyInput = document.getElementById('admin-support-reply-input');
@@ -66,20 +66,20 @@ const SupportManager = {
         SupportManager.renderTicketsList();
         SupportManager.currentTicketId = null;
         const p = SupportManager.getPrefix();
-        
+
         const header = document.getElementById(p + 'support-ticket-header');
         const messages = document.getElementById(p + 'support-ticket-messages');
         const replyArea = document.getElementById(p + 'support-reply-area');
-        
-        if(header) header.innerHTML = '<div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>';
-        if(messages) messages.innerHTML = `
+
+        if (header) header.innerHTML = '<div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>';
+        if (messages) messages.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);opacity:0.5;">
                 <i class="fas fa-headset" style="font-size:4rem;margin-bottom:1rem;"></i>
                 <p>مركز الدعم الفني في خدمتك</p>
             </div>
         `;
-        if(replyArea) replyArea.style.display = 'none';
-        
+        if (replyArea) replyArea.style.display = 'none';
+
         // Ensure ticket list title is correct
         const isAdmin = p === 'admin-';
         const titleEl = isAdmin ? document.querySelector('#admin-panel .support-grid > div:first-child > div:first-child') : document.querySelector('#support .support-grid > div:first-child > div:first-child');
@@ -100,13 +100,13 @@ const SupportManager = {
         const p = SupportManager.getPrefix();
         const listEl = document.getElementById(p + 'support-tickets-list');
         if (!listEl) return;
-        
+
         const me = AuthManager.currentUser;
         if (!me) return;
 
         const isAdmin = me.role === 'Super Admin' || me.role === 'Manager';
         let tickets = SupportManager.getTickets();
-        
+
         // Filter: Admin sees all, User sees only theirs
         if (!isAdmin) {
             tickets = tickets.filter(t => t.userId === me.id);
@@ -130,7 +130,7 @@ const SupportManager = {
             const isActive = ticket.id === SupportManager.currentTicketId;
             const statusColor = ticket.status === 'Open' ? '#10b981' : '#6b7280';
             const statusText = ticket.status === 'Open' ? 'مفتوحة' : 'مغلقة';
-            
+
             div.style.cssText = `
                 padding: 1rem;
                 border-bottom: 1px solid var(--border-color);
@@ -141,7 +141,7 @@ const SupportManager = {
                 background: ${isActive ? 'rgba(37,99,235,0.1)' : 'transparent'};
                 border-left: ${isActive ? '4px solid var(--primary-color)' : '4px solid transparent'};
             `;
-            
+
             div.innerHTML = `
                 <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
                     <strong style="font-size:0.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70%;">${ticket.title}</strong>
@@ -153,11 +153,11 @@ const SupportManager = {
                 </div>
                 ${isAdmin ? `<div style="font-size:0.75rem;margin-top:0.3rem;color:var(--primary-color);"><i class="fas fa-user"></i> ${ticket.userName}</div>` : ''}
             `;
-            
+
             div.addEventListener('click', () => SupportManager.viewTicket(ticket.id));
-            div.addEventListener('mouseenter', () => { if(!isActive) div.style.background = 'rgba(37,99,235,0.05)'; });
-            div.addEventListener('mouseleave', () => { if(!isActive) div.style.background = 'transparent'; });
-            
+            div.addEventListener('mouseenter', () => { if (!isActive) div.style.background = 'rgba(37,99,235,0.05)'; });
+            div.addEventListener('mouseleave', () => { if (!isActive) div.style.background = 'transparent'; });
+
             listEl.appendChild(div);
         });
     },
@@ -176,11 +176,11 @@ const SupportManager = {
 
         // Update header
         const header = document.getElementById(p + 'support-ticket-header');
-        if(!header) return;
-        
+        if (!header) return;
+
         const statusColor = ticket.status === 'Open' ? '#10b981' : '#6b7280';
         const statusText = ticket.status === 'Open' ? 'مفتوحة' : 'مغلقة';
-        
+
         header.innerHTML = `
             <div>
                 <div style="font-weight:700;font-size:1.1rem;margin-bottom:0.2rem;">${ticket.title}</div>
@@ -194,20 +194,20 @@ const SupportManager = {
 
         // Render messages
         const msgContainer = document.getElementById(p + 'support-ticket-messages');
-        if(!msgContainer) return;
-        
+        if (!msgContainer) return;
+
         msgContainer.innerHTML = '';
-        
+
         ticket.messages.forEach(msg => {
             const isMe = msg.senderId === me.id;
             const isSupportReply = msg.senderRole === 'Super Admin' || msg.senderRole === 'Manager';
-            
+
             const div = document.createElement('div');
             div.style.cssText = `
                 display:flex;flex-direction:column;max-width:80%; margin-bottom:1rem;
                 ${isMe ? 'align-self:flex-end;align-items:flex-end;' : 'align-self:flex-start;align-items:flex-start;'}
             `;
-            
+
             const bg = isMe ? 'var(--primary-color)' : (isSupportReply ? '#10b981' : 'var(--bg-secondary)');
             const color = (isMe || isSupportReply) ? '#fff' : 'var(--text-primary)';
             const borderRadius = isMe ? '12px 12px 2px 12px' : '12px 12px 12px 2px';
@@ -241,8 +241,8 @@ const SupportManager = {
 
         // Reply area
         const replyArea = document.getElementById(p + 'support-reply-area');
-        if(!replyArea) return;
-        
+        if (!replyArea) return;
+
         if (ticket.status === 'Open') {
             replyArea.style.display = 'flex';
             const closeBtn = document.getElementById(p === 'admin-' ? 'admin-btn-close-ticket' : 'btn-close-ticket');
@@ -268,7 +268,7 @@ const SupportManager = {
         const me = AuthManager.currentUser;
         const tickets = SupportManager.getTickets();
         const ticketIndex = tickets.findIndex(t => t.id === SupportManager.currentTicketId);
-        
+
         if (ticketIndex === -1 || tickets[ticketIndex].status !== 'Open') return;
 
         tickets[ticketIndex].messages.push({
@@ -291,7 +291,7 @@ const SupportManager = {
         askConfirm('هل أنت متأكد من إغلاق هذه التذكرة؟', () => {
             const tickets = SupportManager.getTickets();
             const ticketIndex = tickets.findIndex(t => t.id === SupportManager.currentTicketId);
-            
+
             if (ticketIndex > -1) {
                 tickets[ticketIndex].status = 'Closed';
                 tickets[ticketIndex].updatedAt = new Date().toISOString();
@@ -426,7 +426,7 @@ const SupportManager = {
         const tickets = SupportManager.getTickets();
         tickets.push(ticket);
         SupportManager.saveTickets(tickets);
-        
+
         SupportManager.closeModal();
         SupportManager.renderTicketsList();
         SupportManager.viewTicket(ticket.id);

@@ -1551,18 +1551,25 @@ input:checked+.slider:before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
     display: flex;
-    align-items: center;
     justify-content: center;
-    z-index: 2000;
-    backdrop-filter: blur(5px);
+    align-items: center;
+    z-index: 10000;
 }
 
 .modal-content {
-    width: 100%;
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    width: 95%;
     max-width: 500px;
-    padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+    padding: 0;
+}
     animation: slideDown 0.3s ease-out;
 }
 
@@ -1664,10 +1671,148 @@ input:checked+.slider:before {
     color: var(--primary-color);
 }
 
+/* Premium Sectioned Task Board */
+.task-sections-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 2rem;
+    align-items: start;
+}
+
+.task-section-wrapper {
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 500px; /* Fixed height for all columns */
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+    backdrop-filter: blur(8px);
+}
+
+.task-section-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.section-title i {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+}
+
+.section-title span {
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+}
+
+.count-pill {
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.task-list-collapsible {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    flex: 1;
+    overflow-y: auto; /* Internal scroll */
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-color) transparent;
+}
+
+.task-list-collapsible::-webkit-scrollbar {
+    width: 5px;
+}
+
+.task-list-collapsible::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.task-list-collapsible::-webkit-scrollbar-thumb {
+    background-color: var(--primary-color);
+    border-radius: 10px;
+    opacity: 0.5;
+}
+
+.task-list-collapsible.active {
+    display: flex;
+}
+
+/* Premium Task Card */
+.task-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: 1.25rem;
+    cursor: grab;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+.task-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    border-color: var(--primary-color);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.task-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.task-card-header h4 {
+    font-size: 1.05rem;
+    font-weight: 800;
+    line-height: 1.4;
+}
+
+.task-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.task-deadline-pill {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.03);
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 /* Responsive Cleanups */
 @media (max-width: 992px) {
     .dashboard-grid { grid-template-columns: 1fr; }
-    .task-board { grid-template-columns: 1fr; }
+    .task-list-collapsible { grid-template-columns: 1fr; }
+    .task-sections-container { grid-template-columns: 1fr; }
 }
 
 /* Auth Styles & Notification Dropdown Additions */
@@ -2010,29 +2155,37 @@ input:checked+.slider:before {
 }
 
 .chat-input-container {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     background: var(--bg-primary);
-    padding: 0.5rem 0.75rem;
-    border-radius: 30px;
-    border: 1.5px solid var(--border-color);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    padding: 6px 14px;
+    display: flex;
+    align-items: flex-end; /* Align to bottom for expanding textarea */
+    gap: 8px;
     transition: all 0.3s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .chat-input-container:focus-within {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(37,99,235,0.05);
+    box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
 }
 
-.chat-input-container input {
+.chat-input-container textarea {
     flex: 1;
-    border: none;
     background: none;
+    border: none;
     color: var(--text-primary);
     font-size: 0.95rem;
-    padding: 0.5rem;
     outline: none;
+    padding: 8px 4px;
+    resize: none;
+    scrollbar-width: none;
+}
+
+.chat-input-container textarea::-webkit-scrollbar {
+    display: none;
 }
 
 .chat-action-btn {
@@ -3281,6 +3434,9 @@ html[dir="rtl"] .msg-wrapper.msg-sent .msg-bubble-container {
     gap: 6px;
     letter-spacing: 0.01em;
     white-space: nowrap;
+    direction: ltr !important;
+    justify-content: flex-start !important;
+    margin-right: auto;
 }
 
 .msg-sender-name::before {
@@ -3290,6 +3446,7 @@ html[dir="rtl"] .msg-wrapper.msg-sent .msg-bubble-container {
     background: var(--primary-color);
     border-radius: 50%;
     flex-shrink: 0;
+    order: -1;
 }
 
 
@@ -3878,3 +4035,344 @@ html[dir="rtl"] .msg-wrapper.msg-sent .msg-bubble-container {
 
 .topbar-left i { color: var(--primary-color); font-size: 1.4rem; }
 .topbar-left span { font-weight: 700; font-size: 1.1rem; color: var(--text-primary); }
+
+/* ===================== VISA CARD STYLES ===================== */
+.visa-card {
+    width: 100%;
+    max-width: 340px; /* Reduced from default */
+    aspect-ratio: 1.586 / 1;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 16px;
+    padding: 1.25rem;
+    position: relative;
+    color: white;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+}
+
+.visa-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+}
+
+.visa-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(255,255,255,0.05) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.card-expenses {
+    background: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%); /* Deep Purple/Blue */
+}
+
+.card-income {
+    background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); /* Deep Green */
+}
+
+.visa-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.visa-type {
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 300;
+    opacity: 0.8;
+}
+
+.visa-logo {
+    font-size: 1.75rem;
+}
+
+.visa-chip {
+    width: 38px;
+    height: 28px;
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    border-radius: 4px;
+    position: relative;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+}
+
+.visa-chip::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 12px;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 2px;
+}
+
+.visa-number {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    word-spacing: 6px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin: 0.75rem 0;
+}
+
+.visa-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.visa-info label {
+    display: block;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+    margin-bottom: 0.2rem;
+}
+
+.visa-info h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.visa-info p {
+    margin: 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* RTL Support - Ensuring Cards stay visually standard */
+html[dir="rtl"] .visa-card {
+    direction: ltr;
+    text-align: left;
+}
+
+html[dir="rtl"] .visa-info {
+    text-align: left;
+}
+
+/* ===================== TASK VIEW MODAL ===================== */
+.view-item {
+    margin-bottom: 1.5rem;
+}
+
+.view-item label {
+    display: block;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.view-item p {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.view-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.view-subtasks {
+    background: rgba(0,0,0,0.05);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+#task-view-modal .modal-body {
+    padding: 2rem;
+}
+
+/* ===================== MOBILE PROFESSIONAL OPTIMIZATIONS ===================== */
+@media (max-width: 600px) {
+    .finance-summary-container {
+        flex-direction: row !important; /* Force horizontal on mobile */
+        padding: 0.75rem;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        align-items: stretch;
+    }
+
+    .visa-card {
+        padding: 0.75rem;
+        border-radius: 10px;
+        flex: 1.2; /* Visa takes slightly more space */
+        min-height: 140px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .visa-number {
+        font-size: 0.7rem;
+        letter-spacing: 0.5px;
+        margin: 0.25rem 0;
+    }
+
+    .visa-info h3 {
+        font-size: 1rem;
+    }
+
+    .visa-chip {
+        width: 24px;
+        height: 18px;
+    }
+
+    .action-card {
+        padding: 0.75rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .action-card h3 {
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .action-card p {
+        display: none; /* Hide description to save space on mobile row */
+    }
+
+    .action-card .btn {
+        padding: 8px 12px;
+        font-size: 0.75rem;
+        width: 100%;
+    }
+
+    /* Transform Tables into Professional Cards on Mobile */
+    #finance-expenses-list tr, #finance-income-list tr {
+        padding: 0.75rem;
+        margin-bottom: 0.75rem;
+        gap: 0.25rem;
+    }
+
+    #finance-expenses-list td, #finance-income-list td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: none;
+        padding: 0.25rem 0 !important;
+    }
+
+    #finance-expenses-list td:before, #finance-income-list td:before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+        text-transform: uppercase;
+    }
+
+    /* Hide the original header row on mobile */
+    .finance-tab table thead {
+        display: none;
+    }
+
+    /* Specific styles for actions cell on mobile */
+    #finance-expenses-list td:last-child, #finance-income-list td:last-child {
+        margin-top: 0.5rem;
+        padding-top: 0.75rem !important;
+        border-top: 1px solid var(--border-color);
+    }
+    #finance-expenses-list td:last-child:before, #finance-income-list td:last-child:before {
+        content: 'إجراءات';
+    }
+}
+
+@media (max-width: 480px) {
+    .topbar {
+        padding: 0 0.75rem;
+    }
+    #view-title {
+        font-size: 1.75rem;
+    }
+    .finance-tab .header-section {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* Finance Summary Layout */
+.finance-summary-container {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    align-items: center;
+    background: rgba(30, 41, 59, 0.03);
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-color);
+}
+
+.finance-quick-actions {
+    flex: 1;
+}
+
+.action-card {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border-color);
+}
+
+.action-card .card-info {
+    flex: 1;
+}
+
+.action-card h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+    color: var(--text-primary);
+}
+
+.action-card p {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.action-card .btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    width: auto !important;
+    border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+    .finance-summary-container {
+        flex-direction: column;
+        padding: 1.25rem;
+        gap: 1.5rem;
+    }
+    .visa-card {
+        max-width: 100%;
+    }
+}

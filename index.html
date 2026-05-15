@@ -369,34 +369,44 @@
                 <section id="tasks" class="view-section">
                     <div class="header-section flex-between">
                         <div>
-                            <h1 data-original="Task Management">Task Management</h1>
-                            <p class="subtitle" data-original="Organize and track your team's progress">Organize and
-                                track your team's progress</p>
+                            <h1 data-original="Task Management">إدارة المهام</h1>
+                            <p class="subtitle" data-original="Organize and track your team's progress">نظم وتابع تقدمك ومهام فريقك</p>
                         </div>
                         <button class="btn btn-primary" id="btn-add-task"><i class="fas fa-plus"></i> <span
-                                data-original="New Task">New Task</span></button>
+                                data-original="New Task">مهمة جديدة</span></button>
                     </div>
-                    <div class="task-board">
-                        <div class="task-column">
-                            <div class="column-header">
-                                <h3>To Do</h3>
-                                <span class="count" id="count-todo">0</span>
+                    <div class="task-sections-container">
+                        <!-- To Do Section -->
+                        <div class="task-section-wrapper">
+                            <div class="task-section-header">
+                                <div class="section-title">
+                                    <i class="fas fa-list-ul"></i> <span>قيد الانتظار</span>
+                                    <span class="count-pill" id="count-todo">0</span>
+                                </div>
                             </div>
-                            <div class="task-list" id="todo-list" data-status="todo"></div>
+                            <div class="task-list-collapsible active" id="todo-list" data-status="todo"></div>
                         </div>
-                        <div class="task-column">
-                            <div class="column-header">
-                                <h3>In Progress</h3>
-                                <span class="count" id="count-inprogress">0</span>
+
+                        <!-- In Progress Section -->
+                        <div class="task-section-wrapper">
+                            <div class="task-section-header">
+                                <div class="section-title">
+                                    <i class="fas fa-spinner fa-spin-pulse"></i> <span>قيد التنفيذ</span>
+                                    <span class="count-pill" id="count-inprogress">0</span>
+                                </div>
                             </div>
-                            <div class="task-list" id="inprogress-list" data-status="inprogress"></div>
+                            <div class="task-list-collapsible active" id="inprogress-list" data-status="inprogress"></div>
                         </div>
-                        <div class="task-column">
-                            <div class="column-header">
-                                <h3>Done</h3>
-                                <span class="count" id="count-done">0</span>
+
+                        <!-- Done Section -->
+                        <div class="task-section-wrapper">
+                            <div class="task-section-header">
+                                <div class="section-title">
+                                    <i class="fas fa-check-double"></i> <span>المنتهية</span>
+                                    <span class="count-pill" id="count-done">0</span>
+                                </div>
                             </div>
-                            <div class="task-list" id="done-list" data-status="done"></div>
+                            <div class="task-list-collapsible active" id="done-list" data-status="done"></div>
                         </div>
                     </div>
                 </section>
@@ -477,6 +487,7 @@
                                     <i class="fas fa-shield-alt"></i> <span>مشفرة وآمنة</span>
                                 </div>
                             </header>
+                            
 
                             <!-- Attachment Preview Bar -->
                             <div id="chat-attachment-preview"
@@ -529,11 +540,13 @@
                                         title="Attach file">
                                         <i class="fas fa-paperclip"></i>
                                     </button>
+                                    <button id="btn-chat-smart-link" class="chat-action-btn" style="display:none; color:var(--primary-color);" title="الربط الذكي">
+                                        <i class="fas fa-magic"></i>
+                                    </button>
                                     <input type="file" id="chat-file-input"
                                         accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
                                         style="display:none;" onchange="ChatManager.handleFileSelect(this)">
-                                    <input id="chat-input" type="text" placeholder="اكتب رسالة..."
-                                        data-original-ph="Type a message...">
+                                    <textarea id="chat-input" placeholder="اكتب رسالة..." data-original-ph="Type a message..." rows="1"></textarea>
                                     <button id="btn-send-msg" class="chat-action-btn">
                                         <i class="fas fa-paper-plane" style="transform:translate(-1px,1px);"></i>
                                     </button>
@@ -675,45 +688,113 @@
                         style="display:flex;gap:1rem;margin-bottom:1.5rem;border-bottom:1px solid var(--border-color);padding-bottom:1rem;">
                         <button class="btn btn-primary" id="tab-expenses"
                             onclick="FinanceManager.switchTab('expenses')">
-                            <i class="fas fa-money-bill-wave"></i> <span data-original="Expenses">Expenses</span>
+                            <i class="fas fa-money-bill-wave"></i> <span data-original="Expenses">المصروفات</span>
+                        </button>
+                        <button class="btn btn-outline" id="tab-income"
+                            onclick="FinanceManager.switchTab('income')">
+                            <i class="fas fa-hand-holding-usd"></i> <span data-original="Income">الدخل</span>
                         </button>
                         <button class="btn btn-outline" id="tab-debts" onclick="FinanceManager.switchTab('debts')">
-                            <i class="fas fa-hand-holding-usd"></i> <span data-original="Debts">Debts</span>
+                            <i class="fas fa-university"></i> <span data-original="Debts">الديون</span>
                         </button>
                     </div>
 
                     <!-- Expenses View -->
                     <div id="finance-expenses" class="finance-tab active">
-                        <div class="stats-grid">
-                            <div class="stat-card glass-effect" style="border-left:4px solid var(--danger);">
-                                <div class="stat-info">
-                                    <h3 id="finance-total-expenses">$0</h3>
-                                    <p data-original="Total Monthly Expenses">Total Monthly Expenses</p>
+                        <div class="finance-summary-container">
+                            <div class="visa-card card-expenses">
+                                <div class="visa-header">
+                                    <span class="visa-type">PLATINUM</span>
+                                    <i class="fab fa-cc-visa visa-logo"></i>
+                                </div>
+                                <div class="visa-chip"></div>
+                                <div class="visa-number">**** **** **** 2026</div>
+                                <div class="visa-details">
+                                    <div class="visa-info">
+                                        <label>المبلغ الإجمالي</label>
+                                        <h3 id="finance-total-expenses">$0</h3>
+                                    </div>
+                                    <div class="visa-info">
+                                        <label>إجمالي المصاريف</label>
+                                        <p>الشهر الحالي</p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="header-section flex-between" style="margin-bottom:1rem;">
-                            <h3 data-original="Expenses Record">Expenses Record</h3>
-                            <button class="btn btn-primary" onclick="FinanceManager.openModal('expense')"><i
-                                    class="fas fa-plus"></i> <span data-original="Add Expense">Add
-                                    Expense</span></button>
+                            <div class="finance-quick-actions">
+                                <div class="action-card glass-effect">
+                                    <div class="card-info">
+                                        <h3 data-original="Expenses Record"><i class="fas fa-file-invoice-dollar" style="color:var(--primary-color); margin-left:8px;"></i> سجل المصروفات</h3>
+                                        <p>تابع كافة تحركاتك المالية بدقة</p>
+                                    </div>
+                                    <button class="btn btn-primary" onclick="FinanceManager.openModal('expense')">
+                                        <i class="fas fa-plus"></i> <span data-original="Add Expense">إضافة مصروف جديد</span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="glass-effect"
                             style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;">
                             <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
                                 <thead>
                                     <tr style="border-bottom:2px solid var(--border-color);">
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Date">Date</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Category">Category
-                                        </th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Description">
-                                            Description</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Amount">Amount</th>
-                                        <th style="padding:0.75rem;text-align:left;" data-original="Actions">Actions
-                                        </th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Date">التاريخ</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Category">الفئة</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Description">الوصف</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Amount">المبلغ</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Actions">إجراءات</th>
                                     </tr>
                                 </thead>
                                 <tbody id="finance-expenses-list"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Income View -->
+                    <div id="finance-income" class="finance-tab hidden" style="display:none;">
+                        <div class="finance-summary-container">
+                            <div class="visa-card card-income">
+                                <div class="visa-header">
+                                    <span class="visa-type">GOLD</span>
+                                    <i class="fab fa-cc-mastercard visa-logo"></i>
+                                </div>
+                                <div class="visa-chip"></div>
+                                <div class="visa-number">**** **** **** 8888</div>
+                                <div class="visa-details">
+                                    <div class="visa-info">
+                                        <label>المبلغ الإجمالي</label>
+                                        <h3 id="finance-total-income">$0</h3>
+                                    </div>
+                                    <div class="visa-info">
+                                        <label>إجمالي الدخل</label>
+                                        <p>الشهر الحالي</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="finance-quick-actions">
+                                <div class="action-card glass-effect">
+                                    <div class="card-info">
+                                        <h3 data-original="Income Record"><i class="fas fa-chart-line" style="color:var(--success); margin-left:8px;"></i> سجل الدخل</h3>
+                                        <p>راقب أرباحك ونمو دخلك الشهري</p>
+                                    </div>
+                                    <button class="btn btn-primary" style="background:var(--success-gradient);" onclick="FinanceManager.openModal('income')">
+                                        <i class="fas fa-plus"></i> <span data-original="Add Income">إضافة دخل جديد</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="glass-effect"
+                            style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:0.875rem;">
+                                <thead>
+                                    <tr style="border-bottom:2px solid var(--border-color);">
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Date">التاريخ</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Source">المصدر</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Description">الوصف</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Amount">المبلغ</th>
+                                        <th style="padding:0.75rem;text-align:left;" data-original="Actions">إجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="finance-income-list"></tbody>
                             </table>
                         </div>
                     </div>
@@ -734,10 +815,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="header-section flex-between" style="margin-bottom:1rem;">
-                            <h3 data-original="Debts Record">Debts Record</h3>
-                            <button class="btn btn-primary" onclick="FinanceManager.openModal('debt')"><i
-                                    class="fas fa-plus"></i> <span data-original="Add Debt">Add Debt</span></button>
+                        <div class="finance-quick-actions" style="margin-bottom:1.5rem;">
+                            <div class="action-card glass-effect">
+                                <div class="card-info">
+                                    <h3 data-original="Debts Record"><i class="fas fa-university" style="color:var(--warning); margin-left:8px;"></i> سجل الديون</h3>
+                                    <p>متابعة المبالغ المستحقة والالتزامات المالية</p>
+                                </div>
+                                <button class="btn btn-primary" style="background:var(--warning-gradient);" onclick="FinanceManager.openModal('debt')">
+                                    <i class="fas fa-plus"></i> <span data-original="Add Debt">تسجيل دين جديد</span>
+                                </button>
+                            </div>
                         </div>
                         <div class="glass-effect"
                             style="padding:1.5rem;border-radius:var(--radius-lg);overflow-x:auto;">
@@ -1267,71 +1354,77 @@
             </div>
         </div>
 
-        <!-- Task Modal -->
         <div class="modal hidden" id="task-modal">
             <div class="modal-content glass-effect" style="max-width:580px;">
                 <div class="modal-header">
-                    <h2 id="task-modal-title"><i class="fas fa-plus-circle" style="color:var(--primary-color)"></i> New
-                        Task</h2>
+                    <h2 id="task-modal-title"><i class="fas fa-tasks" style="color:var(--primary-color)"></i> مهمة جديدة</h2>
                     <button class="close-modal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" id="task-id">
                     <div class="form-group">
-                        <label data-original="Task Title">Task Title <span style="color:var(--danger)">*</span></label>
-                        <input type="text" id="task-title" data-original-ph="e.g., Q3 Marketing Strategy"
-                            placeholder="e.g., Q3 Marketing Strategy" required>
+                        <label>عنوان المهمة <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="task-title" placeholder="مثال: تجهيز المحاضرة القادمة" required>
                     </div>
                     <div class="form-group">
-                        <label data-original="Description">Description</label>
-                        <textarea id="task-desc" rows="2" data-original-ph="Task details..."
-                            placeholder="Task details..." style="resize:vertical;"></textarea>
+                        <label>تفاصيل المهمة</label>
+                        <textarea id="task-desc" rows="3" placeholder="اكتب تفاصيل المهمة هنا..." style="resize:vertical;"></textarea>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label>Priority</label>
+                            <label>الأولوية</label>
                             <select id="task-priority">
-                                <option value="low">🟢 Low</option>
-                                <option value="medium" selected>🟡 Medium</option>
-                                <option value="high">🔴 High</option>
+                                <option value="low">🟢 منخفضة</option>
+                                <option value="medium" selected>🟡 متوسطة</option>
+                                <option value="high">🔴 عالية</option>
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Status</label>
+                            <label>الحالة</label>
                             <select id="task-status">
-                                <option value="todo" selected>📋 To Do</option>
-                                <option value="inprogress">⚙️ In Progress</option>
-                                <option value="done">✅ Done</option>
+                                <option value="todo" selected>📋 قيد الانتظار</option>
+                                <option value="inprogress">⚙️ قيد التنفيذ</option>
+                                <option value="done">✅ مكتملة</option>
                             </select>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Deadline</label>
-                            <input type="date" id="task-deadline">
-                        </div>
-                        <div class="form-group">
-                            <label>Attachment URL</label>
-                            <input type="url" id="task-attachment" placeholder="https://...">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Sub-tasks</label>
+                        <label>الموعد النهائي</label>
+                        <input type="date" id="task-deadline">
+                    </div>
+                    <div class="form-group">
+                        <label>المهام الفرعية</label>
                         <div id="subtasks-container"
-                            style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.5rem;max-height:120px;overflow-y:auto;">
+                            style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.5rem;max-height:150px;overflow-y:auto;">
                         </div>
                         <div style="display:flex;gap:0.5rem;">
-                            <input type="text" id="new-subtask-input" placeholder="Add a sub-task and press +"
+                            <input type="text" id="new-subtask-input" placeholder="أضف مهمة فرعية..."
                                 style="flex:1;">
-                            <button type="button" class="btn btn-outline" id="btn-add-subtask"
-                                style="padding:0.5rem 0.75rem;flex-shrink:0;"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-primary" id="btn-add-subtask"
+                                style="padding:0.5rem 1rem;flex-shrink:0;"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary cancel-modal" data-original="Cancel">Cancel</button>
-                    <button class="btn btn-primary" id="save-task"><i class="fas fa-save"></i> <span
-                            data-original="Save Task">Save Task</span></button>
+                    <button class="btn btn-secondary cancel-modal">إلغاء</button>
+                    <button class="btn btn-primary" id="save-task" style="flex:1;"><i class="fas fa-save"></i> حفظ المهمة</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task View Modal -->
+        <div class="modal hidden" id="task-view-modal">
+            <div class="modal-content glass-effect" style="max-width:600px;">
+                <div class="modal-header">
+                    <h2 id="view-task-title">تفاصيل المهمة</h2>
+                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body" id="view-task-body">
+                    <!-- Content will be injected by JS -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary cancel-modal">إغلاق</button>
+                    <button class="btn btn-primary" id="btn-edit-viewed-task"><i class="fas fa-edit"></i> تعديل</button>
                 </div>
             </div>
         </div>
@@ -1474,10 +1567,10 @@
                 <input type="hidden" id="finance-entry-type">
 
                 <div class="form-group" id="finance-person-group" style="display:none;">
-                    <label data-original="Debtor/Creditor">Debtor/Creditor <span
+                    <label id="finance-person-label" data-original="Debtor/Creditor">الطرف الثاني <span
                             style="color:var(--danger)">*</span></label>
                     <input type="text" id="finance-person" data-original-ph="Name of person or company"
-                        placeholder="Name of person or company">
+                        placeholder="الاسم...">
                 </div>
                 <div class="form-group">
                     <label data-original="Description">Description <span style="color:var(--danger)">*</span></label>
@@ -1496,17 +1589,18 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group" id="finance-category-group">
-                        <label data-original="Category">Category</label>
-                        <select id="finance-category">
-                            <option value="General" data-original="General">General</option>
-                            <option value="Salaries" data-original="Salaries">Salaries</option>
-                            <option value="Rent" data-original="Rent">Rent</option>
-                            <option value="Utilities" data-original="Utilities">Utilities</option>
-                            <option value="Marketing" data-original="Marketing">Marketing</option>
-                            <option value="Supplies" data-original="Supplies">Supplies</option>
-                            <option value="Software" data-original="Software">Software</option>
-                            <option value="Other" data-original="Other">Other</option>
+                        <label data-original="Category">الفئة</label>
+                        <select id="finance-category" onchange="FinanceManager.handleCategoryChange(this)">
+                            <option value="General" data-original="General">عام</option>
+                            <option value="Salaries" data-original="Salaries">رواتب</option>
+                            <option value="Rent" data-original="Rent">إيجار</option>
+                            <option value="Utilities" data-original="Utilities">خدمات وفواتير</option>
+                            <option value="Marketing" data-original="Marketing">تسويق</option>
+                            <option value="Supplies" data-original="Supplies">مستلزمات</option>
+                            <option value="Software" data-original="Software">برمجيات</option>
+                            <option value="Other" data-original="Other">أخرى</option>
                         </select>
+                        <input type="text" id="finance-custom-category" placeholder="اكتب الفئة الأخرى..." style="display:none; margin-top:0.5rem; width:100%; padding:0.5rem; border-radius:var(--radius-md); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
                     </div>
                     <div class="form-group" id="finance-due-group" style="display:none;">
                         <label data-original="Due Date">Due Date</label>

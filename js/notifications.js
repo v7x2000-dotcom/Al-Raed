@@ -181,32 +181,79 @@ const NotificationManager = {
     },
 
     getTypeColor: (type) => {
-        const colors = { message: '#2563eb', task: '#10b981', event: '#f59e0b', system: '#8b5cf6' };
+        const colors = { 
+            message: '#2563eb', 
+            chat: '#2563eb',
+            task: '#10b981', 
+            event: '#f59e0b', 
+            system: '#8b5cf6',
+            support: '#ec4899',
+            ticket: '#ec4899',
+            success: '#10b981',
+            warning: '#f59e0b',
+            error: '#ef4444'
+        };
         return colors[type] || '#64748b';
     },
 
     getTypeIcon: (type) => {
-        const icons = { message: 'fa-comment', task: 'fa-tasks', event: 'fa-calendar', system: 'fa-bell' };
+        const icons = { 
+            message: 'fa-comment', 
+            chat: 'fa-comments',
+            task: 'fa-tasks', 
+            event: 'fa-calendar', 
+            system: 'fa-bell',
+            support: 'fa-headset',
+            ticket: 'fa-ticket-alt'
+        };
         return icons[type] || 'fa-bell';
     },
 
     navigateTo: (notif) => {
-        const navMap = { message: 'chat', task: 'tasks', event: 'calendar', system: 'dashboard' };
-        const target = navMap[notif.type] || 'dashboard';
+        const navMap = { 
+            message: 'chat', 
+            chat: 'chat',
+            task: 'tasks', 
+            event: 'calendar', 
+            system: 'dashboard',
+            ticket: 'support',
+            support: 'support',
+            ai: 'ai-assistant'
+        };
+
+        // Smart Content Detection (if type is generic 'system')
+        let target = navMap[notif.type] || 'dashboard';
+        if (notif.type === 'system') {
+            if (notif.content.includes('تذكرة') || notif.content.includes('ticket')) target = 'support';
+            if (notif.content.includes('مهمة') || notif.content.includes('task')) target = 'tasks';
+        }
+
         const navItem = document.querySelector(`.nav-item[data-target="${target}"]`);
         if (navItem) {
             navItem.click();
-            // Highlight related element after navigation
-            if (notif.relatedId) {
-                setTimeout(() => {
+            
+            // Wait for section to load then handle deep linking
+            setTimeout(() => {
+                if (target === 'chat' && notif.relatedId) {
+                    if (typeof ChatManager !== 'undefined') ChatManager.selectRoom(notif.relatedId);
+                } else if (target === 'tasks' && notif.relatedId) {
+                    if (typeof TasksManager !== 'undefined') TasksManager.viewTask(notif.relatedId);
+                } else if (target === 'support' && notif.relatedId) {
+                    // Logic to open specific ticket if available
+                    const ticketEl = document.querySelector(`[data-id="${notif.relatedId}"]`);
+                    if (ticketEl) ticketEl.click();
+                }
+
+                // Highlight element
+                if (notif.relatedId) {
                     const el = document.querySelector(`[data-id="${notif.relatedId}"]`);
                     if (el) {
-                        el.style.outline = '2px solid var(--primary-color)';
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        setTimeout(() => el.style.outline = '', 3000);
+                        el.classList.add('highlight-pulse');
+                        setTimeout(() => el.classList.remove('highlight-pulse'), 3000);
                     }
-                }, 500);
-            }
+                }
+            }, 600);
         }
     },
 

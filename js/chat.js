@@ -128,6 +128,7 @@ const ChatManager = {
                 }
 
                 if (ChatManager.currentType === 'private') ChatManager.loadUsers();
+                else if (ChatManager.currentType === 'financial') ChatManager.loadFinancials();
                 else ChatManager.loadRooms();
             }
         });
@@ -393,10 +394,146 @@ const ChatManager = {
             }
         }
 
+        ChatManager.renderSmartWidget(room);
         ChatManager.loadRooms();
         ChatManager.renderMessages();
     },
 
+    renderSmartWidget: (room) => {
+        const btn = document.getElementById('btn-chat-smart-link');
+        if (!btn) return;
+
+        if (!room.linkedSection) {
+            btn.style.display = 'none';
+            return;
+        }
+
+        btn.style.display = 'flex';
+        btn.onclick = () => ChatManager.showSmartPopup(room);
+        
+        // Update icon based on section
+        const icon = btn.querySelector('i');
+        if (icon) {
+            if (room.linkedSection === 'finance') icon.className = 'fas fa-wallet';
+            else if (room.linkedSection === 'tasks') icon.className = 'fas fa-tasks';
+            else if (room.linkedSection === 'support') icon.className = 'fas fa-headset';
+            else icon.className = 'fas fa-magic';
+        }
+    },
+
+    showSmartPopup: (room) => {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; z-index:100000; animation: fadeIn 0.3s ease;';
+        
+        let content = '';
+        if (room.linkedSection === 'finance') {
+            const expenses = Store.get('expenses') || [];
+            const totalExp = expenses.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const income = Store.get('income') || [];
+            const totalInc = income.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const debts = Store.get('debts') || [];
+            const totalDebts = debts.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            
+            content = `
+                <div style="padding:1.5rem;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+                        <div style="background:var(--success); color:#fff; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-wallet"></i></div>
+                        <div>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">الإدارة المالية الذكية</h3>
+                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">تحكم كامل في ميزانية المجموعة</p>
+                        </div>
+                    </div>
+                    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:1.5rem;">
+                        <div style="background:rgba(34,197,94,0.05); padding:10px; border-radius:12px; border:1px solid rgba(34,197,94,0.1); text-align:center;">
+                            <div style="font-size:0.6rem; opacity:0.6; color:var(--success); font-weight:800;">الدخل</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:var(--success);">$${totalInc.toLocaleString()}</div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.05); padding:10px; border-radius:12px; border:1px solid rgba(239,68,68,0.1); text-align:center;">
+                            <div style="font-size:0.6rem; opacity:0.6; color:var(--danger); font-weight:800;">المصروفات</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:var(--danger);">$${totalExp.toLocaleString()}</div>
+                        </div>
+                        <div style="background:rgba(245,158,11,0.05); padding:10px; border-radius:12px; border:1px solid rgba(245,158,11,0.1); text-align:center;">
+                            <div style="font-size:0.6rem; opacity:0.6; color:var(--warning); font-weight:800;">الديون</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:var(--warning);">$${totalDebts.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <button onclick="ChatManager._handleSmartAction('finance', 'expense')" style="width:100%; padding:0.9rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-minus-circle"></i> إضافة مصروف</button>
+                        <button onclick="ChatManager._handleSmartAction('finance', 'income')" style="width:100%; padding:0.9rem; background:rgba(34,197,94,0.1); color:var(--success); border:1px solid var(--success); border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-plus-circle"></i> إضافة دخل</button>
+                        <button onclick="ChatManager._handleSmartAction('finance', 'debt')" style="width:100%; padding:0.9rem; background:rgba(245,158,11,0.1); color:var(--warning); border:1px solid var(--warning); border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-hand-holding-usd"></i> إضافة دين</button>
+                        <button onclick="ChatManager._handleSmartAction('finance', 'view')" style="width:100%; padding:0.7rem; background:none; color:var(--text-primary); border:1px solid var(--border-color); border-radius:12px; font-size:0.8rem; cursor:pointer; margin-top:5px;"><i class="fas fa-external-link-alt"></i> السجل المالي الكامل</button>
+                    </div>
+                </div>
+            `;
+        } else if (room.linkedSection === 'tasks') {
+            const tasks = Store.get('tasks') || [];
+            const pending = tasks.filter(t => t.status === 'todo').length;
+            content = `
+                <div style="padding:1.5rem;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+                        <div style="background:var(--warning); color:#fff; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-tasks"></i></div>
+                        <div>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">مهام المجموعة</h3>
+                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">متابعة وإسناد المهام للفريق</p>
+                        </div>
+                    </div>
+                    <div style="background:var(--bg-primary); padding:1.25rem; border-radius:15px; border:1px solid var(--border-color); text-align:center; margin-bottom:1.5rem;">
+                        <div style="font-size:2rem; font-weight:900; color:var(--warning);">${pending}</div>
+                        <div style="font-size:0.8rem; opacity:0.7; color:var(--text-secondary);">مهمة قيد الانتظار</div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <button onclick="ChatManager._handleSmartAction('tasks', 'add')" style="width:100%; padding:0.9rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer;"><i class="fas fa-plus-circle"></i> إضافة مهمة جديدة</button>
+                        <button onclick="ChatManager._handleSmartAction('tasks', 'view')" style="width:100%; padding:0.8rem; background:none; color:var(--text-primary); border:1px solid var(--border-color); border-radius:12px; font-size:0.85rem; cursor:pointer;"><i class="fas fa-th-large"></i> فتح لوحة المهام</button>
+                    </div>
+                </div>
+            `;
+        } else if (room.linkedSection === 'support') {
+            content = `
+                <div style="padding:1.5rem;">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
+                        <div style="background:var(--danger); color:#fff; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-headset"></i></div>
+                        <div>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">دعم الفريق</h3>
+                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">تذاكر الدعم الفني والمساعدة</p>
+                        </div>
+                    </div>
+                    <button onclick="ChatManager._handleSmartAction('support', 'view')" style="width:100%; padding:1rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-ticket-alt"></i> فتح مركز الدعم</button>
+                </div>
+            `;
+        }
+
+        modal.innerHTML = `
+            <div style="background:var(--bg-secondary); border-radius:24px; width:95%; max-width:400px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border:1px solid var(--border-color); position:relative; overflow:hidden; animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                <div style="padding:1rem; text-align:right;">
+                    <button class="close-modal" style="background:none; border:none; color:var(--text-secondary); font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
+                </div>
+                ${content}
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-modal').onclick = () => modal.remove();
+        ChatManager._currentSmartModal = modal;
+    },
+
+    _handleSmartAction: (section, action) => {
+        if (ChatManager._currentSmartModal) ChatManager._currentSmartModal.remove();
+
+        if (section === 'finance') {
+            document.querySelector('.nav-item[data-target=\'finance-section\']')?.click();
+            setTimeout(() => {
+                if (action === 'view') return;
+                FinanceManager.openModal(action);
+            }, 200);
+        } else if (section === 'tasks') {
+            document.querySelector('.nav-item[data-target=\'tasks-section\']')?.click();
+            setTimeout(() => {
+                if (action === 'add') document.getElementById('btn-add-task')?.click();
+            }, 200);
+        } else if (section === 'support') {
+            document.querySelector('.nav-item[data-target=\'support-section\']')?.click();
+        }
+    },
     getMessages: () => {
         const me = AuthManager.currentUser;
         if (!me || !ChatManager.currentReceiverId) return [];
@@ -608,6 +745,15 @@ const ChatManager = {
                         <label>الوصف</label>
                         <textarea id="edit-room-desc" rows="3">${room.desc || ''}</textarea>
                     </div>
+                    <div class="form-group" style="background:rgba(37,99,235,0.05); padding:12px; border-radius:12px; border:1px solid rgba(37,99,235,0.1); margin-top:10px;">
+                        <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">🔗 ربط ذكي بقسم (Smart Link)</label>
+                        <select id="edit-room-linked-section" style="width:100%; padding:0.6rem; border-radius:10px; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.8rem; outline:none; cursor:pointer;">
+                            <option value="" ${!room.linkedSection ? 'selected' : ''}>بدون ربط</option>
+                            <option value="finance" ${room.linkedSection === 'finance' ? 'selected' : ''}>قسم المالية (Financial Dashboard)</option>
+                            <option value="tasks" ${room.linkedSection === 'tasks' ? 'selected' : ''}>لوحة المهام (Task Board)</option>
+                            <option value="support" ${room.linkedSection === 'support' ? 'selected' : ''}>مركز الدعم (Support Center)</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-secondary cancel-modal">إلغاء</button>
@@ -621,6 +767,7 @@ const ChatManager = {
             const name = modal.querySelector('#edit-room-name').value.trim();
             const desc = modal.querySelector('#edit-room-desc').value.trim();
             const image = modal.querySelector('#edit-room-image-data').value;
+            const linkedSection = modal.querySelector('#edit-room-linked-section').value;
             if (!name) return;
 
             const rooms = Store.get('chat_rooms') || [];
@@ -629,6 +776,7 @@ const ChatManager = {
                 r.name = name;
                 r.desc = desc;
                 r.image = image;
+                r.linkedSection = linkedSection;
                 Store.set('chat_rooms', rooms);
                 NotificationManager.add('تم تحديث بيانات المجموعة', 'fa-check', 'success');
                 modal.remove();
@@ -815,45 +963,51 @@ const ChatManager = {
 
         const modal = document.createElement('div');
         modal.className = 'modal';
-        modal.style.zIndex = '10050';
+        modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); backdrop-filter:blur(10px); display:flex; justify-content:center; align-items:center; z-index:100000; animation: fadeIn 0.3s ease;';
+        
         modal.innerHTML = `
-            <div class="modal-content glass-effect" style="max-width:450px; background: var(--bg-secondary); color: var(--text-primary); border: 1px solid var(--primary-color); box-shadow: var(--shadow-lg);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
-                    <h2 style="font-size:1.25rem; display:flex; align-items:center; gap:10px;">
+            <div style="background:var(--bg-secondary); border-radius:24px; width:95%; max-width:450px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.5); border:1px solid var(--primary-color); position:relative; overflow:hidden; animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); color:var(--text-primary);">
+                <div style="padding:1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="margin:0; font-size:1.25rem; display:flex; align-items:center; gap:10px;">
                         <i class="fas fa-shield-alt" style="color:var(--primary-color);"></i>
                         إعدادات الخصوصية
                     </h2>
-                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                    <button class="close-modal" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                 </div>
-                <div class="modal-body" style="padding: 1.5rem 0;">
-                    <div style="display:flex;flex-direction:column;gap:1.5rem;">
-                        <div style="display:flex;justify-content:space-between;align-items:center; background: var(--bg-primary); padding: 1rem; border-radius: var(--radius-md);">
+                <div style="padding:2rem;">
+                    <div style="display:flex; flex-direction:column; gap:1.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-primary); padding:1rem; border-radius:15px; border:1px solid var(--border-color);">
                             <div>
-                                <div style="font-weight:700; margin-bottom: 4px;">قفل الكتابة (ReadOnly)</div>
-                                <div style="font-size:0.75rem; color: var(--text-secondary);">المدير فقط يمكنه إرسال رسائل في هذه الغرفة.</div>
+                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">قفل الكتابة (ReadOnly)</div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary);">المدير فقط يمكنه إرسال رسائل في هذه الغرفة.</div>
                             </div>
-                            <label class="switch">
-                                <input type="checkbox" id="privacy-lock" ${room.isLocked ? 'checked' : ''}>
-                                <span class="slider round"></span>
+                            <label class="switch" style="position:relative; display:inline-block; width:50px; height:26px;">
+                                <input type="checkbox" id="privacy-lock" ${room.isLocked ? 'checked' : ''} style="opacity:0; width:0; height:0;">
+                                <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px;"></span>
                             </label>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center; background: var(--bg-primary); padding: 1rem; border-radius: var(--radius-md);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-primary); padding:1rem; border-radius:15px; border:1px solid var(--border-color);">
                             <div>
-                                <div style="font-weight:700; margin-bottom: 4px;">تقييد تعديل المعلومات</div>
-                                <div style="font-size:0.75rem; color: var(--text-secondary);">المدير فقط يمكنه تغيير الاسم والصورة والوصف.</div>
+                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">تقييد تعديل المعلومات</div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary);">المدير فقط يمكنه تغيير الاسم والصورة والوصف.</div>
                             </div>
-                            <label class="switch">
-                                <input type="checkbox" id="privacy-info" ${room.isInfoRestricted ? 'checked' : ''}>
-                                <span class="slider round"></span>
+                            <label class="switch" style="position:relative; display:inline-block; width:50px; height:26px;">
+                                <input type="checkbox" id="privacy-info" ${room.isInfoRestricted ? 'checked' : ''} style="opacity:0; width:0; height:0;">
+                                <span class="slider round" style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ccc; transition:.4s; border-radius:34px;"></span>
                             </label>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="margin-top: 1rem; display:flex; gap:10px;">
-                    <button class="btn btn-secondary cancel-modal" style="flex:1;">إلغاء</button>
-                    <button class="btn btn-primary" id="btn-save-privacy" style="flex:2;">حفظ التغييرات</button>
+                <div style="padding:1.5rem; background:var(--bg-primary); border-top:1px solid var(--border-color); display:flex; gap:10px;">
+                    <button class="cancel-modal" style="flex:1; padding:0.8rem; background:none; border:1px solid var(--border-color); border-radius:12px; cursor:pointer; font-weight:600; color:var(--text-primary);">إلغاء</button>
+                    <button id="btn-save-privacy" style="flex:2; padding:0.8rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(37,99,235,0.2);">حفظ التغييرات</button>
                 </div>
             </div>
+            <style>
+                #privacy-lock:checked + .slider, #privacy-info:checked + .slider { background-color: var(--primary-color) !important; }
+                .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+                #privacy-lock:checked + .slider:before, #privacy-info:checked + .slider:before { transform: translateX(24px); }
+            </style>
         `;
         document.body.appendChild(modal);
 
@@ -866,10 +1020,8 @@ const ChatManager = {
                 r.isLocked = isLocked;
                 r.isInfoRestricted = isInfoRestricted;
                 Store.set('chat_rooms', rooms);
-                Store.log('Updated Privacy', r.name);
                 NotificationManager.add('تم تحديث إعدادات الخصوصية', 'fa-shield-alt', 'success');
                 modal.remove();
-                ChatManager.toggleProfileSidebar();
             }
         };
 
@@ -981,7 +1133,34 @@ const ChatManager = {
         });
 
         btn.onclick = send;
-        input.onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+        input.onkeydown = (e) => { 
+            const isMobile = window.innerWidth < 768;
+            
+            if (e.key === 'Enter') {
+                if (isMobile) {
+                    // On mobile, Enter always adds a new line for better formatting
+                    // The user must click the send button to send
+                    return; 
+                } else {
+                    // On desktop, Enter sends, Shift+Enter adds new line
+                    if (!e.shiftKey) {
+                        e.preventDefault(); 
+                        send(); 
+                        // Reset height after sending
+                        setTimeout(() => {
+                            input.style.height = '45px';
+                        }, 10);
+                    }
+                }
+            }
+            
+            // Auto-resize textarea logic
+            setTimeout(() => {
+                input.style.height = 'auto';
+                const newHeight = Math.min(input.scrollHeight, 150);
+                input.style.height = (newHeight > 45 ? newHeight : 45) + 'px';
+            }, 0);
+        };
     },
 
     handleFileSelect: (input) => {
@@ -1472,9 +1651,20 @@ const ChatManager = {
                         <div id="room-member-selector" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; max-height:180px; overflow-y:auto; padding-right:5px; scrollbar-width:thin;">
                         </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px; background:rgba(37,99,235,0.05); padding:12px; border-radius:12px; border:1px solid rgba(37,99,235,0.1);">
-                        <input type="checkbox" id="new-room-locked" style="width:18px; height:18px; cursor:pointer;">
-                        <label for="new-room-locked" style="font-size:0.85rem; font-weight:600; cursor:pointer;">قفل الشات (المدير فقط يمكنه الكتابة)</label>
+                    <div style="display:flex; flex-direction:column; gap:10px; background:rgba(37,99,235,0.05); padding:15px; border-radius:15px; border:1px solid rgba(37,99,235,0.1);">
+                        <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
+                            <input type="checkbox" id="new-room-locked" style="width:18px; height:18px; cursor:pointer;">
+                            <label for="new-room-locked" style="font-size:0.85rem; font-weight:700; cursor:pointer;">قفل الشات (المدير فقط يمكنه الكتابة)</label>
+                        </div>
+                        <div style="border-top:1px solid rgba(37,99,235,0.1); padding-top:10px;">
+                            <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">🔗 ربط ذكي بقسم (Smart Link)</label>
+                            <select id="new-room-linked-section" style="width:100%; padding:0.6rem; border-radius:10px; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.8rem; outline:none; cursor:pointer;">
+                                <option value="">بدون ربط</option>
+                                <option value="finance">قسم المالية (Financial Dashboard)</option>
+                                <option value="tasks">لوحة المهام (Task Board)</option>
+                                <option value="support">مركز الدعم (Support Center)</option>
+                            </select>
+                        </div>
                     </div>
                     <button id="btn-confirm-room" style="width:100%; padding:1rem; border:none; border-radius:15px; background:var(--primary-gradient); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 10px 20px rgba(37,99,235,0.3); transition:all 0.3s;">تأكيد وإنشاء</button>
                 </div>
@@ -1511,6 +1701,7 @@ const ChatManager = {
             const desc = modal.querySelector('#new-room-desc').value.trim();
             const image = modal.querySelector('#new-room-image-data').value;
             const isLocked = modal.querySelector('#new-room-locked').checked;
+            const linkedSection = modal.querySelector('#new-room-linked-section').value;
 
             if (!name) { NotificationManager.add('يرجى كتابة اسم!', 'fa-exclamation-triangle', 'warning'); return; }
 
@@ -1525,6 +1716,7 @@ const ChatManager = {
                 admins: [me.id],
                 members: Array.from(selectedIds),
                 isLocked: isLocked,
+                linkedSection: linkedSection,
                 timestamp: Date.now()
             };
 
