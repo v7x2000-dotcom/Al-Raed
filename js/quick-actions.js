@@ -39,9 +39,12 @@ const QuickActions = {
     },
 
     openTicket: () => {
-        if (typeof SupportManager !== 'undefined') {
-            SupportManager.showNewTicketModal();
-        }
+        App.navigateTo('support');
+        setTimeout(() => {
+            if (typeof SupportManager !== 'undefined') {
+                SupportManager.showNewTicketModal();
+            }
+        }, 100);
     },
 
     // 2. Platform Backup (JSON Export)
