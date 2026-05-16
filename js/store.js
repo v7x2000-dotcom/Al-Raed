@@ -47,6 +47,9 @@ const Store = {
             }, 3000);
 
             collections.forEach(collectionName => {
+                // Skip presence from generic loop as it has a dedicated listener below
+                if (collectionName === 'presence') return;
+
                 db.collection(collectionName).onSnapshot((snapshot) => {
                     if (Store._syncing) return;
 

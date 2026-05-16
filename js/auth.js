@@ -228,12 +228,9 @@ const AuthManager = {
         AuthManager.presenceHeartbeat = setInterval(updatePresence, 30000);
 
         // Cleanup on window close
+        // Cleanup on window close - we keep the doc to show "Last Seen" timestamp
         window.addEventListener('beforeunload', () => {
-            if (AuthManager.currentUser && typeof firebase !== 'undefined' && firebase.apps.length) {
-                // We use a small trick: navigator.sendBeacon is for analytics, but for Firestore we can't easily wait.
-                // However, deleting the doc might work in many browsers before they close.
-                firebase.firestore().collection('presence').doc(AuthManager.currentUser.id).delete().catch(() => {});
-            }
+            // No action needed, heartbeat stopping is enough
         });
     },
 
@@ -285,11 +282,8 @@ const AuthManager = {
             Store.log('Logout', AuthManager.currentUser.name);
         }
 
-        // 1. Stop Heartbeat & Remove online presence
+        // 1. Stop Heartbeat
         AuthManager.stopPresenceHeartbeat();
-        if (typeof firebase !== 'undefined' && firebase.apps.length && AuthManager.currentUser) {
-            firebase.firestore().collection('presence').doc(AuthManager.currentUser.id).delete().catch(() => {});
-        }
 
         // 2. Sign out from Firebase if connected
         if (typeof firebase !== 'undefined' && firebase.apps.length) {

@@ -72,7 +72,7 @@ const AICore = {
             const overdue = tasks.filter(t => t.status !== 'done' && t.deadline && t.deadline < today);
             const doneToday = tasks.filter(t => t.status === 'done' && (t.updatedAt||'').startsWith(today));
             const todayEvents = events.filter(e => e.date === today);
-            const activeTeam = team.filter(m => onlineIds.includes(m.id));
+            const activeTeam = team.filter(m => AuthManager.isUserOnline(m.id));
             const unpaidDebts = finance.filter(f => f.type === 'debt' && f.status === 'Unpaid');
             const activeProjects = projects.filter(p => p.status !== 'completed');
 

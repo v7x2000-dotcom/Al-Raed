@@ -211,14 +211,14 @@ const NotificationManager = {
 
     navigateTo: (notif) => {
         const navMap = { 
-            message: 'chat', 
-            chat: 'chat',
+            message: 'chat-section', 
+            chat: 'chat-section',
             task: 'tasks', 
             event: 'calendar', 
             system: 'dashboard',
             ticket: 'support',
             support: 'support',
-            ai: 'ai-assistant'
+            ai: 'dashboard' // AI usually stays on dashboard or opens modal
         };
 
         // Smart Content Detection (if type is generic 'system')
@@ -234,10 +234,18 @@ const NotificationManager = {
             
             // Wait for section to load then handle deep linking
             setTimeout(() => {
-                if (target === 'chat' && notif.relatedId) {
-                    if (typeof ChatManager !== 'undefined') ChatManager.selectRoom(notif.relatedId);
+                if (target === 'chat-section' && notif.relatedId) {
+                    if (typeof ChatManager !== 'undefined') {
+                        // In Al-Raed, user IDs usually start with 'u_'
+                        if (String(notif.relatedId).startsWith('u_')) {
+                            ChatManager.selectUser(notif.relatedId);
+                        } else {
+                            ChatManager.selectRoom(notif.relatedId);
+                        }
+                    }
                 } else if (target === 'tasks' && notif.relatedId) {
-                    if (typeof TasksManager !== 'undefined') TasksManager.viewTask(notif.relatedId);
+                    if (typeof TasksManager !== 'undefined' && TasksManager.viewTask) TasksManager.viewTask(notif.relatedId);
+                } else if (target === 'support' && notif.relatedId) {
                 } else if (target === 'support' && notif.relatedId) {
                     // Logic to open specific ticket if available
                     const ticketEl = document.querySelector(`[data-id="${notif.relatedId}"]`);

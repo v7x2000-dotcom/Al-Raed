@@ -136,7 +136,7 @@ const ChatManager = {
 
         // Listen for online users changes
         window.addEventListener('onlineUsersUpdated', () => {
-            if (ChatManager.currentType === 'private' && ChatManager.currentReceiverId && !ChatManager._isSelfChat) {
+            if (ChatManager.currentType === 'private' && ChatManager.currentReceiverId) {
                 // Just update the status bar in the header
                 const member = (Store.get('team') || []).find(m => m.id === ChatManager.currentReceiverId);
                 if (member) {
@@ -161,6 +161,13 @@ const ChatManager = {
                 e.target.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(name) + '&background=6366f1&color=fff';
             }
         }, true);
+
+        // Periodically refresh the online status UI every minute to update the "Last seen X mins ago" text
+        setInterval(() => {
+            if (ChatManager.currentType === 'private' && document.querySelector('.chat-container')) {
+                window.dispatchEvent(new CustomEvent('onlineUsersUpdated'));
+            }
+        }, 60000);
     },
 
     render: () => {
@@ -351,7 +358,7 @@ const ChatManager = {
         const av = document.getElementById('chat-active-avatar');
         if (av) { av.src = member.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(member.name); av.style.display='block'; }
         const statusEl = document.getElementById('chat-active-status');
-        if (statusEl && !isSelf) {
+        if (statusEl) {
             const isOnline = AuthManager.isUserOnline(member.id);
             const lastSeen = AuthManager.getUserLastSeen(member.id);
             const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الآن' : 'Online') : 
@@ -361,6 +368,7 @@ const ChatManager = {
         }
         const convKey = isSelf ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, member.id);
         ChatManager._clearUnread(convKey);
+        ChatManager.loadUsers();
         ChatManager.renderMessages();
     },
 
@@ -403,6 +411,24 @@ const ChatManager = {
         ChatManager.renderSmartWidget(room);
         ChatManager.loadRooms();
         ChatManager.renderMessages();
+    },
+
+    // Public API for external navigation (e.g. Notifications)
+    selectUser: (userId) => {
+        const team = Store.get('team') || [];
+        const me = AuthManager.currentUser;
+        const member = team.find(m => m.id === userId) || (userId === me?.id ? me : null);
+        if (member) {
+            ChatManager._selectUser(member, userId === me?.id);
+        }
+    },
+
+    selectRoom: (roomId) => {
+        const rooms = Store.get('chat_rooms') || [];
+        const room = rooms.find(r => r.id === roomId);
+        if (room) {
+            ChatManager._selectRoom(room);
+        }
     },
 
     renderSmartWidget: (room) => {
@@ -671,7 +697,7 @@ const ChatManager = {
 
         if (isPrivate) {
             const m = ChatManager._isSelfChat ? me : (team.find(t => t.id === ChatManager.currentReceiverId) || me);
-            const isOnline = (Store._onlineUsers||[]).includes(m.id);
+            const isOnline = AuthManager.isUserOnline(m.id);
             avatar = m.avatar||'https://ui-avatars.com/api/?name='+encodeURIComponent(m.name);
             name = m.name; subtitle = m.role||'عضو بالفريق';
             body = `<div style="background:var(--bg-primary);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">حالة الاتصال</div><div style="font-weight:600;display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${isOnline?'var(--success)':'var(--text-secondary)'};display:inline-block;"></span> ${isOnline?'متصل الآن':'غير متصل'}</div></div><div style="background:var(--bg-primary);border-radius:12px;padding:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">البريد الإلكتروني</div><div style="font-weight:600;font-size:0.85rem;word-break:break-all;">${m.email||'غير متوفر'}</div></div>`;
@@ -697,7 +723,7 @@ const ChatManager = {
 
             const memberItems = (room.members||[]).map(mid => {
                 const m = team.find(t=>t.id===mid)||{name:'مستخدم',avatar:''};
-                const on = (Store._onlineUsers||[]).includes(m.id);
+                const on = AuthManager.isUserOnline(m.id);
                 const isRoomAdmin = (room.admins || [room.createdBy]).includes(m.id);
                 const canManage = (room.admins || [room.createdBy]).includes(me.id) && m.id !== me.id;
 
@@ -2082,28 +2108,32 @@ _chatStyles.textContent = `
         gap: 12px;
         align-items: flex-end;
         position: relative;
+        width: fit-content;
     }
     
+    /* LTR / Default */
     .msg-sent {
         flex-direction: row-reverse;
-        align-self: flex-end;
+        align-self: flex-end !important;
+        margin-right: 1rem !important;
     }
     
     .msg-received {
         flex-direction: row;
-        align-self: flex-start;
+        align-self: flex-start !important;
+        margin-left: 1rem !important;
     }
 
-    /* RTL Alignment Fix: Sent messages to RIGHT (flex-start), Received to LEFT (flex-end) */
+    /* RTL Explicit Anchoring via Flex Alignment */
     html[dir="rtl"] .msg-sent {
-        align-self: flex-start !important;
-        flex-direction: row !important;
-        margin-inline-start: 1rem !important; /* Force away from right edge */
+        flex-direction: row !important; /* Avatar on Right */
+        align-self: flex-start !important; /* Pins to RIGHT in RTL */
+        margin-right: 1rem !important;
     }
     html[dir="rtl"] .msg-received {
-        align-self: flex-end !important;
-        flex-direction: row-reverse !important;
-        margin-inline-end: 1rem !important; /* Force away from left edge */
+        flex-direction: row-reverse !important; /* Avatar on Left */
+        align-self: flex-end !important; /* Pins to LEFT in RTL */
+        margin-left: 1rem !important;
     }
 
     html[dir="rtl"] .msg-sent .msg-bubble {
