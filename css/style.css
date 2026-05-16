@@ -5686,10 +5686,17 @@ table thead th {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fill, 200px);
-    gap: 10px; /* Tighter gap */
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 12px;
     align-content: start;
     justify-content: start;
+}
+
+@media (max-width: 500px) {
+    .drive-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
 }
 
 
@@ -5965,6 +5972,29 @@ table thead th {
     font-size: 0.8rem;
 }
 
+@media (max-width: 600px) {
+    .drive-list .drive-card {
+        height: auto !important;
+        min-height: 80px;
+        padding: 8px 0 !important;
+    }
+    .drive-list .dc-info-panel {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 8px !important;
+        padding: 8px 16px !important;
+    }
+    .drive-list .dc-details-grid {
+        gap: 12px !important;
+        width: 100% !important;
+        justify-content: flex-start !important;
+    }
+    .drive-list .dc-name {
+        font-size: 0.85rem !important;
+        white-space: normal !important;
+    }
+}
+
 
 /* ─── PREMIUM Drive Card Layout ─────────────────────── */
 .drive-card {
@@ -5974,8 +6004,8 @@ table thead th {
     align-items: stretch;
     overflow: hidden;
     cursor: pointer;
-    width: 200px;
-    height: 100px;
+    width: 100% !important;
+    height: 105px !important; /* Slightly longer as requested */
     border-radius: 14px;
     background: rgba(20, 27, 45, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.07);
@@ -6659,7 +6689,7 @@ table thead th {
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     padding: 0.75rem;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     animation: popupFadeIn 0.15s ease;
     direction: rtl;
 }

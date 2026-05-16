@@ -34,7 +34,7 @@ const Store = {
 
 
             // ✅ Real-time Firestore Listeners for ALL collections
-            const collections = ['tasks', 'team', 'finance', 'audit_logs', 'messages', 'events', 'presence', 'users', 'workspace', 'projects', 'clients', 'inventory', 'chat_rooms', 'chat_invitations', 'typing'];
+            const collections = ['tasks', 'team', 'finance', 'audit_logs', 'messages', 'events', 'presence', 'users', 'workspace', 'projects', 'clients', 'inventory', 'chat_rooms', 'chat_invitations', 'typing', 'drive'];
             const loadedCollections = new Set();
             
             // 🕒 Faster Fallback: 3 seconds
@@ -71,7 +71,12 @@ const Store = {
                     snapshot.docChanges().forEach((change) => {
                         const key = change.doc.id;
                         const data = change.doc.data();
-                        if (data.updatedBy === (AuthManager.currentUser?.id || 'anonymous') && (Date.now() - data.timestamp < 2000)) return;
+                        
+                        // Smart Sync: Only skip if the incoming value is identical to our local cache
+                        // This allows real-time sync between different devices of the SAME user
+                        const localRaw = localStorage.getItem(key);
+                        const incomingRaw = JSON.stringify(data.value);
+                        if (localRaw === incomingRaw) return;
 
                         Store._syncing = true;
                         try {
@@ -80,12 +85,15 @@ const Store = {
                             } else {
                                 localStorage.setItem(key, JSON.stringify(data.value));
                             }
+                            
+                            // Move dispatch inside try to ensure it only fires on success
+                            window.dispatchEvent(new CustomEvent('storeUpdated', { detail: { key, value: data.value } }));
+                            Store._refreshSection(key);
+                        } catch(e) {
+                            console.error(`Store: Error updating local storage for [${key}]. Possibly quota exceeded.`, e);
                         } finally {
                             Store._syncing = false;
                         }
-
-                        window.dispatchEvent(new CustomEvent('storeUpdated', { detail: { key, value: data.value } }));
-                        Store._refreshSection(key);
                     });
 
                     // 🎯 Optimization: Set ready as soon as 'users' is loaded
@@ -239,7 +247,8 @@ const Store = {
                     'clients': 'clients',
                     'inventory': 'inventory',
                     'chat_rooms': 'chat_rooms',
-                    'chat_invitations': 'chat_invitations'
+                    'chat_invitations': 'chat_invitations',
+                    'cloud_drive_meta': 'drive'
                 };
 
                 let collectionName = collectionMap[key] || 'workspace';
@@ -287,7 +296,7 @@ const Store = {
             Store.set('inventory', []);
             Store.set('projects', []);
             Store.set('clients', []);
-            Store.set('cloud_drive', []);
+            Store.set('cloud_drive_meta', []);
             Store.set('messages', []);
             Store.set('privateMessages', {});
             Store.set('announcements', []);

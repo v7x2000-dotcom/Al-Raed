@@ -233,6 +233,15 @@ const DriveManager = {
             return;
         }
 
+        // Get Metadata for smart naming
+        const meta = DriveManager.getFilesMeta().find(f => f.id === fileId);
+        const category = meta ? meta.category : 'general';
+        const categoryName = DriveManager.categories.find(c => c.id === category)?.name || 'عام';
+        const platformName = document.documentElement.lang === 'en' ? 'Al-Raed-Cloud' : 'سحابة-الرائد';
+        
+        // Construct smart filename: [Platform] - [Category] - FileName
+        const smartFileName = `[${platformName}] - [${categoryName}] - ${fileName}`;
+
         try {
             let downloadUrl = data;
             // Convert Base64 Data URI to Blob for reliable downloading
@@ -251,7 +260,7 @@ const DriveManager = {
 
             const link = document.createElement('a');
             link.href = downloadUrl;
-            link.download = fileName;
+            link.download = smartFileName;
             link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
@@ -299,7 +308,7 @@ const DriveManager = {
 
         const allMeta = DriveManager.getFilesMeta();
         let totalBytes = 0;
-        const maxStorage = 3 * 1024 * 1024 * 1024 * 1024; // 3TB limit
+        const maxStorage = 15 * 1024 * 1024 * 1024; // 15GB limit (more realistic for UI feedback)
 
         // Filter by Category AND Search Term
         let filteredFiles = allMeta;
@@ -313,10 +322,18 @@ const DriveManager = {
         allMeta.forEach(f => totalBytes += f.size);
 
         // Update Storage UI
-        const usedGB = (totalBytes / (1024 * 1024 * 1024)).toFixed(2);
-        const percent = Math.min(100, (totalBytes / maxStorage) * 100);
+        let usedText = '';
+        if (totalBytes < 1024 * 1024) {
+            usedText = (totalBytes / 1024).toFixed(0) + ' KB';
+        } else if (totalBytes < 1024 * 1024 * 1024) {
+            usedText = (totalBytes / (1024 * 1024)).toFixed(1) + ' MB';
+        } else {
+            usedText = (totalBytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
+        }
+
+        const percent = Math.min(100, Math.max(totalBytes > 0 ? 0.5 : 0, (totalBytes / maxStorage) * 100));
         
-        if (usageEl) usageEl.textContent = `${usedGB} GB مستخدم من 3 TB`;
+        if (usageEl) usageEl.textContent = `${usedText} مستخدم من 15 GB`;
         if (usageBar) usageBar.style.width = `${percent}%`;
         if (usagePercent) usagePercent.textContent = `${percent.toFixed(1)}%`;
 
@@ -411,10 +428,10 @@ const DriveManager = {
                 <span class="dfp-name" title="${file.name}">${file.name}</span>
             </div>
             <div class="dfp-actions">
-                <button class="dfp-btn dfp-download" onclick="DriveManager.downloadFile('${file.id}', '${file.name.replace(/'/g, "\\'")}'); DriveManager.hideFilePopup();">
+                <button class="dfp-btn dfp-download" id="dfp-download-btn">
                     <i class="fas fa-download"></i> تحميل
                 </button>
-                <button class="dfp-btn dfp-delete admin-only" onclick="DriveManager.deleteFile('${file.id}'); DriveManager.hideFilePopup();">
+                <button class="dfp-btn dfp-delete admin-only" id="dfp-delete-btn">
                     <i class="fas fa-trash"></i> حذف
                 </button>
             </div>
@@ -424,6 +441,22 @@ const DriveManager = {
         const rect = cardEl.getBoundingClientRect();
         popup.style.top = (rect.bottom + window.scrollY + 8) + 'px';
         popup.style.left = (rect.left + window.scrollX) + 'px';
+
+        // Add Listeners
+        popup.querySelector('#dfp-download-btn').onclick = (e) => {
+            e.stopPropagation();
+            DriveManager.downloadFile(file.id, file.name);
+            DriveManager.hideFilePopup();
+        };
+
+        const delBtn = popup.querySelector('#dfp-delete-btn');
+        if (delBtn) {
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                DriveManager.deleteFile(file.id);
+                DriveManager.hideFilePopup();
+            };
+        }
 
         // Prevent clicking inside the popup from closing it
         popup.addEventListener('click', (e) => e.stopPropagation());
