@@ -242,9 +242,6 @@
                     <span data-original="Knowledge Base">Knowledge Base</span></a>
                 <a href="#feed-section" class="nav-item" data-target="feed-section"><i class="fas fa-newspaper"></i>
                     <span data-original="Company Feed">Company Feed</span></a>
-                <a href="#expenses-section" class="nav-item" data-target="expenses-section"><i
-                        class="fas fa-file-invoice-dollar"></i>
-                    <span data-original="Expense Tracking">Expense Tracking</span></a>
                 <a href="#polls-section" class="nav-item" data-target="polls-section"><i class="fas fa-poll-h"></i>
                     <span data-original="Quick Polls">Quick Polls</span></a>
                 <a href="#admin-panel" class="nav-item admin-only" data-target="admin-panel"><i
@@ -257,9 +254,9 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
-                <div class="topbar-left" style="display:flex; align-items:center; gap:0.6rem;">
+                <div class="topbar-left" style="display:flex !important; align-items:center !important; gap:0.75rem !important; margin:0 !important; padding:0 !important;">
                     <i class="fas fa-crown" style="color:var(--primary-color); font-size:1.4rem;"></i>
-                    <span style="font-weight:700; font-size:1.1rem; color:var(--text-primary);"
+                    <span style="font-weight:700; font-size:1.1rem; color:var(--text-primary); white-space:nowrap;"
                         data-original="منصة الرائد">منصة الرائد</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:1.25rem;">
@@ -583,6 +580,14 @@
 
                             <!-- Input wrapper -->
                             <div class="chat-input-wrapper" style="opacity:0; pointer-events:none;">
+                                <!-- Reply Preview -->
+                                <div id="chat-reply-preview" class="reply-preview-container">
+                                    <div class="reply-preview-content">
+                                        <div id="reply-preview-name" class="reply-preview-name"></div>
+                                        <div id="reply-preview-text" class="reply-preview-text"></div>
+                                    </div>
+                                    <button onclick="ChatManager.cancelReply()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:5px;"><i class="fas fa-times"></i></button>
+                                </div>
 
                                 <div class="chat-input-container">
                                     <button class="chat-action-btn"
@@ -749,6 +754,9 @@
                         <button class="btn btn-outline" id="tab-debts" onclick="FinanceManager.switchTab('debts')">
                             <i class="fas fa-university"></i> <span data-original="Debts">الديون</span>
                         </button>
+                        <button class="btn btn-outline" id="tab-expense-requests" onclick="FinanceManager.switchTab('expense-requests')">
+                            <i class="fas fa-file-invoice-dollar"></i> <span data-original="Expense Requests">طلبات الصرف</span>
+                        </button>
                     </div>
 
                     <!-- Expenses View -->
@@ -903,6 +911,33 @@
                                         </tr>
                                     </thead>
                                     <tbody id="finance-debts-list"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Expense Requests Tab (Moved from standalone section) -->
+                    <div id="finance-expense-requests" class="finance-tab hidden" style="display:none;">
+                        <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem;">
+                                <div style="font-weight:700;"><i class="fas fa-file-invoice-dollar"></i> طلبات صرف الموظفين</div>
+                                <button class="btn btn-primary btn-sm" onclick="ExpenseManager.showRequestModal()">
+                                    <i class="fas fa-plus"></i> طلب صرف جديد
+                                </button>
+                            </div>
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr style="border-bottom:2px solid var(--border-color);">
+                                            <th style="padding:1.25rem 1rem;">الموظف</th>
+                                            <th style="padding:1.25rem 1rem;">الوصف</th>
+                                            <th style="padding:1.25rem 1rem;">المبلغ</th>
+                                            <th style="padding:1.25rem 1rem;">الحالة</th>
+                                            <th style="padding:1.25rem 1rem;">التاريخ</th>
+                                            <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="expenses-list"></tbody>
                                 </table>
                             </div>
                         </div>
@@ -1247,35 +1282,82 @@
                     </div>
                 </section>
 
-                <!-- Shared Drive -->
+                <!-- Shared Drive (Rewritten from scratch for ultimate stability) -->
                 <section id="drive" class="view-section">
-                    <div class="section-header-premium glass-effect">
-                        <div class="header-content">
-                            <div class="header-text">
-                                <h1><i class="fas fa-cloud"></i> سحابة الرائد</h1>
-                                <p>تخزين ومشاركة الملفات مع فريقك بشكل آمن ومنظم</p>
+                    <!-- Unified Super-Ribbon: Identity, Navigation, Search, Stats & View -->
+                    <div class="content-action-bar">
+                        <div class="action-bar-left">
+                            <div class="drive-brand-compact">
+                                <i class="fas fa-cloud"></i>
+                                <span>سحابة الرائد</span>
                             </div>
-                            <button class="btn btn-primary" onclick="DriveManager.showUploadModal()">
-                                <i class="fas fa-upload"></i> رفع ملف
-                            </button>
+                            <div class="bar-divider"></div>
+                            <div class="path-breadcrumb">
+                                <i class="fas fa-home"></i>
+                                <span class="sep">/</span>
+                                <span id="drive-current-category-title">كل الملفات</span>
+                            </div>
+                        </div>
+
+                        <div class="action-bar-center">
+                            <div class="drive-search-integrated">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="drive-search" placeholder="بحث شامل في ملفاتك..." onkeyup="DriveManager.handleSearch(this.value)">
+                            </div>
+                        </div>
+
+                        <div class="action-bar-right">
+                            <div class="drive-stats-integrated">
+                                <div class="stat-group">
+                                    <span id="drive-file-count" class="stat-v">0</span>
+                                    <span class="stat-l">ملف</span>
+                                </div>
+                                <div class="storage-ribbon">
+                                    <div id="drive-usage-bar" class="storage-fill" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="view-options">
+                                <button class="view-btn active" id="view-grid-btn" title="شبكة" onclick="DriveManager.setViewMode('grid')">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="view-btn" id="view-list-btn" title="قائمة" onclick="DriveManager.setViewMode('list')">
+                                    <i class="fas fa-list"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="drive-container">
-                        <aside class="drive-sidebar glass-effect">
-                            <h3 style="margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-folder-tree"></i> التصنيفات</h3>
-                            <ul id="drive-categories" style="list-style:none; padding:0; display:flex; flex-direction:column; gap:0.5rem;"></ul>
+                    <!-- Layout Workspace -->
+                    <div class="drive-workspace">
+                        <!-- Sidebar: Navigation Only -->
+                        <aside class="drive-sidebar-modern">
+                            <div class="drive-primary-action">
+                                <button class="btn btn-primary btn-upload-modern" onclick="DriveManager.showUploadModal()">
+                                    <i class="fas fa-plus-circle"></i> رفع ملف جديد
+                                </button>
+                            </div>
+
+                            <div class="drive-sidebar-menu">
+                                <div class="menu-label">القائمة الرئيسية</div>
+                                <ul id="drive-categories" class="drive-cat-list">
+                                    <!-- Categories populated by JS -->
+                                </ul>
+                            </div>
+                            
+                            <div class="sidebar-footer">
+                                <!-- Footer actions removed for clean look -->
+                            </div>
                         </aside>
-                        <div class="drive-main">
-                            <div class="glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); height:100%;">
-                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;border-bottom:1px solid var(--border-color);padding-bottom:1rem;">
-                                    <div id="drive-current-category-title" style="font-weight:700;">كل الملفات</div>
-                                    <div id="drive-usage" style="font-size:0.85rem;color:var(--text-secondary);">0 MB مستخدم</div>
-                                </div>
-                                <div id="drive-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));gap:1.5rem;"></div>
+
+                        <!-- Main Content Area -->
+                        <div class="drive-main-content">
+                            <div id="drive-grid" class="drive-grid">
+                                <!-- Files populated by JS -->
                             </div>
                         </div>
                     </div>
+
                     <input type="file" id="drive-upload-input" style="display:none;" multiple>
                 </section>
 
@@ -1370,37 +1452,6 @@
                     <div id="feed-container" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto;"></div>
                 </section>
 
-                <!-- Expense Tracking -->
-                <section id="expenses-section" class="view-section">
-                    <div class="section-header-premium glass-effect">
-                        <div class="header-content">
-                            <div class="header-text">
-                                <h1><i class="fas fa-file-invoice-dollar"></i> إدارة النفقات</h1>
-                                <p>إدارة المصروفات، طلبات الصرف، والمستحقات المالية</p>
-                            </div>
-                            <button class="btn btn-primary" onclick="ExpenseManager.showRequestModal()">
-                                <i class="fas fa-plus"></i> طلب صرف
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
-                        <div class="table-container">
-                            <table>
-                                <thead>
-                                    <tr style="border-bottom:2px solid var(--border-color);">
-                                        <th style="padding:1.25rem 1rem;">الموظف</th>
-                                        <th style="padding:1.25rem 1rem;">الوصف</th>
-                                        <th style="padding:1.25rem 1rem;">المبلغ</th>
-                                        <th style="padding:1.25rem 1rem;">الحالة</th>
-                                        <th style="padding:1.25rem 1rem;">التاريخ</th>
-                                        <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="expenses-list"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
 
                 <!-- Quick Polls -->
                 <section id="polls-section" class="view-section">
@@ -1510,35 +1561,42 @@
                             class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
-                    <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1rem;">يرجى اختيار القسم
-                        المخصص للملف لتسهيل الأرشفة. (الحد الأقصى للملف 700KB)</p>
-
-                    <div class="form-group" style="margin-bottom:1.5rem;">
-                        <label>اختر القسم <span style="color:var(--danger)">*</span></label>
-                        <select id="drive-upload-category"
-                            style="width:100%;padding:0.75rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);">
-                            <option value="general">عام (General)</option>
-                            <option value="finance">المالية والمحاسبة</option>
-                            <option value="contracts">عقود واتفاقيات</option>
-                            <option value="hr">الموارد البشرية</option>
-                            <option value="designs">صور وتصميمات</option>
-                        </select>
+                    <div class="upload-intro-text">
+                        يرجى اختيار القسم المخصص للملف لتسهيل الأرشفة والوصول السريع.
                     </div>
 
-                    <div style="border:2px dashed var(--border-color); border-radius:var(--radius-lg); padding:2rem; text-align:center; cursor:pointer; transition:all 0.2s;"
-                        onclick="document.getElementById('drive-upload-input').click()" id="drive-drop-zone">
-                        <i class="fas fa-file-upload"
-                            style="font-size:3rem; color:var(--primary-color); margin-bottom:1rem;"></i>
-                        <h4 style="margin-bottom:0.5rem;">اضغط هنا لاختيار الملف</h4>
-                        <p style="font-size:0.8rem; color:var(--text-secondary);" id="drive-selected-file-name">لم يتم
-                            اختيار ملف</p>
+                    <div class="form-group-premium">
+                        <label><i class="fas fa-tags"></i> اختر القسم المناسب</label>
+                        <div class="select-wrapper-modern">
+                            <select id="drive-upload-category" class="select-modern">
+                                <option value="general">عام (General)</option>
+                                <option value="finance">المالية والمحاسبة</option>
+                                <option value="contracts">عقود واتفاقيات</option>
+                                <option value="hr">الموارد البشرية</option>
+                                <option value="designs">صور وتصميمات</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+
+                    <div class="drive-drop-zone-modern" onclick="document.getElementById('drive-upload-input').click()" id="drive-drop-zone">
+                        <input type="file" id="drive-upload-input" style="display:none;">
+                        <div class="drop-zone-content">
+                            <div class="drop-icon-box">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <h3>اضغط هنا أو اسحب الملف للرفع</h3>
+                            <p id="drive-selected-file-name">لم يتم اختيار ملف حالياً</p>
+                            <div class="upload-limit-badge">الحد الأقصى للملف: 100MB</div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary"
+                    <button class="btn btn-glass-cancel"
                         onclick="document.getElementById('drive-upload-modal').classList.add('hidden')">إلغاء</button>
-                    <button class="btn btn-primary" onclick="DriveManager.confirmUpload()"><i class="fas fa-check"></i>
-                        تأكيد الرفع</button>
+                    <button class="btn btn-primary btn-glow-action" onclick="DriveManager.confirmUpload()">
+                        <i class="fas fa-check-circle"></i> تأكيد الرفع والبدء
+                    </button>
                 </div>
             </div>
         </div>
