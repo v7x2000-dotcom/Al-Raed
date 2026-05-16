@@ -24,6 +24,14 @@ const AuthManager = {
         AuthManager.checkAuth();
     },
 
+    isAdmin: () => {
+        return AuthManager.currentUser && (AuthManager.currentUser.role === 'Super Admin' || AuthManager.currentUser.role === 'Manager');
+    },
+
+    isSuperAdmin: () => {
+        return AuthManager.currentUser && AuthManager.currentUser.role === 'Super Admin';
+    },
+
     bindEvents: () => {
         // Form switches
         document.getElementById('switch-to-register')?.addEventListener('click', (e) => {
@@ -385,8 +393,8 @@ const AuthManager = {
         if (userId === AuthManager.currentUser?.id) return true;
         const presence = Store._onlineUsers?.find(p => p.id === userId);
         if (!presence) return false;
-        // Online if updated within last 60 seconds
-        return (Date.now() - (presence.timestamp || 0)) < 60000;
+        // Online if updated within last 3 minutes (180000ms) to account for browser background throttling
+        return (Date.now() - (presence.timestamp || 0)) < 180000;
     },
 
     getUserLastSeen: (userId) => {
@@ -664,13 +672,13 @@ const AuthManager = {
         const newP = document.getElementById('setting-new-pass').value;
         const confirm = document.getElementById('setting-confirm-pass')?.value;
 
-        if (!curr || !newP) { alert('يرجى ملء جميع حقول كلمة المرور.'); return; }
-        if (confirm && newP !== confirm) { alert('كلمات المرور الجديدة غير متطابقة.'); return; }
+        if (!curr || !newP) { showAlert('يرجى ملء جميع حقول كلمة المرور.'); return; }
+        if (confirm && newP !== confirm) { showAlert('كلمات المرور الجديدة غير متطابقة.'); return; }
 
         let users = Store.get('users') || [];
         const idx = users.findIndex(u => u.id === AuthManager.currentUser.id);
         if (idx > -1) {
-            if (users[idx].password !== curr) { alert('كلمة المرور الحالية غير صحيحة.'); return; }
+            if (users[idx].password !== curr) { showAlert('كلمة المرور الحالية غير صحيحة.'); return; }
             users[idx].password = newP;
             Store.set('users', users);
             AuthManager.currentUser.password = newP;

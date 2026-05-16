@@ -174,7 +174,7 @@ const WikiManager = {
         const editId = saveBtn.dataset.editId;
 
         if (!title || !content) {
-            alert(typeof LangManager !== 'undefined' ? LangManager.t('Please fill all fields') : 'Please fill all fields');
+            showAlert(typeof LangManager !== 'undefined' ? LangManager.t('Please fill all fields') : 'Please fill all fields');
             return;
         }
 
@@ -199,10 +199,15 @@ const WikiManager = {
 
     deleteArticle: (id) => {
         const isAr = typeof LangManager !== 'undefined' && LangManager.currentLang === 'ar';
-        if (!confirm(isAr ? 'هل أنت متأكد من حذف هذه المقالة؟' : 'Are you sure you want to delete this article?')) return;
-        WikiManager.articles = WikiManager.articles.filter(a => a.id !== id);
-        WikiManager.saveToStorage();
-        WikiManager.render();
+        Confirm.show(
+            isAr ? 'حذف المقالة' : 'Delete Article', 
+            isAr ? 'هل أنت متأكد من حذف هذه المقالة؟' : 'Are you sure you want to delete this article?', 
+            () => {
+                WikiManager.articles = WikiManager.articles.filter(a => a.id !== id);
+                WikiManager.saveToStorage();
+                WikiManager.render();
+            }
+        );
     }
 };
 

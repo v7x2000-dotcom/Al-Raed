@@ -14,7 +14,7 @@ const ReportsManager = {
 
     exportToExcel: (data, filename, sheetName = 'Sheet1') => {
         if (!window.XLSX) {
-            alert('Excel export library is not loaded properly.');
+            showAlert('Excel export library is not loaded properly.');
             return;
         }
 
@@ -44,7 +44,7 @@ const ReportsManager = {
 
     exportTasksToExcel: () => {
         const tasks = Store.get('tasks') || [];
-        if (tasks.length === 0) return alert('No tasks to export.');
+        if (tasks.length === 0) return showAlert('No tasks to export.');
 
         const data = tasks.map(t => ({
             'Task ID': t.id,
@@ -60,7 +60,7 @@ const ReportsManager = {
 
     exportTeamToExcel: () => {
         const team = Store.get('team') || [];
-        if (team.length === 0) return alert('No team members to export.');
+        if (team.length === 0) return showAlert('No team members to export.');
 
         const data = team.map(m => ({
             'Member ID': m.id,

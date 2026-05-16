@@ -85,7 +85,7 @@ const InventoryManager = {
         const category = document.getElementById('inventory-category').value;
         const stock = parseInt(document.getElementById('inventory-stock').value) || 0;
 
-        if (!name) return alert('برجاء إدخال اسم القطعة');
+        if (!name) return showAlert('برجاء إدخال اسم القطعة');
 
         const newItem = {
             id: Date.now(),
@@ -112,10 +112,11 @@ const InventoryManager = {
     },
 
     deleteItem: (id) => {
-        if (!confirm('هل أنت متأكد من حذف هذه القطعة؟')) return;
-        InventoryManager.items = InventoryManager.items.filter(i => i.id !== id);
-        InventoryManager.saveToStorage();
-        InventoryManager.render();
+        Confirm.show('حذف قطعة', 'هل أنت متأكد من حذف هذه القطعة؟', () => {
+            InventoryManager.items = InventoryManager.items.filter(i => i.id !== id);
+            InventoryManager.saveToStorage();
+            InventoryManager.render();
+        });
     }
 };
 window.InventoryManager = InventoryManager;

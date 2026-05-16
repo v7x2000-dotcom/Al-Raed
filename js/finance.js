@@ -23,14 +23,15 @@ const FinanceManager = {
         const expensesTab = document.getElementById('finance-expenses');
         const incomeTab = document.getElementById('finance-income');
         const debtsTab = document.getElementById('finance-debts');
+        const expReqTab = document.getElementById('finance-expense-requests');
 
         // Hide all
-        [expensesTab, incomeTab, debtsTab].forEach(t => {
+        [expensesTab, incomeTab, debtsTab, expReqTab].forEach(t => {
             if (t) { t.style.display = 'none'; t.classList.add('hidden'); }
         });
 
         // Reset buttons
-        ['tab-expenses', 'tab-income', 'tab-debts'].forEach(id => {
+        ['tab-expenses', 'tab-income', 'tab-debts', 'tab-expense-requests'].forEach(id => {
             const btn = document.getElementById(id);
             if (btn) btn.className = 'btn btn-outline';
         });
@@ -45,11 +46,18 @@ const FinanceManager = {
             incomeTab.classList.remove('hidden');
             document.getElementById('tab-income').className = 'btn btn-primary';
             FinanceManager.renderIncome();
-        } else {
+        } else if (tabId === 'debts') {
             debtsTab.style.display = 'block';
             debtsTab.classList.remove('hidden');
             document.getElementById('tab-debts').className = 'btn btn-primary';
             FinanceManager.renderDebts();
+        } else if (tabId === 'expense-requests') {
+            if (expReqTab) {
+                expReqTab.style.display = 'block';
+                expReqTab.classList.remove('hidden');
+                document.getElementById('tab-expense-requests').className = 'btn btn-primary';
+                if (window.ExpenseManager) window.ExpenseManager.render();
+            }
         }
     },
 

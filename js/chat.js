@@ -14,6 +14,7 @@ const ChatManager = {
     _isSending: false,
     _typingTimeout: null,
     _otherTypingTimeout: null,
+    _replyTo: null,
 
     // ─── Storage Keys ─────────────────────────────────────────
     _getPrivateKey: (me, otherId) => `pm_${[me.id, otherId].sort().join('_')}`,
@@ -615,11 +616,27 @@ const ChatManager = {
                 contentHtml = `<div class="msg-text" style="font-style:italic;opacity:0.6;display:flex;align-items:center;gap:6px;"><i class="fas fa-ban" style="font-size:0.7rem;"></i> ${deletedText}</div>`;
             }
 
+            let replyHtml = '';
+            if (msg.replyTo) {
+                const replyMsg = messages.find(m => m.id === msg.replyTo.id) || msg.replyTo;
+                replyHtml = `
+                    <div class="reply-quote" onclick="ChatManager.scrollToMessage('${replyMsg.id}')" style="cursor:pointer;background:rgba(255,255,255,0.05);border-right:3px solid var(--primary-color);padding:6px 10px;border-radius:8px;margin-bottom:8px;font-size:0.75rem;">
+                        <div class="reply-quote-name" style="font-weight:800;color:var(--primary-color);margin-bottom:2px;">${replyMsg.senderName === me.name ? (document.documentElement.dir === 'rtl' ? 'أنت' : 'You') : replyMsg.senderName}</div>
+                        <div class="reply-quote-text" style="opacity:0.7;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${replyMsg.content || (replyMsg.attachment ? (document.documentElement.dir === 'rtl' ? '📎 مرفق' : '📎 Attachment') : '')}</div>
+                    </div>
+                `;
+            }
+
             div.innerHTML = `
+                <div class="swipe-reply-indicator"><i class="fas fa-reply"></i></div>
                 <img src="${msg.senderAvatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(msg.senderName)}" loading="lazy" class="msg-avatar">
                 <div class="msg-bubble-container">
-                    <div class="msg-bubble" onclick="ChatManager.showMsgMenu(event, '${msg.id}', ${isMe})">
+                    <div class="msg-bubble" 
+                         onclick="ChatManager.showMsgMenu(event, '${msg.id}', ${isMe})"
+                         onmousedown="ChatManager._handleSwipeStart(event, '${msg.id}')"
+                         ontouchstart="ChatManager._handleSwipeStart(event, '${msg.id}')">
                         ${!isMe && ChatManager.currentType !== 'private' ? `<div class="msg-sender-name">${msg.senderName}</div>` : ''}
+                        ${replyHtml}
                         ${attachmentHtml}
                         ${contentHtml}
                         <div class="msg-meta">
@@ -628,8 +645,6 @@ const ChatManager = {
                         </div>
                     </div>
                 </div>
-
-
             `;
             fragment.appendChild(div);
         });
@@ -871,12 +886,122 @@ const ChatManager = {
             }
             room.admins = room.admins.filter(id => id !== memberId);
             Store.set('chat_rooms', rooms);
-            NotificationManager.add('تمت الإزالة من الإشراف', 'fa-user-minus', 'info');
-            Store.log('Demoted Member', `${memberId} in ${room.name}`);
+            NotificationManager.add('تمت الإزالة من الإشراف بنجاح', 'fa-user-minus', 'info');
             modalElement.remove();
             ChatManager.toggleProfileSidebar();
         }
     },
+
+    // ─── Reply & Swipe Logic ──────────────────────────────────────────
+    prepareReply: (msgId) => {
+        const { msg } = ChatManager._getMsgAndKey(msgId);
+        if (!msg) return;
+
+        ChatManager._replyTo = msg;
+        const container = document.getElementById('chat-reply-preview');
+        const nameEl = document.getElementById('reply-preview-name');
+        const textEl = document.getElementById('reply-preview-text');
+
+        if (container && nameEl && textEl) {
+            nameEl.textContent = msg.senderName;
+            textEl.textContent = msg.content || (msg.attachment ? (document.documentElement.dir === 'rtl' ? '📎 مرفق' : '📎 Attachment') : '');
+            container.style.display = 'flex';
+            document.getElementById('chat-input')?.focus();
+        }
+    },
+
+    cancelReply: () => {
+        ChatManager._replyTo = null;
+        const container = document.getElementById('chat-reply-preview');
+        if (container) container.style.display = 'none';
+    },
+
+    scrollToMessage: (msgId) => {
+        const el = document.querySelector(`.msg-bubble[onclick*="${msgId}"]`);
+        if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.style.animation = 'highlight 1.5s ease';
+            setTimeout(() => { el.style.animation = ''; }, 1500);
+        }
+    },
+
+    _swipeData: { startX: 0, startY: 0, msgId: null, threshold: 50, isDragging: false },
+    _handleSwipeStart: (e, msgId) => {
+        const touch = e.type === 'touchstart' ? e.touches[0] : e;
+        ChatManager._swipeData.startX = touch.clientX;
+        ChatManager._swipeData.startY = touch.clientY;
+        ChatManager._swipeData.msgId = msgId;
+        ChatManager._swipeData.isDragging = false;
+
+        const el = e.currentTarget.closest('.msg-wrapper');
+        if (!el) return;
+        
+        const isSent = el.classList.contains('msg-sent');
+        const indicator = el.querySelector('.swipe-reply-indicator');
+
+        // Instant response: remove transition during drag
+        el.style.transition = 'none';
+
+        const handleMove = (moveEvent) => {
+            const moveTouch = moveEvent.type === 'touchmove' ? moveEvent.touches[0] : moveEvent;
+            const diffX = moveTouch.clientX - ChatManager._swipeData.startX;
+            const diffY = moveTouch.clientY - ChatManager._swipeData.startY;
+
+            if (!ChatManager._swipeData.isDragging) {
+                if (Math.abs(diffY) > 8) { cleanup(); return; } // Vertical scroll detected
+                if (Math.abs(diffX) > 8) ChatManager._swipeData.isDragging = true;
+            }
+
+            if (ChatManager._swipeData.isDragging) {
+                if (moveEvent.cancelable) moveEvent.preventDefault();
+                
+                const drag = isSent ? Math.min(0, Math.max(-80, diffX)) : Math.max(0, Math.min(80, diffX));
+                const absDrag = Math.abs(drag);
+                
+                el.style.transform = `translateX(${drag}px)`;
+                if (indicator) {
+                    indicator.style.opacity = Math.min(1, absDrag / ChatManager._swipeData.threshold);
+                    indicator.style.transform = `translateY(-50%) scale(${Math.min(1.2, 0.5 + absDrag / 80)})`;
+                    if (absDrag >= ChatManager._swipeData.threshold) {
+                        indicator.style.color = 'var(--primary-color)';
+                    } else {
+                        indicator.style.color = 'inherit';
+                    }
+                }
+            }
+        };
+
+        const handleEnd = () => {
+            const currentTranslate = parseInt(el.style.transform.replace('translateX(', '').replace('px)', '') || 0);
+            
+            el.style.transition = 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)';
+            el.style.transform = '';
+            
+            if (indicator) {
+                indicator.style.opacity = 0;
+                indicator.style.transform = 'translateY(-50%) scale(0.5)';
+            }
+
+            if (ChatManager._swipeData.isDragging && Math.abs(currentTranslate) >= ChatManager._swipeData.threshold) {
+                ChatManager.prepareReply(msgId);
+                if (window.navigator.vibrate) window.navigator.vibrate(20);
+            }
+            cleanup();
+        };
+
+        const cleanup = () => {
+            window.removeEventListener('mousemove', handleMove);
+            window.removeEventListener('mouseup', handleEnd);
+            window.removeEventListener('touchmove', handleMove);
+            window.removeEventListener('touchend', handleEnd);
+        };
+
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchmove', handleMove, { passive: false });
+        window.addEventListener('touchend', handleEnd);
+    },
+
 
     removeMember: (roomId, memberId, modalElement) => {
         askConfirm('هل أنت متأكد من حذف هذا العضو من المجموعة؟', () => {
@@ -1068,8 +1193,16 @@ const ChatManager = {
                 senderAvatar: me.avatar || '',
                 content: content || '',
                 attachment: att || null,
+                replyTo: ChatManager._replyTo ? {
+                    id: ChatManager._replyTo.id,
+                    senderName: ChatManager._replyTo.senderName,
+                    content: ChatManager._replyTo.content
+                } : null,
                 timestamp: new Date().toISOString()
             };
+
+            // Reset reply state
+            ChatManager.cancelReply();
 
             // Clear typing indicator
             if (ChatManager.currentType === 'private' && !ChatManager._isSelfChat && ChatManager.currentReceiverId) {
@@ -1330,6 +1463,7 @@ const ChatManager = {
         if (msg.isDeletedForEveryone) {
             menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
         } else {
+            menu.appendChild(createBtn('fa-reply', 'رد على الرسالة', 'var(--primary-color)', () => ChatManager.prepareReply(msgId)));
             menu.appendChild(createBtn('fa-copy', 'نسخ النص', 'var(--text-primary)', () => ChatManager.copyMessage(msgId)));
             menu.appendChild(createBtn('fa-share', 'توجيه الرسالة', 'var(--primary-color)', () => ChatManager.forwardMessage(msgId)));
 
@@ -1844,6 +1978,7 @@ _chatStyles.textContent = `
     .chat-messages-area {
         flex: 1;
         overflow-y: auto;
+        overflow-x: hidden !important;
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
@@ -1946,6 +2081,7 @@ _chatStyles.textContent = `
         max-width: 100%;
         gap: 12px;
         align-items: flex-end;
+        position: relative;
     }
     
     .msg-sent {
@@ -1962,10 +2098,12 @@ _chatStyles.textContent = `
     html[dir="rtl"] .msg-sent {
         align-self: flex-start !important;
         flex-direction: row !important;
+        margin-inline-start: 1rem !important; /* Force away from right edge */
     }
     html[dir="rtl"] .msg-received {
         align-self: flex-end !important;
         flex-direction: row-reverse !important;
+        margin-inline-end: 1rem !important; /* Force away from left edge */
     }
 
     html[dir="rtl"] .msg-sent .msg-bubble {
@@ -2048,6 +2186,11 @@ _chatStyles.textContent = `
     .typing-dots span:nth-child(2){animation-delay:.15s} .typing-dots span:nth-child(3){animation-delay:.3s}
     @keyframes typingBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
     #chat-typing-indicator{display:none;padding:0.4rem 1.25rem;align-items:center;gap:6px;min-height:24px;}
+    
+    @keyframes highlight {
+        0% { background: rgba(59, 130, 246, 0.4); }
+        100% { background: transparent; }
+    }
 `;
 document.head.appendChild(_chatStyles);
 
