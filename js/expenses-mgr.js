@@ -16,16 +16,39 @@ const ExpenseManager = {
 
         const requests = Store.get('expenses_requests') || [];
         const me = AuthManager.currentUser;
-        const isAdmin = AuthManager.isSuperAdmin();
+        const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
         const isAr = LangManager.currentLang === 'ar';
 
         const visible = isAdmin ? requests : requests.filter(r => r.employeeId === me.id);
         
+        // Update Stats
+        const elTotal = document.getElementById('exp-stat-total');
+        const elPending = document.getElementById('exp-stat-pending');
+        const elApproved = document.getElementById('exp-stat-approved');
+        const elAmount = document.getElementById('exp-stat-amount');
+        
+        let pending = 0, approved = 0, totalAmount = 0;
+        visible.forEach(r => {
+            if (r.status === 'pending') pending++;
+            if (r.status === 'approved') {
+                approved++;
+                totalAmount += parseFloat(r.amount) || 0;
+            }
+        });
+        
+        if (elTotal) elTotal.textContent = visible.length;
+        if (elPending) elPending.textContent = pending;
+        if (elApproved) elApproved.textContent = approved;
+        if (elAmount) elAmount.textContent = totalAmount.toLocaleString() + ' ' + (typeof LangManager !== 'undefined' ? LangManager.t('Currency Symbol') : '$');
+
         list.innerHTML = '';
+        const countEl = document.getElementById('exp-table-count');
+        if (countEl) countEl.textContent = visible.length + ' ' + (isAr ? 'طلب' : 'request(s)');
+
         if (visible.length === 0) {
-            list.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:4rem; opacity:0.5;">
-                <i class="fas fa-file-invoice-dollar" style="font-size:3rem; margin-bottom:1rem; display:block;"></i>
-                ${isAr ? 'لا توجد طلبات مصروفات حالياً' : 'No expense requests found'}
+            list.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:3rem; opacity:0.5;">
+                <i class="fas fa-file-invoice-dollar" style="font-size:2.5rem; margin-bottom:0.75rem; display:block;"></i>
+                <p style="font-size:0.9rem;">${isAr ? 'لا توجد طلبات صرف حالياً' : 'No expense requests found'}</p>
             </td></tr>`;
             return;
         }
@@ -72,9 +95,11 @@ const ExpenseManager = {
                     <div class="card-row" style="margin-top:0.5rem; padding-top:0.75rem; border-top:1px solid var(--border-color);">
                         <div style="font-weight:800; font-size:1.1rem; color:var(--primary-color);">${req.amount} ${isAr ? 'ج.م' : '$'}</div>
                         <div style="display:flex; gap:8px;">
-                            ${isAdmin && req.status === 'pending' ? `
-                                <button class="btn btn-primary" onclick="ExpenseManager.updateStatus('${req.id}', 'approved')" style="padding:6px 12px;"><i class="fas fa-check"></i></button>
-                                <button class="btn" onclick="ExpenseManager.updateStatus('${req.id}', 'rejected')" style="padding:6px 12px; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);"><i class="fas fa-times"></i></button>
+                            ${isAdmin && req.status === 'pending' && req.employeeId !== me.id ? `
+                                <button class="btn btn-primary" onclick="ExpenseManager.updateStatus('${req.id}', 'approved')" style="padding:6px 12px;" title="قبول"><i class="fas fa-check"></i></button>
+                                <button class="btn" onclick="ExpenseManager.updateStatus('${req.id}', 'rejected')" style="padding:6px 12px; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);" title="رفض"><i class="fas fa-times"></i></button>
+                            ` : isAdmin && req.status === 'pending' && req.employeeId === me.id ? `
+                                <span style="font-size:0.75rem; color:var(--warning); padding:4px 8px; border-radius:8px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3);">⁠⚠️ ينتظر مدير آخر</span>
                             ` : `
                                 <button onclick="ExpenseManager.deleteRequest('${req.id}')" style="background:rgba(255,255,255,0.05); border:none; color:var(--text-secondary); cursor:pointer; width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center;"><i class="fas fa-trash-alt"></i></button>
                             `}
@@ -84,26 +109,31 @@ const ExpenseManager = {
                 list.appendChild(card);
             } else {
                 const tr = document.createElement('tr');
+                const statusClass = req.status === 'approved' ? 'approved' : req.status === 'rejected' ? 'rejected' : 'pending';
+                const statusIcon = req.status === 'approved' ? '✔' : req.status === 'rejected' ? '✖' : '⏳';
+                const dateStr = new Date(req.timestamp).toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { year:'numeric', month:'short', day:'numeric' });
                 tr.innerHTML = `
-                    <td style="padding:1rem;">
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <img src="${req.employeeAvatar || 'https://ui-avatars.com/api/?name='+req.employeeName}" style="width:32px;height:32px;border-radius:50%;">
-                            <span>${req.employeeName}</span>
+                    <td>
+                        <div style="display:flex;align-items:center;gap:9px;">
+                            <img src="${req.employeeAvatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(req.employeeName) + '&background=2563eb&color=fff'}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border-color);">
+                            <span style="font-weight:600;">${req.employeeName}</span>
                         </div>
                     </td>
-                    <td style="padding:1rem;">${req.description}</td>
-                    <td style="padding:1rem; font-weight:800;">${req.amount}</td>
-                    <td style="padding:1rem;"><span class="badge" style="background:${statusColor}20; color:${statusColor}; border:1px solid ${statusColor}40;">${statusLabel}</span></td>
-                    <td style="padding:1rem;">${new Date(req.timestamp).toLocaleDateString()}</td>
-                    <td style="padding:1rem; text-align:center;">
-                        ${isAdmin && req.status === 'pending' ? `
-                            <div style="display:flex; gap:5px; justify-content:center;">
-                                <button class="btn btn-primary" onclick="ExpenseManager.updateStatus('${req.id}', 'approved')" style="padding:4px 10px; font-size:0.75rem;"><i class="fas fa-check"></i></button>
-                                <button class="btn" onclick="ExpenseManager.updateStatus('${req.id}', 'rejected')" style="padding:4px 10px; font-size:0.75rem; background:rgba(239,68,68,0.1); color:var(--danger); border:1px solid var(--danger);"><i class="fas fa-times"></i></button>
-                            </div>
+                    <td style="max-width:180px;color:var(--text-secondary);font-size:0.85rem;">${req.description}</td>
+                    <td><span class="exp-amount-cell">${parseFloat(req.amount).toLocaleString()} ${isAr ? 'ج.م' : '$'}</span></td>
+                    <td><span class="exp-status-badge ${statusClass}">${statusIcon} ${statusLabel}</span></td>
+                    <td style="font-size:0.8rem;color:var(--text-secondary);white-space:nowrap;">${dateStr}</td>
+                    <td style="text-align:center;">
+                        <div style="display:flex;gap:5px;justify-content:center;align-items:center;flex-wrap:wrap;">
+                        ${isAdmin && req.status === 'pending' && req.employeeId !== me.id ? `
+                            <button class="exp-action-btn approve" onclick="ExpenseManager.updateStatus('${req.id}', 'approved')"><i class="fas fa-check"></i> قبول</button>
+                            <button class="exp-action-btn reject" onclick="ExpenseManager.updateStatus('${req.id}', 'rejected')"><i class="fas fa-times"></i> رفض</button>
+                        ` : isAdmin && req.status === 'pending' && req.employeeId === me.id ? `
+                            <span class="exp-warn-tag">⚠️ ينتظر مدير آخر</span>
                         ` : (isAdmin || req.employeeId === me.id ? `
-                            <button onclick="ExpenseManager.deleteRequest('${req.id}')" style="background:none; border:none; color:var(--text-secondary); cursor:pointer;"><i class="fas fa-trash-alt"></i></button>
+                            <button class="exp-action-btn delete" onclick="ExpenseManager.deleteRequest('${req.id}')"><i class="fas fa-trash-alt"></i></button>
                         ` : '')}
+                        </div>
                     </td>
                 `;
                 list.appendChild(tr);
@@ -168,19 +198,61 @@ const ExpenseManager = {
     },
 
     updateStatus: (id, status) => {
+        // ─── Security Gate: Admin/Manager only, cannot approve own request ───
+        const me = AuthManager.currentUser;
+        const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
+        if (!isAdmin) {
+            if (window.showToast) showToast('ليس لديك صلاحية للاعتماد', 'error');
+            return;
+        }
+
         const requests = Store.get('expenses_requests') || [];
         const req = requests.find(r => r.id === id);
-        if (req) {
-            req.status = status;
-            Store.set('expenses_requests', requests);
-            NotificationManager.add(status === 'approved' ? 'تم اعتماد الصرف' : 'تم رفض الطلب', 'fa-info-circle', status==='approved'?'success':'warning');
+        if (!req) return;
+
+        // Prevent admin from approving their own request
+        if (req.employeeId === me.id) {
+            if (window.showToast) showToast('لا يمكنك اعتماد طلبك الخاص — يجب مراجعته من مدير آخر', 'warning');
+            return;
         }
+
+        req.status = status;
+        req.approvedBy = me.name;
+        req.approvedAt = new Date().toISOString();
+        Store.set('expenses_requests', requests);
+        
+        const msg = status === 'approved' ? `✔ تم اعتماد طلب صرف (${req.employeeName})` : `✖ تم رفض طلب صرف (${req.employeeName})`;
+        if (window.showToast) showToast(msg, status === 'approved' ? 'success' : 'warning');
+        NotificationManager.add(msg, 'fa-info-circle', status === 'approved' ? 'success' : 'warning');
     },
 
     deleteRequest: (id) => {
-        if (!confirm('حذف هذا الطلب؟')) return;
-        const requests = (Store.get('expenses_requests') || []).filter(r => r.id !== id);
-        Store.set('expenses_requests', requests);
+        const me = AuthManager.currentUser;
+        const requests = Store.get('expenses_requests') || [];
+        const req = requests.find(r => r.id === id);
+        if (!req) return;
+
+        // Only the owner or an admin can delete
+        const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
+        if (!isAdmin && req.employeeId !== me.id) {
+            if (window.showToast) showToast('ليس لديك صلاحية حذف هذا الطلب', 'error');
+            return;
+        }
+
+        // Cannot delete already approved requests (unless super admin)
+        if (req.status === 'approved' && me?.role !== 'Super Admin') {
+            if (window.showToast) showToast('لا يمكن حذف طلب معتمد — تواصل مع المدير العام', 'warning');
+            return;
+        }
+
+        if (typeof DriveManager !== 'undefined' && DriveManager.showConfirm) {
+            DriveManager.showConfirm('حذف هذا الطلب نهائياً؟', () => {
+                Store.set('expenses_requests', (Store.get('expenses_requests') || []).filter(r => r.id !== id));
+            });
+        } else {
+            if (!confirm('حذف هذا الطلب؟')) return;
+            Store.set('expenses_requests', (Store.get('expenses_requests') || []).filter(r => r.id !== id));
+        }
     }
 };
 

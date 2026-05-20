@@ -125,7 +125,7 @@ const AuthManager = {
         const name = document.getElementById('reg-name').value.trim();
         const email = document.getElementById('reg-email').value.trim().toLowerCase();
         const pass = document.getElementById('reg-password').value;
-        const title = document.getElementById('reg-title').value.trim();
+        const title = document.getElementById('reg-title')?.value?.trim() || 'Employee';
 
         if (!name || !email || !pass) {
             errEl.textContent = 'يرجى ملء جميع الحقول المطلوبة.';
@@ -441,14 +441,14 @@ const AuthManager = {
             const target = item.getAttribute('data-target');
             if (!target) return;
             
-            // Super Admin bypass for Admin Panel ONLY (to prevent self-lockout)
-            if (isSuperAdmin && target === 'admin-panel') {
+            // Super Admin bypass for ALL items to prevent lockout from legacy/corrupted localStorage
+            if (isSuperAdmin) {
                 item.style.display = '';
                 return;
             }
 
-            // Check if permission explicitly denied (applies to everyone, even Super Admin now)
-            if (perms[target] === false) {
+            // Check if permission explicitly denied
+            if (perms[target] === false && !['profile', 'settings', 'support'].includes(target)) {
                 item.style.display = 'none';
             } else if (!item.classList.contains('admin-only') && !item.classList.contains('superadmin-only')) {
                 // If permission is true, and it's not restricted by hardcoded role classes
@@ -460,8 +460,10 @@ const AuthManager = {
         const activeSection = document.querySelector('.view-section.active');
         if (activeSection) {
             const sectionId = activeSection.id;
-            if (perms[sectionId] === false || (activeSection.classList.contains('admin-only') && !isAdmin) || (activeSection.classList.contains('superadmin-only') && !isSuperAdmin)) {
-                if (typeof App !== 'undefined') App.navigateTo('dashboard');
+            if (!isSuperAdmin) {
+                if (perms[sectionId] === false || (activeSection.classList.contains('admin-only') && !isAdmin) || (activeSection.classList.contains('superadmin-only'))) {
+                    if (typeof App !== 'undefined') App.navigateTo('dashboard');
+                }
             }
         }
     },

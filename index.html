@@ -12,14 +12,15 @@
     <link rel="apple-touch-icon"
         href="https://ui-avatars.com/api/?name=R&background=2563eb&color=fff&size=192&bold=true">
 
-    <title>منصة الرائد - المساعد الشخصي الذكي</title>
+    <title>منصة الرائد</title>
     <!-- Google Fonts: Inter & Cairo -->
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cairo:wght@400;600;700&display=swap"
         rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=3.8">
+    <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <!-- Chart.js for Advanced Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -113,11 +114,6 @@
                             style="color:var(--danger)">*</span></label>
                     <input type="email" id="reg-email" data-original-ph="ahmed@example.com"
                         placeholder="ahmed@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label data-original="Job Title">Job Title</label>
-                    <input type="text" id="reg-title" data-original-ph="e.g., Project Manager"
-                        placeholder="e.g. Project Manager">
                 </div>
                 <div class="form-group">
                     <label><span data-original="Password">Password</span> <span
@@ -222,6 +218,8 @@
                     <span data-original="Calendar">Calendar</span></a>
                 <a href="#finance" class="nav-item admin-only" data-target="finance"><i class="fas fa-wallet"></i>
                     <span data-original="Finance">Finance</span></a>
+                <a href="#expense-requests" class="nav-item" data-target="expense-requests"><i class="fas fa-file-invoice-dollar"></i>
+                    <span data-original="Expense Requests">Expense Requests</span></a>
                 <a href="#reports" class="nav-item admin-only" data-target="reports"><i class="fas fa-file-alt"></i>
                     <span data-original="Reports">Reports</span></a>
                 <a href="#drive" class="nav-item" data-target="drive"><i class="fas fa-cloud"></i>
@@ -254,7 +252,8 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="topbar">
-                <div class="topbar-left" style="display:flex !important; align-items:center !important; gap:0.75rem !important; margin:0 !important; padding:0 !important;">
+                <div class="topbar-left"
+                    style="display:flex !important; align-items:center !important; gap:0.75rem !important; margin:0 !important; padding:0 !important;">
                     <i class="fas fa-crown" style="color:var(--primary-color); font-size:1.4rem;"></i>
                     <span style="font-weight:700; font-size:1.1rem; color:var(--text-primary); white-space:nowrap;"
                         data-original="منصة الرائد">منصة الرائد</span>
@@ -416,6 +415,31 @@
                             </button>
                         </div>
                     </div>
+                    <!-- Tasks Filter Bar -->
+                    <div class="team-control-bar glass-effect" style="margin-bottom: 1.5rem; justify-content: space-between; gap: 1rem;">
+                        <div class="search-box" style="flex: 1; min-width: 200px; max-width: 400px; position: relative;">
+                            <i class="fas fa-search" style="position: absolute; right: 1rem; color: var(--text-secondary); pointer-events: none; top: 50%; transform: translateY(-50%);"></i>
+                            <input type="text" id="task-search-input" placeholder="ابحث في المهام..." onkeyup="TasksManager.filterTasks()" style="background: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.05) !important; outline: none; color: white !important; width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border-radius: var(--radius-md);">
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: nowrap; align-items: center;">
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <select id="task-filter-priority" class="glass-input" onchange="TasksManager.filterTasks()" style="padding: 0.75rem 1rem 0.75rem 2.2rem; border-radius: var(--radius-md); background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.05); appearance: none; cursor: pointer; min-width: 130px; font-size: 0.85rem;">
+                                    <option value="" style="background: #1e293b;">كل الأولويات</option>
+                                    <option value="urgent" style="background: #1e293b;">🔥 عاجل</option>
+                                    <option value="high" style="background: #1e293b;">🔴 عالي</option>
+                                    <option value="medium" style="background: #1e293b;">🟡 متوسط</option>
+                                    <option value="low" style="background: #1e293b;">🟢 منخفض</option>
+                                </select>
+                                <i class="fas fa-flag" style="position: absolute; left: 1rem; color: var(--text-secondary); pointer-events: none; font-size: 0.8rem;"></i>
+                            </div>
+                            <div style="position: relative; display: flex; align-items: center;">
+                                <select id="task-filter-assignee" class="glass-input" onchange="TasksManager.filterTasks()" style="padding: 0.75rem 1rem 0.75rem 2.2rem; border-radius: var(--radius-md); background: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,255,255,0.05); appearance: none; cursor: pointer; min-width: 140px; font-size: 0.85rem;">
+                                    <option value="" style="background: #1e293b;">كل الموظفين</option>
+                                </select>
+                                <i class="fas fa-users" style="position: absolute; left: 1rem; color: var(--text-secondary); pointer-events: none; font-size: 0.8rem;"></i>
+                            </div>
+                        </div>
+                    </div>
                     <div class="task-sections-container">
                         <!-- To Do Section -->
                         <div class="task-section-wrapper">
@@ -440,6 +464,18 @@
                             </div>
                         </div>
 
+                        <!-- Review Section -->
+                        <div class="task-section-wrapper">
+                            <div class="task-section-header">
+                                <div class="section-title">
+                                    <i class="fas fa-eye"></i> <span>مراجعة</span>
+                                    <span class="count-pill" id="count-review">0</span>
+                                </div>
+                            </div>
+                            <div class="task-list-collapsible active" id="review-list" data-status="review">
+                            </div>
+                        </div>
+
                         <!-- Done Section -->
                         <div class="task-section-wrapper">
                             <div class="task-section-header">
@@ -455,14 +491,97 @@
 
                 <!-- Team View -->
                 <section id="team" class="view-section admin-only">
-                    <div class="header-section">
+                    <div class="header-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
                         <div>
-                            <h1>Team Collaboration</h1>
-                            <p class="subtitle">Members who joined the platform</p>
+                            <h1>هيكلة وإدارة فريق العمل</h1>
+                            <p class="subtitle">تصفح الهيكل الوظيفي التفاعلي وإحصائيات الموظفين بالتفصيل</p>
+                        </div>
+                        <button id="btn-add-team-member" class="btn btn-primary admin-only" style="white-space: nowrap;"><i class="fas fa-user-plus"></i> إضافة موظف</button>
+                    </div>
+
+                    <!-- Team Stats -->
+                    <div class="team-stats-grid">
+                        <div class="team-stat-card glass-effect animate-glow">
+                            <div class="stat-icon" style="background: rgba(37,99,235,0.15); color: #3b82f6;"><i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-total-members">0</h3>
+                                <p>إجمالي الموظفين</p>
+                            </div>
+                        </div>
+                        <div class="team-stat-card glass-effect animate-glow">
+                            <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="fas fa-sitemap"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-total-depts">0</h3>
+                                <p>عدد الإدارات</p>
+                            </div>
+                        </div>
+                        <div class="team-stat-card glass-effect animate-glow">
+                            <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="fas fa-user-check"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-active-members">0</h3>
+                                <p>الموظفين النشطين</p>
+                            </div>
+                        </div>
+                        <div class="team-stat-card glass-effect animate-glow">
+                            <div class="stat-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-top-execs">0</h3>
+                                <p>المناصب العليا</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="team-grid" id="team-grid">
-                        <!-- Populated via JS -->
+
+                    <!-- Filters Control Bar -->
+                    <div class="team-control-bar glass-effect">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="team-search" placeholder="بحث باسم الموظف أو المسمى الوظيفي...">
+                        </div>
+                        <div class="filters-group">
+                            <select id="filter-dept" class="team-select">
+                                <option value="">جميع الإدارات</option>
+                            </select>
+                            <select id="filter-level" class="team-select">
+                                <option value="">جميع المناصب</option>
+                                <option value="CEO">المدير التنفيذي</option>
+                                <option value="General Manager">المدير العام</option>
+                                <option value="HR">موارد بشرية (HR)</option>
+                                <option value="Legal Accountant">محاسب قانوني</option>
+                                <option value="Legal Advisor">مستشار قانوني</option>
+                                <option value="Administrator">إداري</option>
+                                <option value="Trainer">مدرب</option>
+                                <option value="Employee">موظف</option>
+                            </select>
+                            <select id="filter-status" class="team-select">
+                                <option value="">جميع الحالات</option>
+                                <option value="Active">نشط</option>
+                                <option value="Inactive">غير نشط</option>
+                                <option value="On Leave">إجازة</option>
+                            </select>
+                        </div>
+                        <div class="view-toggles">
+                            <button id="btn-view-directory" class="btn-toggle active" title="عرض الدليل"><i class="fas fa-th-large"></i></button>
+                            <button id="btn-view-hierarchy" class="btn-toggle" title="عرض الهيكل التنظيمي"><i class="fas fa-sitemap"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Directory View -->
+                    <div id="team-directory-view" class="team-view-content">
+                        <div class="team-grid" id="team-grid">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Hierarchy View -->
+                    <div id="team-hierarchy-view" class="team-view-content hidden">
+                        <div class="hierarchy-viewport-container glass-effect">
+
+                            <div class="hierarchy-viewport">
+                                <div class="hierarchy-tree-zoomable" id="hierarchy-tree-wrapper">
+                                    <!-- Populated via JS -->
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -586,7 +705,9 @@
                                         <div id="reply-preview-name" class="reply-preview-name"></div>
                                         <div id="reply-preview-text" class="reply-preview-text"></div>
                                     </div>
-                                    <button onclick="ChatManager.cancelReply()" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:5px;"><i class="fas fa-times"></i></button>
+                                    <button onclick="ChatManager.cancelReply()"
+                                        style="background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:5px;"><i
+                                            class="fas fa-times"></i></button>
                                 </div>
 
                                 <div class="chat-input-container">
@@ -595,9 +716,14 @@
                                         title="Attach file">
                                         <i class="fas fa-paperclip"></i>
                                     </button>
-                                    <button id="btn-chat-smart-link" class="chat-action-btn"
-                                        style="display:none; color:var(--primary-color);" title="الربط الذكي">
-                                        <i class="fas fa-magic"></i>
+                                    <!-- New Emoji Button iOS Style -->
+                                    <button class="chat-action-btn" id="btn-chat-emoji" title="Emojis" style="color: #ffcc00;">
+                                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 10V10.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M16 10V10.01" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M8 15C8 15 9.5 17 12 17C14.5 17 16 15 16 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                     </button>
                                     <input type="file" id="chat-file-input"
                                         accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
@@ -607,6 +733,26 @@
                                     <button id="btn-send-msg" class="chat-action-btn">
                                         <i class="fas fa-paper-plane" style="transform:translate(-1px,1px);"></i>
                                     </button>
+
+                                    <!-- iOS Style Emoji Picker Container -->
+                                    <div id="emoji-picker" class="emoji-picker-ios" style="display:none;">
+                                        <div class="emoji-picker-header">
+                                            <span>اختر إيموجي</span>
+                                            <button onclick="ChatManager.toggleEmojiPicker()" class="close-picker" style="background:none;border:none;color:#fff;cursor:pointer;"><i class="fas fa-times"></i></button>
+                                        </div>
+                                        <div class="emoji-categories">
+                                            <div class="emoji-cat-row" id="emoji-list">
+                                                <!-- Populated by JS -->
+                                            </div>
+                                        </div>
+                                        <div class="emoji-picker-footer">
+                                            <div class="cat-icon active" onclick="ChatManager.filterEmojis('smile')">😀</div>
+                                            <div class="cat-icon" onclick="ChatManager.filterEmojis('animal')">🐶</div>
+                                            <div class="cat-icon" onclick="ChatManager.filterEmojis('food')">🍎</div>
+                                            <div class="cat-icon" onclick="ChatManager.filterEmojis('travel')">🚗</div>
+                                            <div class="cat-icon" onclick="ChatManager.filterEmojis('object')">💡</div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </main>
@@ -753,9 +899,6 @@
                         </button>
                         <button class="btn btn-outline" id="tab-debts" onclick="FinanceManager.switchTab('debts')">
                             <i class="fas fa-university"></i> <span data-original="Debts">الديون</span>
-                        </button>
-                        <button class="btn btn-outline" id="tab-expense-requests" onclick="FinanceManager.switchTab('expense-requests')">
-                            <i class="fas fa-file-invoice-dollar"></i> <span data-original="Expense Requests">طلبات الصرف</span>
                         </button>
                     </div>
 
@@ -916,30 +1059,102 @@
                         </div>
                     </div>
 
-                    <!-- Expense Requests Tab (Moved from standalone section) -->
-                    <div id="finance-expense-requests" class="finance-tab hidden" style="display:none;">
-                        <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg);">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:1rem;">
-                                <div style="font-weight:700;"><i class="fas fa-file-invoice-dollar"></i> طلبات صرف الموظفين</div>
-                                <button class="btn btn-primary btn-sm" onclick="ExpenseManager.showRequestModal()">
-                                    <i class="fas fa-plus"></i> طلب صرف جديد
-                                </button>
+                </section>
+
+                <!-- Expense Requests Section (Premium Redesign) -->
+                <section id="expense-requests" class="view-section">
+
+                    <!-- Top Header Bar -->
+                    <div class="exp-header-bar glass-effect">
+                        <div class="exp-header-left">
+                            <div class="exp-header-icon">
+                                <i class="fas fa-file-invoice-dollar"></i>
                             </div>
-                            <div class="table-container">
-                                <table>
-                                    <thead>
-                                        <tr style="border-bottom:2px solid var(--border-color);">
-                                            <th style="padding:1.25rem 1rem;">الموظف</th>
-                                            <th style="padding:1.25rem 1rem;">الوصف</th>
-                                            <th style="padding:1.25rem 1rem;">المبلغ</th>
-                                            <th style="padding:1.25rem 1rem;">الحالة</th>
-                                            <th style="padding:1.25rem 1rem;">التاريخ</th>
-                                            <th style="padding:1.25rem 1rem; text-align:center;">الإجراءات</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="expenses-list"></tbody>
-                                </table>
+                            <div>
+                                <h2 data-original="Expense Requests">طلبات الصرف</h2>
+                                <p data-original="Manage reimbursements and work expenses">إدارة المصروفات وطلبات الصرف</p>
                             </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="ExpenseManager.showRequestModal()">
+                            <i class="fas fa-plus"></i> <span data-original="Add Expense">طلب صرف جديد</span>
+                        </button>
+                    </div>
+
+                    <!-- Dashboard Row -->
+                    <div class="exp-dashboard-row">
+
+                        <!-- Mini Visa Card -->
+                        <div class="exp-visa-mini">
+                            <div class="exp-visa-top">
+                                <div class="exp-visa-logo">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <span data-original="APPROVED">APPROVED</span>
+                                </div>
+                                <i class="fab fa-cc-visa exp-visa-brand"></i>
+                            </div>
+                            <div class="exp-visa-chip"><i class="fas fa-microchip"></i></div>
+                            <div class="exp-visa-num">•••• •••• •••• 5050</div>
+                            <div class="exp-visa-footer">
+                                <div>
+                                    <div class="exp-visa-label" data-original="Total Approved Amount">المبالغ المعتمدة</div>
+                                    <div class="exp-visa-amount" id="exp-stat-amount">0 ج.م</div>
+                                </div>
+                                <div>
+                                    <div class="exp-visa-label" data-original="Company Finance">مالية الشركة</div>
+                                    <div class="exp-visa-sub">Al-Raed</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stats Column -->
+                        <div class="exp-stats-col">
+                            <div class="exp-stat-item glass-effect">
+                                <div class="exp-stat-icon" style="background:rgba(99,102,241,0.15);color:#6366f1;"><i class="fas fa-list-alt"></i></div>
+                                <div class="exp-stat-body">
+                                    <span class="exp-stat-num" id="exp-stat-total">0</span>
+                                    <span class="exp-stat-lbl" data-original="Total Requests">إجمالي الطلبات</span>
+                                </div>
+                            </div>
+                            <div class="exp-stat-item glass-effect">
+                                <div class="exp-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;"><i class="fas fa-hourglass-half"></i></div>
+                                <div class="exp-stat-body">
+                                    <span class="exp-stat-num" id="exp-stat-pending">0</span>
+                                    <span class="exp-stat-lbl" data-original="Pending">قيد الانتظار</span>
+                                </div>
+                            </div>
+                            <div class="exp-stat-item glass-effect">
+                                <div class="exp-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i class="fas fa-check-double"></i></div>
+                                <div class="exp-stat-body">
+                                    <span class="exp-stat-num" id="exp-stat-approved">0</span>
+                                    <span class="exp-stat-lbl" data-original="Approved">تم الاعتماد</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table Card -->
+                    <div class="exp-table-card glass-effect">
+                        <div class="exp-table-header">
+                            <div style="display:flex;align-items:center;gap:0.6rem;">
+                                <i class="fas fa-table" style="color:var(--primary-color);"></i>
+                                <span style="font-weight:700;" data-original="Expense Requests">سجل الطلبات</span>
+                            </div>
+                            <span class="exp-count-badge" id="exp-table-count">جاري التحميل...</span>
+                        </div>
+                        <div class="table-container">
+                            <table class="exp-table">
+                                <thead>
+                                    <tr>
+                                        <th data-original="Employee">الموظف</th>
+                                        <th data-original="Description">الوصف</th>
+                                        <th data-original="Amount">المبلغ</th>
+                                        <th data-original="Status">الحالة</th>
+                                        <th data-original="Date">التاريخ</th>
+                                        <th style="text-align:center;" data-original="Actions">الإجراءات</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenses-list"></tbody>
+                            </table>
                         </div>
                     </div>
                 </section>
@@ -950,7 +1165,8 @@
                         <div class="header-content">
                             <div class="header-text">
                                 <h1 data-original="My Profile">My Profile</h1>
-                                <p data-original="Manage your personal information and account settings">Manage your personal information and account settings</p>
+                                <p data-original="Manage your personal information and account settings">Manage your
+                                    personal information and account settings</p>
                             </div>
                         </div>
                     </div>
@@ -993,11 +1209,6 @@
                                         <input type="text" id="setting-name" data-original-ph="Your name"
                                             placeholder="Your name">
                                     </div>
-                                    <div class="form-group">
-                                        <label data-original="Job Title">Job Title</label>
-                                        <input type="text" id="setting-title" data-original-ph="e.g. Project Manager"
-                                            placeholder="e.g. Project Manager">
-                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label data-original="Email Address">Email Address <span
@@ -1020,7 +1231,8 @@
                         <div class="header-content">
                             <div class="header-text">
                                 <h1 data-original="Audit Logs">Audit Logs</h1>
-                                <p data-original="Platform activity and security monitoring">Platform activity and security monitoring</p>
+                                <p data-original="Platform activity and security monitoring">Platform activity and
+                                    security monitoring</p>
                             </div>
                         </div>
                     </div>
@@ -1078,12 +1290,16 @@
                     </div>
 
                     <!-- Users Table -->
-                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
-                            <h3 style="margin:0;"><i class="fas fa-users" style="color:var(--primary-color)"></i> قائمة الموظفين</h3>
+                    <div class="card glass-effect"
+                        style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; gap:1rem; flex-wrap:wrap;">
+                            <h3 style="margin:0;"><i class="fas fa-users" style="color:var(--primary-color)"></i> قائمة
+                                الموظفين</h3>
                             <div class="search-box" style="flex:1; max-width:300px; position:relative;">
-                                <i class="fas fa-search" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary);"></i>
-                                <input type="text" id="admin-search-user" placeholder="بحث عن موظف..." 
+                                <i class="fas fa-search"
+                                    style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-secondary);"></i>
+                                <input type="text" id="admin-search-user" placeholder="بحث عن موظف..."
                                     style="width:100%; padding:0.7rem 2.5rem 0.7rem 1rem; border-radius:var(--radius-md); border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);"
                                     oninput="AdminPanel.filterUsers(this.value)">
                             </div>
@@ -1105,9 +1321,12 @@
                         </div>
                     </div>
 
-                    <div class="card glass-effect" style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                            <h3 style="margin:0;"><i class="fas fa-shield-alt" style="color:var(--primary-color)"></i> سجل المراجعة (Audit Logs)</h3>
+                    <div class="card glass-effect"
+                        style="padding:1.5rem; border-radius:var(--radius-lg); margin-bottom:2rem;">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                            <h3 style="margin:0;"><i class="fas fa-shield-alt" style="color:var(--primary-color)"></i>
+                                سجل المراجعة (Audit Logs)</h3>
                         </div>
                         <div class="table-container" style="max-height:400px; overflow-y:auto;">
                             <table>
@@ -1149,8 +1368,11 @@
                                 <div id="admin-support-ticket-header"
                                     style="padding:1rem;border-bottom:1px solid var(--border-color);background:rgba(37,99,235,0.05);display:flex;justify-content:space-between;align-items:center;">
                                     <div style="display:flex; align-items:center; gap:0.75rem;">
-                                        <button class="btn btn-icon support-back-btn" onclick="SupportManager.toggleMobileView(false, true)" style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
-                                        <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
+                                        <button class="btn btn-icon support-back-btn"
+                                            onclick="SupportManager.toggleMobileView(false, true)"
+                                            style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
+                                        <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها
+                                        </div>
                                     </div>
                                     <div id="admin-support-ticket-status"></div>
                                 </div>
@@ -1202,19 +1424,23 @@
                     <div id="admin-permissions-modal" class="modal hidden">
                         <div class="modal-content glass-effect" style="max-width:500px;">
                             <div class="modal-header">
-                                <h2><i class="fas fa-user-lock" style="color:var(--primary-color)"></i> إعدادات الصلاحيات</h2>
+                                <h2><i class="fas fa-user-lock" style="color:var(--primary-color)"></i> إعدادات
+                                    الصلاحيات</h2>
                                 <button class="close-modal"><i class="fas fa-times"></i></button>
                             </div>
                             <div class="modal-body">
-                                <p style="margin-bottom:1.5rem;color:var(--text-secondary);font-size:0.875rem;">إدارة صلاحيات الوصول للموظف: <strong id="admin-permissions-target-name" style="color:var(--text-primary);"></strong></p>
-                                
+                                <p style="margin-bottom:1.5rem;color:var(--text-secondary);font-size:0.875rem;">إدارة
+                                    صلاحيات الوصول للموظف: <strong id="admin-permissions-target-name"
+                                        style="color:var(--text-primary);"></strong></p>
+
                                 <div id="admin-permissions-list" class="permissions-grid">
                                     <!-- Populated by JS -->
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button class="btn btn-secondary cancel-modal">إلغاء</button>
-                                <button class="btn btn-primary" onclick="AdminPanel.savePermissions()"><i class="fas fa-save"></i> حفظ الصلاحيات</button>
+                                <button class="btn btn-primary" onclick="AdminPanel.savePermissions()"><i
+                                        class="fas fa-save"></i> حفظ الصلاحيات</button>
                             </div>
                         </div>
                     </div>
@@ -1254,7 +1480,9 @@
                             <div id="support-ticket-header"
                                 style="padding:1rem;border-bottom:1px solid var(--border-color);background:rgba(37,99,235,0.05);display:flex;justify-content:space-between;align-items:center;">
                                 <div style="display:flex; align-items:center; gap:0.75rem;">
-                                    <button class="btn btn-icon support-back-btn" onclick="SupportManager.toggleMobileView(false, false)" style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
+                                    <button class="btn btn-icon support-back-btn"
+                                        onclick="SupportManager.toggleMobileView(false, false)"
+                                        style="margin-left:0.5rem;"><i class="fas fa-chevron-right"></i></button>
                                     <div style="font-weight:700;color:var(--text-secondary);">اختر تذكرة لعرضها</div>
                                 </div>
                                 <div id="support-ticket-status"></div>
@@ -1302,7 +1530,8 @@
                         <div class="action-bar-center">
                             <div class="drive-search-integrated">
                                 <i class="fas fa-search"></i>
-                                <input type="text" id="drive-search" placeholder="بحث شامل في ملفاتك..." onkeyup="DriveManager.handleSearch(this.value)">
+                                <input type="text" id="drive-search" placeholder="بحث شامل في ملفاتك..."
+                                    onkeyup="DriveManager.handleSearch(this.value)">
                             </div>
                         </div>
 
@@ -1316,12 +1545,14 @@
                                     <div id="drive-usage-bar" class="storage-fill" style="width: 0%"></div>
                                 </div>
                             </div>
-                            
+
                             <div class="view-options">
-                                <button class="view-btn active" id="view-grid-btn" title="شبكة" onclick="DriveManager.setViewMode('grid')">
+                                <button class="view-btn active" id="view-grid-btn" title="شبكة"
+                                    onclick="DriveManager.setViewMode('grid')">
                                     <i class="fas fa-th-large"></i>
                                 </button>
-                                <button class="view-btn" id="view-list-btn" title="قائمة" onclick="DriveManager.setViewMode('list')">
+                                <button class="view-btn" id="view-list-btn" title="قائمة"
+                                    onclick="DriveManager.setViewMode('list')">
                                     <i class="fas fa-list"></i>
                                 </button>
                             </div>
@@ -1333,7 +1564,8 @@
                         <!-- Sidebar: Navigation Only -->
                         <aside class="drive-sidebar-modern">
                             <div class="drive-primary-action">
-                                <button class="btn btn-primary btn-upload-modern" onclick="DriveManager.showUploadModal()">
+                                <button class="btn btn-primary btn-upload-modern"
+                                    onclick="DriveManager.showUploadModal()">
                                     <i class="fas fa-plus-circle"></i> رفع ملف جديد
                                 </button>
                             </div>
@@ -1344,10 +1576,7 @@
                                     <!-- Categories populated by JS -->
                                 </ul>
                             </div>
-                            
-                            <div class="sidebar-footer">
-                                <!-- Footer actions removed for clean look -->
-                            </div>
+
                         </aside>
 
                         <!-- Main Content Area -->
@@ -1426,7 +1655,8 @@
 
                     <div class="wiki-container">
                         <aside class="wiki-sidebar glass-effect">
-                            <h3 style="margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-folder-tree"></i> التصنيفات</h3>
+                            <h3 style="margin-bottom:1rem; font-size:1.1rem;"><i class="fas fa-folder-tree"></i>
+                                التصنيفات</h3>
                             <ul id="wiki-categories" class="wiki-cat-list" style="list-style:none; padding:0;"></ul>
                         </aside>
 
@@ -1449,7 +1679,9 @@
                             </button>
                         </div>
                     </div>
-                    <div id="feed-container" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto;"></div>
+                    <div id="feed-container"
+                        style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto;">
+                    </div>
                 </section>
 
 
@@ -1466,7 +1698,9 @@
                             </button>
                         </div>
                     </div>
-                    <div id="polls-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;"></div>
+                    <div id="polls-container"
+                        style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+                    </div>
                 </section>
 
                 <!-- Inventory View -->
@@ -1497,24 +1731,29 @@
                         </div>
                     </div>
 
-                    <div class="settings-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
+                    <div class="settings-grid"
+                        style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:2rem;">
                         <!-- Appearance & Language -->
                         <div class="glass-effect" style="padding:2rem; border-radius:var(--radius-lg);">
                             <h3 style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
                                 <i class="fas fa-paint-brush" style="color:var(--primary-color)"></i> المظهر واللغة
                             </h3>
-                            
+
                             <div class="form-group" style="margin-bottom:1.5rem;">
-                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">لغة العرض (Language)</label>
-                                <select id="setting-lang" class="glass-input" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">لغة العرض
+                                    (Language)</label>
+                                <select id="setting-lang" class="glass-input"
+                                    style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
                                     <option value="ar">العربية (Arabic)</option>
                                     <option value="en">English</option>
                                 </select>
                             </div>
 
                             <div class="form-group">
-                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">مظهر المنصة (Theme Mode)</label>
-                                <select id="setting-theme" class="glass-input" style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
+                                <label style="display:block; margin-bottom:0.75rem; font-weight:600;">مظهر المنصة (Theme
+                                    Mode)</label>
+                                <select id="setting-theme" class="glass-input"
+                                    style="width:100%; padding:0.8rem; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary);">
                                     <option value="light">الوضع الفاتح (Light)</option>
                                     <option value="dark">الوضع الداكن (Dark)</option>
                                 </select>
@@ -1526,19 +1765,26 @@
                             <h3 style="margin-bottom:1.5rem; display:flex; align-items:center; gap:0.75rem;">
                                 <i class="fas fa-user-shield" style="color:var(--primary-color)"></i> إجراءات الحساب
                             </h3>
-                            
+
                             <div style="display:flex; flex-direction:column; gap:1rem;">
-                                <button class="btn btn-outline" onclick="document.querySelector('.nav-item[data-target=profile]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                <button class="btn btn-outline"
+                                    onclick="document.querySelector('.nav-item[data-target=profile]').click()"
+                                    style="width:100%; justify-content:center; padding:1rem;">
                                     <i class="fas fa-user-edit"></i> تعديل ملفي الشخصي
                                 </button>
-                                <button class="btn btn-outline admin-only" onclick="document.querySelector('.nav-item[data-target=team]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                <button class="btn btn-outline admin-only"
+                                    onclick="document.querySelector('.nav-item[data-target=team]').click()"
+                                    style="width:100%; justify-content:center; padding:1rem;">
                                     <i class="fas fa-users-cog"></i> إدارة الفريق
                                 </button>
-                                <button class="btn btn-outline admin-only" onclick="document.querySelector('.nav-item[data-target=audit]').click()" style="width:100%; justify-content:center; padding:1rem;">
+                                <button class="btn btn-outline admin-only"
+                                    onclick="document.querySelector('.nav-item[data-target=audit]').click()"
+                                    style="width:100%; justify-content:center; padding:1rem;">
                                     <i class="fas fa-history"></i> عرض سجل المراجعة
                                 </button>
                                 <hr style="border:0; border-top:1px solid var(--border-color); margin:0.5rem 0;">
-                                <button class="btn btn-primary" id="btn-logout" style="width:100%; justify-content:center; padding:1rem; background:var(--danger-gradient);">
+                                <button class="btn btn-primary" id="btn-logout"
+                                    style="width:100%; justify-content:center; padding:1rem; background:var(--danger-gradient);">
                                     <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                                 </button>
                             </div>
@@ -1578,8 +1824,18 @@
                             <i class="fas fa-chevron-down"></i>
                         </div>
                     </div>
+                    <div class="form-group-premium">
+                        <label><i class="fas fa-folder"></i> المجلد الفرعي (اختياري)</label>
+                        <div class="select-wrapper-modern">
+                            <select id="drive-upload-subfolder" class="select-modern">
+                                <option value="">— بدون مجلد فرعي —</option>
+                            </select>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
 
-                    <div class="drive-drop-zone-modern" onclick="document.getElementById('drive-upload-input').click()" id="drive-drop-zone">
+                    <div class="drive-drop-zone-modern" onclick="document.getElementById('drive-upload-input').click()"
+                        id="drive-drop-zone">
                         <input type="file" id="drive-upload-input" style="display:none;">
                         <div class="drop-zone-content">
                             <div class="drop-icon-box">
@@ -1635,82 +1891,222 @@
             </div>
         </div>
 
-        <div class="modal hidden" id="task-modal">
-            <div class="modal-content glass-effect" style="max-width:580px;">
-                <div class="modal-header">
-                    <h2 id="task-modal-title"><i class="fas fa-tasks" style="color:var(--primary-color)"></i> مهمة جديدة
-                    </h2>
-                    <button class="close-modal"><i class="fas fa-times"></i></button>
+    <!-- ═══════════════════════════════════════════
+         ADVANCED TASK CREATE / EDIT MODAL
+    ═══════════════════════════════════════════ -->
+    <div class="modal hidden" id="task-modal" style="z-index: 10050;">
+        <div class="modal-content glass-effect" style="max-width: 800px; padding: 0; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
+            <div class="modal-header" style="background: rgba(15,23,42,0.9); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.5rem; position: sticky; top: 0; z-index: 10;">
+                <h2 id="task-modal-title" style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-layer-group" style="color: var(--primary-color);"></i>
+                    <span>إنشاء مهمة جديدة</span>
+                </h2>
+                <button class="close-modal" style="background: rgba(255,255,255,0.05); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text-secondary); cursor: pointer; transition: all 0.3s ease;"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="modal-body" style="padding: 1.5rem; overflow-y: auto; flex: 1;">
+                <input type="hidden" id="task-id">
+                
+                <!-- Title & Description -->
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <input type="text" id="task-title" placeholder="اسم المهمة (مثال: تصميم واجهة المستخدم)..." required style="font-size: 1.2rem; font-weight: 600; padding: 1rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); border-radius: var(--radius-md); width: 100%; color: var(--text-primary); transition: all 0.3s ease;">
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="task-id">
-                    <div class="form-group">
-                        <label>عنوان المهمة <span style="color:var(--danger)">*</span></label>
-                        <input type="text" id="task-title" placeholder="مثال: تجهيز المحاضرة القادمة" required>
-                    </div>
-                    <div class="form-group">
-                        <label>تفاصيل المهمة</label>
-                        <textarea id="task-desc" rows="3" placeholder="اكتب تفاصيل المهمة هنا..."
-                            style="resize:vertical;"></textarea>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>الأولوية</label>
-                            <select id="task-priority">
-                                <option value="low">🟢 منخفضة</option>
-                                <option value="medium" selected>🟡 متوسطة</option>
-                                <option value="high">🔴 عالية</option>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <textarea id="task-desc" rows="4" placeholder="أضف وصفاً تفصيلياً للمهمة هنا..." style="width: 100%; padding: 1rem; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); border-radius: var(--radius-md); color: var(--text-primary); resize: vertical; font-family: inherit; transition: all 0.3s ease;"></textarea>
+                </div>
+
+                <!-- Assignment Strategy -->
+                <div class="form-group" style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05);">
+                    <label style="display: block; margin-bottom: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600;"><i class="fas fa-users-cog"></i> تعيين المسؤولين</label>
+                    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <select id="task-assign-type" style="width: 160px; padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary); cursor: pointer; font-size: 0.85rem;">
+                            <option value="specific">موظف محدد</option>
+                            <option value="department">قسم كامل</option>
+                            <option value="all">جميع الموظفين</option>
+                        </select>
+
+                        <!-- Custom Dropdown for Employees -->
+                        <div id="task-assign-specific-container" style="position: relative; flex: 1; min-width: 250px;">
+                            <div id="custom-assignees-btn" style="width: 100%; padding: 0.5rem 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--text-primary); cursor: pointer; font-size: 0.85rem; display: flex; justify-content: space-between; align-items: center; transition: border-color 0.2s;" onclick="document.getElementById('custom-assignees-dropdown').classList.toggle('hidden')">
+                                <span id="custom-assignees-label">اختر الموظفين...</span>
+                                <i class="fas fa-chevron-down" style="color: var(--text-secondary); font-size: 0.8rem;"></i>
+                            </div>
+                            
+                            <div id="custom-assignees-dropdown" class="hidden" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 0.25rem; z-index: 100; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--radius-md); max-height: 220px; overflow-y: auto; background: rgba(15,23,42,0.95); backdrop-filter: blur(10px); box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                                <div id="custom-assignees-list" style="display: flex; flex-direction: column; padding: 0.5rem;">
+                                    <!-- Populated dynamically with JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Department Selection -->
+                        <div id="task-assign-dept-container" style="display: none; flex: 1; min-width: 250px;">
+                            <select id="task-dept" style="width: 100%; padding: 0.5rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary); cursor: pointer; font-size: 0.85rem;">
+                                <!-- Populated dynamically -->
                             </select>
                         </div>
-                        <div class="form-group">
-                            <label>الحالة</label>
-                            <select id="task-status">
-                                <option value="todo" selected>📋 قيد الانتظار</option>
-                                <option value="inprogress">⚙️ قيد التنفيذ</option>
-                                <option value="done">✅ مكتملة</option>
-                            </select>
+                    </div>
+                </div>
+
+                <!-- Attributes Grid -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div class="form-group mb-0">
+                        <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><i class="fas fa-flag"></i> الأولوية</label>
+                        <select id="task-priority" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary); cursor: pointer;">
+                            <option value="urgent">🔥 عاجلة جداً</option>
+                            <option value="high">🔴 عالية</option>
+                            <option value="medium" selected>🟡 متوسطة</option>
+                            <option value="low">🟢 منخفضة</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><i class="fas fa-bars-progress"></i> الحالة</label>
+                        <select id="task-status" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary); cursor: pointer;">
+                            <option value="todo" selected>📋 لم تبدأ (To Do)</option>
+                            <option value="inprogress">⚙️ قيد التنفيذ (In Progress)</option>
+                            <option value="review">👀 قيد المراجعة (Review)</option>
+                            <option value="done">✅ مكتملة (Done)</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><i class="fas fa-calendar-play"></i> تاريخ البدء</label>
+                        <input type="date" id="task-start-date" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary);">
+                    </div>
+                    <div class="form-group mb-0">
+                        <label style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><i class="fas fa-calendar-check"></i> الموعد النهائي</label>
+                        <input type="date" id="task-deadline" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(15,23,42,0.9); color: var(--text-primary);">
+                    </div>
+                </div>
+
+                <!-- Progress & Checklists -->
+                <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Progress -->
+                    <div class="form-group mb-0" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <label style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;"><i class="fas fa-percent"></i> نسبة الإنجاز</label>
+                            <span id="task-progress-val" style="font-weight: bold; color: var(--primary-color);">0%</span>
                         </div>
+                        <input type="range" id="task-progress" min="0" max="100" value="0" style="width: 100%; accent-color: var(--primary-color);">
                     </div>
-                    <div class="form-group">
-                        <label>الموعد النهائي</label>
-                        <input type="date" id="task-deadline">
-                    </div>
-                    <div class="form-group">
-                        <label>المهام الفرعية</label>
-                        <div id="subtasks-container"
-                            style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:0.5rem;max-height:150px;overflow-y:auto;">
+
+                    <!-- Checklist / Subtasks -->
+                    <div class="form-group mb-0" style="background: rgba(255,255,255,0.02); padding: 1rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.05);">
+                        <label style="display: block; margin-bottom: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600;"><i class="fas fa-tasks"></i> المهام الفرعية (Checklist)</label>
+                        <div id="subtasks-container" style="display:flex;flex-direction:column;gap:0.5rem;margin-bottom:1rem;max-height:200px;overflow-y:auto; padding-inline-end: 0.5rem;">
+                            <!-- Populated dynamically -->
                         </div>
                         <div style="display:flex;gap:0.5rem;">
-                            <input type="text" id="new-subtask-input" placeholder="أضف مهمة فرعية..." style="flex:1;">
-                            <button type="button" class="btn btn-primary" id="btn-add-subtask"
-                                style="padding:0.5rem 1rem;flex-shrink:0;"><i class="fas fa-plus"></i></button>
+                            <input type="text" id="new-subtask-input" placeholder="أضف مهمة فرعية (اضغط Enter للحفظ)..." style="flex:1; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--text-primary);">
+                            <button type="button" class="btn btn-primary" id="btn-add-subtask" style="padding:0.75rem 1.25rem; flex-shrink:0;"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary cancel-modal">إلغاء</button>
-                    <button class="btn btn-primary" id="save-task" style="flex:1;"><i class="fas fa-save"></i> حفظ
-                        المهمة</button>
-                </div>
-            </div>
-        </div>
 
-        <!-- Task View Modal -->
-        <div class="modal hidden" id="task-view-modal">
-            <div class="modal-content glass-effect" style="max-width:600px;">
-                <div class="modal-header">
-                    <h2 id="view-task-title">تفاصيل المهمة</h2>
-                    <button class="close-modal"><i class="fas fa-times"></i></button>
+                <!-- Attachments -->
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label style="display: block; margin-bottom: 0.75rem; color: var(--text-secondary); font-size: 0.9rem; font-weight: 600;"><i class="fas fa-paperclip"></i> المرفقات</label>
+                    <div id="task-attachments-preview" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem;"></div>
+                    <label for="task-file-upload" class="btn btn-outline" style="width: 100%; justify-content: center; border-style: dashed; padding: 1rem; color: var(--text-secondary); cursor: pointer;">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 1.25rem; margin-bottom: 0.25rem; display: block;"></i>
+                        اضغط لرفع ملفات أو صور
+                    </label>
+                    <input type="file" id="task-file-upload" multiple style="display: none;">
                 </div>
-                <div class="modal-body" id="view-task-body">
-                    <!-- Content will be injected by JS -->
+
+            </div>
+            
+            <div class="modal-footer" style="background: rgba(15,23,42,0.9); border-top: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 1.5rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-secondary cancel-modal" style="padding: 0.75rem 1.5rem;">إلغاء</button>
+                <button class="btn btn-primary" id="save-task" style="padding: 0.75rem 2rem; font-weight: 600;"><i class="fas fa-save"></i> حفظ المهمة</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════
+         ADVANCED TASK VIEW MODAL (Details & Comments)
+    ═══════════════════════════════════════════ -->
+    <div class="modal hidden" id="task-view-modal" style="z-index: 10050;">
+        <div class="modal-content glass-effect" style="max-width: 900px; padding: 0; overflow: hidden; display: flex; flex-direction: column; height: 85vh;">
+            <div class="modal-header" style="background: rgba(15,23,42,0.9); border-bottom: 1px solid rgba(255,255,255,0.05); padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="view-task-status-badge" class="badge"></div>
+                    <h2 id="view-task-title" style="margin: 0; font-size: 1.25rem;">تفاصيل المهمة</h2>
                 </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary cancel-modal">إغلاق</button>
-                    <button class="btn btn-primary" id="btn-edit-viewed-task"><i class="fas fa-edit"></i> تعديل</button>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn btn-outline admin-only" id="btn-edit-viewed-task" style="padding: 0.5rem 1rem;"><i class="fas fa-pen"></i> تعديل</button>
+                    <button class="close-modal" style="background: rgba(255,255,255,0.05); border: none; width: 36px; height: 36px; border-radius: 50%; color: var(--text-secondary); cursor: pointer;"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            
+            <div class="modal-body" style="display: flex; flex: 1; overflow: hidden; padding: 0;">
+                <!-- Left Column: Details -->
+                <div style="flex: 2; padding: 1.5rem; overflow-y: auto; border-inline-end: 1px solid rgba(255,255,255,0.05);">
+                    <div id="view-task-desc-container" style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">الوصف</h4>
+                        <div id="view-task-desc" style="color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-md);"></div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                        <div>
+                            <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase;">المسؤولين</h4>
+                            <div id="view-task-assignees" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase;">التواريخ</h4>
+                            <div style="font-size: 0.9rem; color: var(--text-primary); display: flex; flex-direction: column; gap: 0.3rem;">
+                                <div><i class="fas fa-calendar-play" style="color: var(--text-secondary); width: 20px;"></i> البداية: <span id="view-task-start"></span></div>
+                                <div><i class="fas fa-calendar-check" style="color: var(--danger); width: 20px;"></i> النهاية: <span id="view-task-end"></span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 0.85rem; text-transform: uppercase;">نسبة الإنجاز (<span id="view-task-progress-text"></span>%)</h4>
+                        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                            <div id="view-task-progress-bar" style="height: 100%; background: var(--primary-color); transition: width 0.3s ease;"></div>
+                        </div>
+                        <!-- Employee quick update slider -->
+                        <div id="view-task-progress-update-container" style="margin-top: 1rem; display: none;">
+                            <label style="font-size: 0.8rem; color: var(--text-secondary);">تحديث النسبة الخاصة بك:</label>
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <input type="range" id="quick-progress-update" min="0" max="100" style="flex: 1;">
+                                <button id="btn-save-quick-progress" class="btn btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">تحديث</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="view-task-subtasks-section" style="margin-bottom: 2rem;">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem; text-transform: uppercase;">المهام الفرعية</h4>
+                        <div id="view-task-subtasks-list" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+                    </div>
+
+                    <div id="view-task-attachments-section">
+                        <h4 style="color: var(--text-secondary); margin-bottom: 0.75rem; font-size: 0.85rem; text-transform: uppercase;">المرفقات</h4>
+                        <div id="view-task-attachments-list" style="display: flex; flex-wrap: wrap; gap: 0.75rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Activity & Comments -->
+                <div style="flex: 1.2; display: flex; flex-direction: column; background: rgba(0,0,0,0.1);">
+                    <div style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02);">
+                        <h3 style="margin: 0; font-size: 1rem; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-comments text-primary"></i> التعليقات والنشاط</h3>
+                    </div>
+                    <div id="view-task-activity-feed" style="flex: 1; overflow-y: auto; padding: 1rem; display: flex; flex-direction: column; gap: 1rem;">
+                        <!-- Comments & Activity logs injected here -->
+                    </div>
+                    <div style="padding: 1rem; border-top: 1px solid rgba(255,255,255,0.05); background: rgba(15,23,42,0.9);">
+                        <textarea id="task-comment-input" placeholder="اكتب تعليقاً..." rows="2" style="width: 100%; padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: var(--text-primary); resize: none; margin-bottom: 0.5rem;"></textarea>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label for="comment-attachment" style="color: var(--text-secondary); cursor: pointer; padding: 0.5rem; border-radius: var(--radius-sm); transition: all 0.2s;"><i class="fas fa-paperclip"></i> إرفاق</label>
+                            <input type="file" id="comment-attachment" style="display: none;">
+                            <button id="btn-add-task-comment" class="btn btn-primary" style="padding: 0.5rem 1rem;"><i class="fas fa-paper-plane"></i> إرسال</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
         <!-- Event Modal -->
         <div class="modal hidden" id="event-modal">
@@ -1793,9 +2189,97 @@
 
     </div>
 
+    <!-- Employee Detail Modal -->
+    <div class="modal hidden" id="employee-detail-modal" style="z-index:10010;">
+        <div class="modal-content glass-effect" style="max-width:560px;padding:0;overflow:hidden;position:relative;">
+            <button style="position:absolute;top:1rem;inset-inline-end:1rem;z-index:5;background:rgba(255,255,255,0.07);border:none;width:32px;height:32px;border-radius:50%;color:var(--text-secondary);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;" onclick="document.getElementById('employee-detail-modal').classList.add('hidden')"><i class="fas fa-times"></i></button>
+            <div id="emp-detail-content"><!-- Populated by JS --></div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Employee Modal -->
+    <div class="modal hidden" id="team-add-edit-modal" style="z-index:10009;">
+        <div class="modal-content glass-effect" style="max-width:520px;">
+            <div class="modal-header">
+                <h2 id="team-modal-title"><i class="fas fa-user-plus"></i> إضافة موظف جديد</h2>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" style="max-height:72vh;overflow-y:auto;">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الاسم الكامل <span style="color:var(--danger)">*</span></label>
+                        <input type="text" id="ae-name" placeholder="مثال: أحمد علي">
+                    </div>
+                    <div class="form-group">
+                        <label>البريد الإلكتروني <span style="color:var(--danger)">*</span></label>
+                        <input type="email" id="ae-email" placeholder="ahmed@company.com">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>المسمى الوظيفي</label>
+                        <input type="text" id="ae-title" placeholder="مثال: مطور برمجيات">
+                    </div>
+                    <div class="form-group">
+                        <label>الإدارة / القسم</label>
+                        <input type="text" id="ae-dept" placeholder="مثال: تقنية المعلومات">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الدرجة الوظيفية</label>
+                        <select id="ae-job-level" style="width:100%;padding:0.75rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);">
+                            <option value="CEO">المدير التنفيذي</option>
+                            <option value="General Manager">المدير العام</option>
+                            <option value="HR">موارد بشرية (HR)</option>
+                            <option value="Legal Accountant">محاسب قانوني</option>
+                            <option value="Legal Advisor">مستشار قانوني</option>
+                            <option value="Administrator">إداري</option>
+                            <option value="Trainer">مدرب</option>
+                            <option value="Employee" selected>موظف</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>الحالة الوظيفية</label>
+                        <select id="ae-status" style="width:100%;padding:0.75rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);">
+                            <option value="Active">نشط</option>
+                            <option value="Inactive">غير نشط</option>
+                            <option value="On Leave">إجازة</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الراتب الشهري (اختياري)</label>
+                        <input type="number" id="ae-salary" placeholder="مثال: 8000">
+                    </div>
+                    <div class="form-group admin-only">
+                        <label>صلاحية النظام</label>
+                        <select id="ae-role" style="width:100%;padding:0.75rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);">
+                            <option value="Member">Member</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات</label>
+                    <textarea id="ae-notes" rows="3" placeholder="أي ملاحظات إضافية..." style="width:100%;padding:0.75rem;border-radius:var(--radius-md);border:1px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);resize:vertical;font-family:inherit;font-size:0.9rem;"></textarea>
+                </div>
+                <p style="font-size:0.8rem;color:var(--text-secondary);padding:0.6rem 0.75rem;background:rgba(37,99,235,0.05);border-radius:8px;border-inline-start:3px solid var(--primary-color);">
+                    <i class="fas fa-info-circle"></i> سيتم إنشاء حساب تلقائياً بكلمة مرور افتراضية: <strong>password123</strong>
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary cancel-modal">إلغاء</button>
+                <button class="btn btn-primary" id="save-team-member"><i class="fas fa-save"></i> حفظ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Admin Manage User Modal -->
     <div class="modal hidden" id="admin-manage-user-modal">
         <div class="modal-content glass-effect" style="max-width:400px;">
+
             <div class="modal-header">
                 <h3 data-original="Manage User">Manage User</h3>
                 <button class="close-modal"><i class="fas fa-times"></i></button>
@@ -2112,11 +2596,11 @@
     <script src="js/api.js"></script>
     <script src="js/notifications.js"></script>
     <script src="js/theme.js"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=3.1"></script>
 
     <!-- App Modules -->
-    <script src="js/tasks.js"></script>
-    <script src="js/team.js"></script>
+    <script src="js/tasks.js?v=3.7"></script>
+    <script src="js/team.js?v=3.3"></script>
     <script src="js/chat.js"></script>
     <script src="js/calendar.js"></script>
     <script src="js/reports.js"></script>
@@ -2124,7 +2608,7 @@
     <script src="js/admin.js"></script>
     <script src="js/finance.js"></script>
     <script src="js/support.js"></script>
-    <script src="js/drive.js"></script>
+    <script src="js/drive.js?v=2.0"></script>
     <script src="js/projects.js"></script>
     <script src="js/clients.js"></script>
     <script src="js/inventory.js"></script>
@@ -2137,7 +2621,7 @@
     <script src="js/briefing-ai.js"></script>
     <script src="js/quick-actions.js"></script>
     <script src="js/command-palette.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app.js?v=3.2"></script>
 
     <!-- Mobile Bottom Navigation -->
     <!-- Bottom Nav Removed -->

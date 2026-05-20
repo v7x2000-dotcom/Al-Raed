@@ -67,7 +67,7 @@ const ChatManager = {
 
                 if (tyEl && myConvKey === convKey && value && value.userId !== me.id) {
                     tyEl.style.display = 'flex';
-                    if (tyText) tyText.textContent = (value.userName || 'المستخدم') + ' يكتب الآن...';
+                    if (tyText) tyText.textContent = (value.userName || 'المستخدم') + ' يكتب الالآنن...';
                     clearTimeout(ChatManager._otherTypingTimeout);
                     ChatManager._otherTypingTimeout = setTimeout(() => { tyEl.style.display = 'none'; }, 3000);
                 } else if (tyEl && myConvKey === convKey) {
@@ -138,8 +138,8 @@ const ChatManager = {
                     if (statusEl) {
                         const isOnline = AuthManager.isUserOnline(member.id);
                         const lastSeen = AuthManager.getUserLastSeen(member.id);
-                        const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الآن' : 'Online') :
-                            (lastSeen ? (document.documentElement.dir === 'rtl' ? 'آخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
+                        const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الالآنن' : 'Online') :
+                            (lastSeen ? (document.documentElement.dir === 'rtl' ? 'الآنخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
                         statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${isOnline ? 'var(--success)' : 'var(--text-secondary)'};display:inline-block;"></span> ${lastSeenText}`;
                     }
                 }
@@ -223,7 +223,7 @@ const ChatManager = {
                     inputWrapper.style.pointerEvents = 'none';
                 }
                 const msgContainer = document.getElementById('chat-messages');
-                if (msgContainer) msgContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;opacity:0.4;gap:1rem;text-align:center;"><i class="fas fa-comments" style="font-size:4rem;"></i><p>اختر محادثة للبدء</p></div>';
+                if (msgContainer) msgContainer.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;opacity:0.4;gap:1rem;text-align:center;"><i class="fas fa-comments" style="font-size:4rem;"></i><p>اختر �&حادثة ��بدء</p></div>';
             });
         });
     },
@@ -336,7 +336,7 @@ const ChatManager = {
             const div = document.createElement('div');
             div.className = 'chat-user-item' + (isSelected ? ' selected' : '');
             div.onclick = (e) => ChatManager._selectRoom(room, e);
-            div.innerHTML = `<div style="flex-shrink:0;"><img src="${room.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(room.name) + '&background=3b82f6&color=fff'}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;"></div><div style="flex:1;overflow:hidden;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:0.9rem;">${room.name}</span><span style="font-size:0.7rem;color:var(--text-secondary);">${lastMsg ? new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span></div><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">${lastMsg ? lastMsg.senderName + ': ' + lastMsg.content.substring(0, 25) : 'لا توجد رسائل'}</span>${unread > 0 ? `<span style="background:#ef4444;color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:0.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;">${unread}</span>` : ''}</div></div>`;
+            div.innerHTML = `<div style="flex-shrink:0;"><img src="${room.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(room.name) + '&background=3b82f6&color=fff'}" style="width:46px;height:46px;border-radius:12px;object-fit:cover;"></div><div style="flex:1;overflow:hidden;"><div style="display:flex;justify-content:space-between;"><span style="font-weight:700;font-size:0.9rem;">${room.name}</span><span style="font-size:0.7rem;color:var(--text-secondary);">${lastMsg ? new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span></div><div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:0.78rem;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">${lastMsg ? lastMsg.senderName + ': ' + lastMsg.content.substring(0, 25) : 'لا توجد رسائلل'}</span>${unread > 0 ? `<span style="background:#ef4444;color:#fff;border-radius:50%;min-width:18px;height:18px;font-size:0.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;">${unread}</span>` : ''}</div></div>`;
             sidebar.appendChild(div);
         });
     },
@@ -363,8 +363,8 @@ const ChatManager = {
         if (statusEl) {
             const isOnline = AuthManager.isUserOnline(member.id);
             const lastSeen = AuthManager.getUserLastSeen(member.id);
-            const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الآن' : 'Online') :
-                (lastSeen ? (document.documentElement.dir === 'rtl' ? 'آخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
+            const lastSeenText = isOnline ? (document.documentElement.dir === 'rtl' ? 'متصل الالآنن' : 'Online') :
+                (lastSeen ? (document.documentElement.dir === 'rtl' ? 'الآنخر ظهور ' : 'Last seen ') + App.formatTimeAgo(lastSeen) : (document.documentElement.dir === 'rtl' ? 'غير متصل' : 'Offline'));
 
             statusEl.innerHTML = `<span style="width:7px;height:7px;border-radius:50%;background:${isOnline ? 'var(--success)' : 'var(--text-secondary)'};display:inline-block;"></span> ${lastSeenText}`;
         }
@@ -388,7 +388,7 @@ const ChatManager = {
         const av = document.getElementById('chat-active-avatar');
         if (av) { av.src = room.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(room.name) + '&background=3b82f6&color=fff'; av.style.display = 'block'; }
         const statusEl = document.getElementById('chat-active-status');
-        if (statusEl) statusEl.innerHTML = `<i class="fas fa-users" style="font-size:0.75rem;opacity:0.6;"></i> ${room.members?.length || 0} أعضاء`;
+        if (statusEl) statusEl.innerHTML = `<i class="fas fa-users" style="font-size:0.75rem;opacity:0.6;"></i> ${room.members?.length || 0} أعضواء`;
         const key = ChatManager._getRoomKey(room.id);
         ChatManager._clearUnread(key);
 
@@ -398,12 +398,12 @@ const ChatManager = {
         if (input && btn) {
             const isAdmin = (room.admins || [room.createdBy]).includes(me.id);
             if (room.isLocked && !isAdmin) {
-                input.placeholder = 'المجموعة مغلقة حالياً - المدير فقط يمكنه الكتابة';
+                input.placeholder = 'ا��&ج�&��عة �&غ��ة حا��`ا�9 - ا��&د�`ر ف�ط �`�&ْ� �! ا�ْتابة';
                 input.disabled = true;
                 btn.disabled = true;
                 btn.style.opacity = '0.5';
             } else {
-                input.placeholder = 'اكتب رسالتك هنا...';
+                input.placeholder = 'ايكتب رسا�تْ �!� ا...';
                 input.disabled = false;
                 btn.disabled = false;
                 btn.style.opacity = '1';
@@ -508,17 +508,17 @@ const ChatManager = {
                     <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
                         <div style="background:var(--warning); color:#fff; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-tasks"></i></div>
                         <div>
-                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">مهام المجموعة</h3>
-                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">متابعة وإسناد المهام لفريقك</p>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">�&�!ا�& ا��&ج�&��عة</h3>
+                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">�&تابعة ��إس� اد ا��&�!ا�& ��فريق�`�</p>
                         </div>
                     </div>
                     <div style="background:var(--bg-primary); padding:1.25rem; border-radius:15px; border:1px solid var(--border-color); text-align:center; margin-bottom:1.5rem;">
                         <div style="font-size:2rem; font-weight:900; color:var(--warning);">${pending}</div>
-                        <div style="font-size:0.8rem; opacity:0.7; color:var(--text-secondary);">مهمة قيد الانتظار</div>
+                        <div style="font-size:0.8rem; opacity:0.7; color:var(--text-secondary);">�&�!�&ة ��`د ا�ا� تظار</div>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:10px;">
-                        <button onclick="ChatManager._handleSmartAction('tasks', 'add')" style="width:100%; padding:0.9rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer;"><i class="fas fa-plus-circle"></i> إضافة مهمة جديدة</button>
-                        <button onclick="ChatManager._handleSmartAction('tasks', 'view')" style="width:100%; padding:0.8rem; background:none; color:var(--text-primary); border:1px solid var(--border-color); border-radius:12px; font-size:0.85rem; cursor:pointer;"><i class="fas fa-th-large"></i> فتح لوحة المهام</button>
+                        <button onclick="ChatManager._handleSmartAction('tasks', 'add')" style="width:100%; padding:0.9rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer;"><i class="fas fa-plus-circle"></i> إضافة �&�!�&ة جد�`دة</button>
+                        <button onclick="ChatManager._handleSmartAction('tasks', 'view')" style="width:100%; padding:0.8rem; background:none; color:var(--text-primary); border:1px solid var(--border-color); border-radius:12px; font-size:0.85rem; cursor:pointer;"><i class="fas fa-th-large"></i> فتح ���حة ا��&�!ا�&</button>
                     </div>
                 </div>
             `;
@@ -528,11 +528,11 @@ const ChatManager = {
                     <div style="display:flex; align-items:center; gap:12px; margin-bottom:1.5rem;">
                         <div style="background:var(--danger); color:#fff; width:45px; height:45px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;"><i class="fas fa-headset"></i></div>
                         <div>
-                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">دعم الفريق</h3>
-                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">تذاكر الدعم الفني والمساعدة</p>
+                            <h3 style="margin:0; font-size:1.1rem; color:var(--text-primary);">دع�& ا�فريق�`�</h3>
+                            <p style="margin:0; font-size:0.75rem; opacity:0.6; color:var(--text-secondary);">تذاْر ا�دع�& ا�ف� �` ��ا��&ساعدة</p>
                         </div>
                     </div>
-                    <button onclick="ChatManager._handleSmartAction('support', 'view')" style="width:100%; padding:1rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-ticket-alt"></i> فتح مركز الدعم</button>
+                    <button onclick="ChatManager._handleSmartAction('support', 'view')" style="width:100%; padding:1rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;"><i class="fas fa-ticket-alt"></i> فتح �&رْز ا�دع�&</button>
                 </div>
             `;
         }
@@ -610,7 +610,7 @@ const ChatManager = {
 
         container.innerHTML = '';
         if (!messages.length) {
-            container.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;opacity:0.6;gap:1rem;text-align:center;padding:2rem;"><i class="fas fa-comment-dots" style="font-size:3rem;color:var(--primary-color);"></i><p style="font-size:1rem;font-weight:600;">لا توجد رسائل بعد. قل مرحباً! 👋</p></div>';
+            container.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;opacity:0.6;gap:1rem;text-align:center;padding:2rem;"><i class="fas fa-comment-dots" style="font-size:3rem;color:var(--primary-color);"></i><p style="font-size:1rem;font-weight:600;">لا توجد رسائلل بعد. قل مرحباً! 👋</p></div>';
             return;
         }
 
@@ -715,14 +715,14 @@ const ChatManager = {
             const m = ChatManager._isSelfChat ? me : (team.find(t => t.id === ChatManager.currentReceiverId) || me);
             const isOnline = AuthManager.isUserOnline(m.id);
             avatar = m.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(m.name);
-            name = m.name; subtitle = m.role || 'عضو بالفريق';
-            body = `<div style="background:var(--bg-primary);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">حالة الاتصال</div><div style="font-weight:600;display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${isOnline ? 'var(--success)' : 'var(--text-secondary)'};display:inline-block;"></span> ${isOnline ? 'متصل الآن' : 'غير متصل'}</div></div><div style="background:var(--bg-primary);border-radius:12px;padding:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">البريد الإلكتروني</div><div style="font-weight:600;font-size:0.85rem;word-break:break-all;">${m.email || 'غير متوفر'}</div></div>`;
+            name = m.name; subtitle = m.role || 'عضو�� با�فريق�`�';
+            body = `<div style="background:var(--bg-primary);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">حا�ة ا�اتصا�</div><div style="font-weight:600;display:flex;align-items:center;gap:6px;"><span style="width:8px;height:8px;border-radius:50%;background:${isOnline ? 'var(--success)' : 'var(--text-secondary)'};display:inline-block;"></span> ${isOnline ? '�متصل� ا�الآن� ' : 'غ�`ر �متصل�'}</div></div><div style="background:var(--bg-primary);border-radius:12px;padding:1rem;border:1px solid var(--border-color);"><div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">ا�بر�`د ا�إ�ْتر��� �`</div><div style="font-weight:600;font-size:0.85rem;word-break:break-all;">${m.email || 'غ�`ر �&ت��فريق'}</div></div>`;
         } else {
             const rooms = Store.get('chat_rooms') || [];
             const room = rooms.find(r => r.id === ChatManager.currentReceiverId);
             if (!room) return;
             avatar = room.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(room.name) + '&background=3b82f6&color=fff';
-            name = room.name; subtitle = ChatManager.currentType === 'group' ? 'مجموعة عمل' : 'قناة';
+            name = room.name; subtitle = ChatManager.currentType === 'group' ? '�&ج�&��عة ع�&�' : '�� اة';
 
             const isActualAdmin = (room.admins || [room.createdBy]).includes(me.id);
             const canEdit = !room.isInfoRestricted || isActualAdmin;
@@ -731,14 +731,14 @@ const ChatManager = {
             if (canEdit || isActualAdmin) {
                 adminTools = `
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:1rem;">
-                        <button onclick="ChatManager.showRoomEditModal('${room.id}')" style="background:rgba(37,99,235,0.1);color:var(--primary-color);border:1px solid rgba(37,99,235,0.2);padding:8px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;"><i class="fas fa-edit"></i> تعديل</button>
+                        <button onclick="ChatManager.showRoomEditModal('${room.id}')" style="background:rgba(37,99,235,0.1);color:var(--primary-color);border:1px solid rgba(37,99,235,0.2);padding:8px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;"><i class="fas fa-edit"></i> تعد�`�</button>
                         ${isActualAdmin ? `<button onclick="ChatManager.showAddMembersModal('${room.id}')" style="background:rgba(16,185,129,0.1);color:var(--success);border:1px solid rgba(16,185,129,0.2);padding:8px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;"><i class="fas fa-user-plus"></i> إضافة</button>` : ''}
-                        ${isActualAdmin ? `<button onclick="ChatManager.showPrivacySettingsModal('${room.id}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);padding:8px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;grid-column: span 2;"><i class="fas fa-shield-alt"></i> إعدادات الخصوصية</button>` : ''}
+                        ${isActualAdmin ? `<button onclick="ChatManager.showPrivacySettingsModal('${room.id}')" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.2);padding:8px;border-radius:10px;font-size:0.8rem;font-weight:700;cursor:pointer;grid-column: span 2;"><i class="fas fa-shield-alt"></i> إعدادات ا�خص��ص�`ة</button>` : ''}
                     </div>`;
             }
 
             const memberItems = (room.members || []).map(mid => {
-                const m = team.find(t => t.id === mid) || { name: 'مستخدم', avatar: '' };
+                const m = team.find(t => t.id === mid) || { name: '�&ستخد�&', avatar: '' };
                 const on = AuthManager.isUserOnline(m.id);
                 const isRoomAdmin = (room.admins || [room.createdBy]).includes(m.id);
                 const canManage = (room.admins || [room.createdBy]).includes(me.id) && m.id !== me.id;
@@ -754,26 +754,26 @@ const ChatManager = {
                             ${on ? '<span style="position:absolute;bottom:0;right:0;width:9px;height:9px;background:var(--success);border-radius:50%;border:2px solid var(--bg-primary);"></span>' : ''}
                         </div>
                         <span style="font-size:0.88rem;font-weight:600;flex:1;">${m.name}</span>
-                        ${isRoomAdmin ? '<span style="font-size:0.6rem;background:rgba(37,99,235,0.15);color:var(--primary-color);padding:2px 7px;border-radius:10px;">مشرف</span>' : ''}
+                        ${isRoomAdmin ? '<span style="font-size:0.6rem;background:rgba(37,99,235,0.15);color:var(--primary-color);padding:2px 7px;border-radius:10px;">�&شرف</span>' : ''}
                     </div>`;
             }).join('');
             body = `
                 ${adminTools}
                 <div style="background:var(--bg-primary);border-radius:12px;padding:1rem;margin-bottom:1rem;border:1px solid var(--border-color);">
-                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">الوصف</div>
-                    <div style="font-size:0.85rem;">${room.desc || 'لا يوجد وصف'}</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:4px;">ا���صف</div>
+                    <div style="font-size:0.85rem;">${room.desc || '�ا �`��جد ��صف'}</div>
                 </div>
                 <div style="background:var(--bg-primary);border-radius:12px;padding:1rem;border:1px solid var(--border-color);">
-                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;">الأعضاء (${room.members?.length || 0})</div>
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin-bottom:8px;">ا�أعضواء (${room.members?.length || 0})</div>
                     <div class="members-list-scroll">${memberItems}</div>
                 </div>`;
         }
 
-        sidebar.innerHTML = `<div style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border-color);position:sticky;top:0;background:var(--bg-secondary);z-index:2;"><button onclick="document.getElementById('chat-profile-sidebar').style.transform='translateX(100%)'" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.1rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button><h3 style="margin:0;font-size:1rem;font-weight:700;">معلومات المحادثة</h3></div><div style="padding:2rem 1.25rem 1.5rem;text-align:center;border-bottom:1px solid var(--border-color);"><img src="${avatar}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--bg-secondary);box-shadow:0 10px 20px rgba(0,0,0,0.2);margin-bottom:1rem;"><h2 style="margin:0 0 0.35rem;font-size:1.25rem;font-weight:800;">${name}</h2><div style="color:var(--primary-color);font-size:0.85rem;background:rgba(37,99,235,0.1);padding:3px 12px;border-radius:20px;display:inline-block;">${subtitle}</div></div><div style="padding:1.25rem;">${body}</div>`;
+        sidebar.innerHTML = `<div style="padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem;border-bottom:1px solid var(--border-color);position:sticky;top:0;background:var(--bg-secondary);z-index:2;"><button onclick="document.getElementById('chat-profile-sidebar').style.transform='translateX(100%)'" style="background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:1.1rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button><h3 style="margin:0;font-size:1rem;font-weight:700;">�&ع����&ات ا��&حادثة</h3></div><div style="padding:2rem 1.25rem 1.5rem;text-align:center;border-bottom:1px solid var(--border-color);"><img src="${avatar}" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:4px solid var(--bg-secondary);box-shadow:0 10px 20px rgba(0,0,0,0.2);margin-bottom:1rem;"><h2 style="margin:0 0 0.35rem;font-size:1.25rem;font-weight:800;">${name}</h2><div style="color:var(--primary-color);font-size:0.85rem;background:rgba(37,99,235,0.1);padding:3px 12px;border-radius:20px;display:inline-block;">${subtitle}</div></div><div style="padding:1.25rem;">${body}</div>`;
         sidebar.style.transform = 'translateX(0px)';
     },
 
-    // ----------------- Room Management Modals -------------------------------------
+    // ������ Room Management Modals ����������������������������������������������������������������������������������
 
     showRoomEditModal: (roomId) => {
         const room = (Store.get('chat_rooms') || []).find(r => r.id === roomId);
@@ -785,7 +785,7 @@ const ChatManager = {
         modal.innerHTML = `
             <div class="modal-content glass-effect" style="max-width:450px;">
                 <div class="modal-header">
-                    <h2>تعديل معلومات المجموعة</h2>
+                    <h2>تعد�`� �&ع����&ات ا��&ج�&��عة</h2>
                     <button class="close-modal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
@@ -800,26 +800,26 @@ const ChatManager = {
                         <input type="hidden" id="edit-room-image-data" value="${room.image || ''}">
                     </div>
                     <div class="form-group">
-                        <label>اسم المجموعة</label>
+                        <label>اس�& ا��&ج�&��عة</label>
                         <input type="text" id="edit-room-name" value="${room.name}">
                     </div>
                     <div class="form-group">
-                        <label>الوصف</label>
+                        <label>ا���صف</label>
                         <textarea id="edit-room-desc" rows="3">${room.desc || ''}</textarea>
                     </div>
                     <div class="form-group" style="background:rgba(37,99,235,0.05); padding:12px; border-radius:12px; border:1px solid rgba(37,99,235,0.1); margin-top:10px;">
-                        <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">ربط ذكي بقسم (Smart Link)</label>
+                        <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">�x ربط ذْ�` ب�س�& (Smart Link)</label>
                         <select id="edit-room-linked-section" style="width:100%; padding:0.6rem; border-radius:10px; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.8rem; outline:none; cursor:pointer;">
-                            <option value="" ${!room.linkedSection ? 'selected' : ''}>بدون ربط</option>
-                            <option value="finance" ${room.linkedSection === 'finance' ? 'selected' : ''}>قسم المالية (Financial Dashboard)</option>
-                            <option value="tasks" ${room.linkedSection === 'tasks' ? 'selected' : ''}>لوحة المهام (Task Board)</option>
-                            <option value="support" ${room.linkedSection === 'support' ? 'selected' : ''}>مركز الدعم (Support Center)</option>
+                            <option value="" ${!room.linkedSection ? 'selected' : ''}>بد���  ربط</option>
+                            <option value="finance" ${room.linkedSection === 'finance' ? 'selected' : ''}>�س�& ا��&ا��`ة (Financial Dashboard)</option>
+                            <option value="tasks" ${room.linkedSection === 'tasks' ? 'selected' : ''}>���حة ا��&�!ا�& (Task Board)</option>
+                            <option value="support" ${room.linkedSection === 'support' ? 'selected' : ''}>�&رْز ا�دع�& (Support Center)</option>
                         </select>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary cancel-modal">إلغاء</button>
-                    <button class="btn btn-primary" id="btn-save-room">حفظ التغييرات</button>
+                    <button class="btn btn-secondary cancel-modal">إ�غاء</button>
+                    <button class="btn btn-primary" id="btn-save-room">حفظ ا�تغ�`�`رات</button>
                 </div>
             </div>
         `;
@@ -840,7 +840,7 @@ const ChatManager = {
                 r.image = image;
                 r.linkedSection = linkedSection;
                 Store.set('chat_rooms', rooms);
-                NotificationManager.add('تم تحديث بيانات المجموعة', 'fa-check', 'success');
+                NotificationManager.add('ت�& تحد�`ث ب�`ا� ات ا��&ج�&��عة', 'fa-check', 'success');
                 modal.remove();
                 ChatManager.toggleProfileSidebar(); // Refresh sidebar
                 ChatManager.loadRooms(); // Refresh list
@@ -887,15 +887,15 @@ const ChatManager = {
             <div class="modal-content glass-effect" style="max-width:320px;text-align:center;padding:2rem;background:var(--bg-secondary);border:1px solid var(--primary-color);">
                 <img src="${member.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(member.name)}" style="width:80px;height:80px;border-radius:50%;margin-bottom:1rem;border:3px solid var(--primary-color);object-fit:cover;">
                 <h3 style="margin:0 0 0.5rem;color:var(--text-primary);">${member.name}</h3>
-                <p style="font-size:0.8rem;opacity:0.6;margin-bottom:1.5rem;color:var(--text-secondary);">إدارة صلاحيات العضو في هذه المجموعة</p>
+                <p style="font-size:0.8rem;opacity:0.6;margin-bottom:1.5rem;color:var(--text-secondary);">إدارة ص�اح�`ات ا�عضو�� ف�` �!ذ�! ا��&ج�&��عة</p>
                 
                 <div style="display:flex;flex-direction:column;gap:10px;">
                     ${isTargetAdmin ?
-                `<button class="btn btn-secondary" onclick="ChatManager.demoteFromAdmin('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;justify-content:center;"><i class="fas fa-user-minus"></i> إزالة من الإشراف</button>` :
-                `<button class="btn btn-primary" onclick="ChatManager.promoteToAdmin('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;justify-content:center;"><i class="fas fa-user-shield"></i> تعيين كمشرف</button>`
+                `<button class="btn btn-secondary" onclick="ChatManager.demoteFromAdmin('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;justify-content:center;"><i class="fas fa-user-minus"></i> إزا�ة �&�  ا�إشراف</button>` :
+                `<button class="btn btn-primary" onclick="ChatManager.promoteToAdmin('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;justify-content:center;"><i class="fas fa-user-shield"></i> تع�`�`�  ْ�&شرف</button>`
             }
-                    <button class="btn btn-outline" onclick="ChatManager.removeMember('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;color:#f43f5e;border-color:#f43f5e;justify-content:center;"><i class="fas fa-user-times"></i> حذف من المجموعة</button>
-                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()" style="width:100%;background:rgba(255,255,255,0.05);color:#fff;justify-content:center;">إغلاق</button>
+                    <button class="btn btn-outline" onclick="ChatManager.removeMember('${roomId}', '${memberId}', this.closest('.modal'))" style="width:100%;color:#f43f5e;border-color:#f43f5e;justify-content:center;"><i class="fas fa-user-times"></i> حذف �&�  ا��&ج�&��عة</button>
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()" style="width:100%;background:rgba(255,255,255,0.05);color:#fff;justify-content:center;">إغ�ا�</button>
                 </div>
             </div>
         `;
@@ -910,7 +910,7 @@ const ChatManager = {
             if (!room.admins.includes(memberId)) {
                 room.admins.push(memberId);
                 Store.set('chat_rooms', rooms);
-                NotificationManager.add('تم التعيين كمشرف بنجاح', 'fa-user-shield', 'success');
+                NotificationManager.add('ت�& ا�تع�`�`�  ْ�&شرف ب� جاح', 'fa-user-shield', 'success');
                 Store.log('Promoted Member', `${memberId} in ${room.name}`);
                 modalElement.remove();
                 ChatManager.toggleProfileSidebar();
@@ -923,18 +923,18 @@ const ChatManager = {
         const room = rooms.find(r => r.id === roomId);
         if (room && room.admins) {
             if (memberId === room.createdBy) {
-                NotificationManager.add('لا يمكن إزالة المنشئ من الإشراف', 'fa-exclamation-triangle', 'warning');
+                NotificationManager.add('�ا �`�&ْ�  إزا�ة ا��&� شئ �&�  ا�إشراف', 'fa-exclamation-triangle', 'warning');
                 return;
             }
             room.admins = room.admins.filter(id => id !== memberId);
             Store.set('chat_rooms', rooms);
-            NotificationManager.add('تمت الإزالة من الإشراف بنجاح', 'fa-user-minus', 'info');
+            NotificationManager.add('ت�&ت ا�إزا�ة �&�  ا�إشراف ب� جاح', 'fa-user-minus', 'info');
             modalElement.remove();
             ChatManager.toggleProfileSidebar();
         }
     },
 
-    // ----------------- Reply & Swipe Logic -----------------------------------------
+    // ������ Reply & Swipe Logic ������������������������������������������������������������������������������������
     prepareReply: (msgId) => {
         const { msg } = ChatManager._getMsgAndKey(msgId);
         if (!msg) return;
@@ -946,7 +946,7 @@ const ChatManager = {
 
         if (container && nameEl && textEl) {
             nameEl.textContent = msg.senderName;
-            textEl.textContent = msg.content || (msg.attachment ? (document.documentElement.dir === 'rtl' ? '📎 مرفق' : '📎 Attachment') : '');
+            textEl.textContent = msg.content || (msg.attachment ? (document.documentElement.dir === 'rtl' ? '�x} �&رف�' : '�x} Attachment') : '');
             container.style.display = 'flex';
             document.getElementById('chat-input')?.focus();
         }
@@ -1075,26 +1075,26 @@ const ChatManager = {
         modal.innerHTML = `
             <div class="modal-content glass-effect" style="max-width:450px;">
                 <div class="modal-header">
-                    <h2>إضافة أعضاء جدد</h2>
+                    <h2>إضافة أعضواء جدد</h2>
                     <button class="close-modal"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body">
                     <div style="max-height:300px;overflow-y:auto;padding-right:5px;">
-                        ${nonMembers.length === 0 ? '<p style="text-align:center;opacity:0.6;">جميع أعضاء الفريق موجودون بالفعل</p>' : nonMembers.map(u => `
+                        ${nonMembers.length === 0 ? '<p style="text-align:center;opacity:0.6;">ج�&�`ع أعضواء ا�فريق�`� �&��ج��د���  با�فع�</p>' : nonMembers.map(u => `
                             <div class="member-check-item" style="display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border-color);border-radius:12px;margin-bottom:8px;cursor:pointer;">
                                 <input type="checkbox" class="add-member-cb" data-id="${u.id}" style="width:18px;height:18px;cursor:pointer;">
                                 <img src="${u.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;">
                                 <div>
                                     <div style="font-weight:700;font-size:0.9rem;">${u.name}</div>
-                                    <div style="font-size:0.75rem;opacity:0.6;">${u.role || 'عضو'}</div>
+                                    <div style="font-size:0.75rem;opacity:0.6;">${u.role || 'عضو��'}</div>
                                 </div>
                             </div>
                         `).join('')}
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary cancel-modal">إلغاء</button>
-                    <button class="btn btn-primary" id="btn-confirm-add" ${nonMembers.length === 0 ? 'disabled' : ''}>إضافة الأعضاء المحددين</button>
+                    <button class="btn btn-secondary cancel-modal">إ�غاء</button>
+                    <button class="btn btn-primary" id="btn-confirm-add" ${nonMembers.length === 0 ? 'disabled' : ''}>إضافة ا�أعضواء ا��المحددين�`� </button>
                 </div>
             </div>
         `;
@@ -1119,7 +1119,7 @@ const ChatManager = {
                     Store.set('chat_invitations', invites);
                 });
 
-                NotificationManager.add(`تمت إضافة ${selectedIds.length} أعضاء بنجاح`, 'fa-user-plus', 'success');
+                NotificationManager.add(`ت�&ت إضافة ${selectedIds.length} أعضواء ب� جاح`, 'fa-user-plus', 'success');
                 modal.remove();
                 ChatManager.toggleProfileSidebar();
             }
@@ -1142,7 +1142,7 @@ const ChatManager = {
                 <div style="padding:1.5rem; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center;">
                     <h2 style="margin:0; font-size:1.25rem; display:flex; align-items:center; gap:10px;">
                         <i class="fas fa-shield-alt" style="color:var(--primary-color);"></i>
-                        إعدادات الخصوصية
+                        إعدادات ا�خص��ص�`ة
                     </h2>
                     <button class="close-modal" style="background:none; border:none; color:var(--text-secondary); font-size:1.5rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                 </div>
@@ -1150,8 +1150,8 @@ const ChatManager = {
                     <div style="display:flex; flex-direction:column; gap:1.5rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-primary); padding:1rem; border-radius:15px; border:1px solid var(--border-color);">
                             <div>
-                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">قفل الكتابة (ReadOnly)</div>
-                                <div style="font-size:0.75rem; color:var(--text-secondary);">المدير فقط يمكنه إرسال رسائل في هذه الغرفة.</div>
+                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">�ف� ا�ْتابة (ReadOnly)</div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary);">ا��&د�`ر ف�ط �`�&ْ� �! إرسا� رسائل� ف�` �!ذ�! ا�غيرفة.</div>
                             </div>
                             <label class="switch" style="position:relative; display:inline-block; width:50px; height:26px;">
                                 <input type="checkbox" id="privacy-lock" ${room.isLocked ? 'checked' : ''} style="opacity:0; width:0; height:0;">
@@ -1160,8 +1160,8 @@ const ChatManager = {
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center; background:var(--bg-primary); padding:1rem; border-radius:15px; border:1px solid var(--border-color);">
                             <div>
-                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">تقييد تعديل المعلومات</div>
-                                <div style="font-size:0.75rem; color:var(--text-secondary);">المدير فقط يمكنه تغيير الاسم والصورة والوصف.</div>
+                                <div style="font-weight:800; margin-bottom:4px; font-size:0.9rem;">ت��`�`د تعد�`� ا��&ع����&ات</div>
+                                <div style="font-size:0.75rem; color:var(--text-secondary);">ا��&د�`ر ف�ط �`�&ْ� �! تغ�`�`ر ا�اس�& ��ا�ص��رة ��ا���صف.</div>
                             </div>
                             <label class="switch" style="position:relative; display:inline-block; width:50px; height:26px;">
                                 <input type="checkbox" id="privacy-info" ${room.isInfoRestricted ? 'checked' : ''} style="opacity:0; width:0; height:0;">
@@ -1171,8 +1171,8 @@ const ChatManager = {
                     </div>
                 </div>
                 <div style="padding:1.5rem; background:var(--bg-primary); border-top:1px solid var(--border-color); display:flex; gap:10px;">
-                    <button class="cancel-modal" style="flex:1; padding:0.8rem; background:none; border:1px solid var(--border-color); border-radius:12px; cursor:pointer; font-weight:600; color:var(--text-primary);">إلغاء</button>
-                    <button id="btn-save-privacy" style="flex:2; padding:0.8rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(37,99,235,0.2);">حفظ التغييرات</button>
+                    <button class="cancel-modal" style="flex:1; padding:0.8rem; background:none; border:1px solid var(--border-color); border-radius:12px; cursor:pointer; font-weight:600; color:var(--text-primary);">إ�غاء</button>
+                    <button id="btn-save-privacy" style="flex:2; padding:0.8rem; background:var(--primary-gradient); color:#fff; border:none; border-radius:12px; cursor:pointer; font-weight:800; box-shadow:0 4px 12px rgba(37,99,235,0.2);">حفظ ا�تغ�`�`رات</button>
                 </div>
             </div>
             <style>
@@ -1192,7 +1192,7 @@ const ChatManager = {
                 r.isLocked = isLocked;
                 r.isInfoRestricted = isInfoRestricted;
                 Store.set('chat_rooms', rooms);
-                NotificationManager.add('تم تحديث إعدادات الخصوصية', 'fa-shield-alt', 'success');
+                NotificationManager.add('ت�& تحد�`ث إعدادات ا�خص��ص�`ة', 'fa-shield-alt', 'success');
                 modal.remove();
             }
         };
@@ -1219,7 +1219,7 @@ const ChatManager = {
                 const room = (Store.get('chat_rooms') || []).find(r => r.id === ChatManager.currentReceiverId);
                 const isAdmin = room && (room.admins || [room.createdBy]).includes(AuthManager.currentUser.id);
                 if (room && room.isLocked && !isAdmin) {
-                    NotificationManager.add('المجموعة مغلقة حالياً، المدير فقط يمكنه الكتابة', 'fa-lock', 'warning');
+                    NotificationManager.add('ا��&ج�&��عة �&غ��ة حا��`ا�9�R ا��&د�`ر ف�ط �`�&ْ� �! ا�ْتابة', 'fa-lock', 'warning');
                     return;
                 }
             }
@@ -1352,7 +1352,7 @@ const ChatManager = {
             const prev = document.getElementById('chat-attachment-preview');
             const thumb = document.getElementById('chat-attachment-thumb');
             prev.style.display = 'flex';
-            thumb.innerHTML = `📎 ${file.name}`;
+            thumb.innerHTML = `�x} ${file.name}`;
         };
         reader.readAsDataURL(file);
     },
@@ -1396,9 +1396,9 @@ const ChatManager = {
                 <div style="width:60px; height:60px; border-radius:50%; background:rgba(239,68,68,0.1); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:1.5rem;">
                     <i class="fas fa-trash-alt"></i>
                 </div>
-                <h3 style="margin-bottom:0.5rem;">${LangManager.t('حذف المحادثة')}</h3>
+                <h3 style="margin-bottom:0.5rem;">${LangManager.t('حذف ا��&حادثة')}</h3>
                 <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:2rem;">
-                    ${isPrivate ? 'هل تريد مسح هذه المحادثة من جهازك؟' : 'اختر نوع الحذف المفضل لهذه المجموعة'}
+                    ${isPrivate ? '�!� تر�`د �&سح �!ذ�! ا��&حادثة �&�  ج�!ازْ�x' : 'اختر � ��ع ا�حذف ا��&فض� ��!ذ�! ا��&ج�&��عة'}
                 </p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <button class="btn btn-primary" id="btn-del-me" style="width:100%; justify-content:center; background:rgba(37,99,235,0.1); color:var(--primary-color); border:1px solid var(--primary-color);">
@@ -1430,13 +1430,13 @@ const ChatManager = {
             localStorage.setItem(deletedKey, JSON.stringify(deletedIds));
 
             ChatManager.renderMessages();
-            NotificationManager.add('تم مسح المحادثة من جهازك بنجاح', 'fa-check-circle', 'info');
+            NotificationManager.add('ت�& �&سح ا��&حادثة �&�  ج�!ازْ ب� جاح', 'fa-check-circle', 'info');
             modal.remove();
         };
 
         if (modal.querySelector('#btn-del-all')) {
             modal.querySelector('#btn-del-all').onclick = () => {
-                askConfirm('هل أنت متأكد من حذف هذه المحادثة لدى جميع الأطراف؟ لا يمكن التراجع عن هذا الإجراء.', () => {
+                askConfirm('�!� أ� ت �&تأْد �&�  حذف �!ذ�! ا��&حادثة �د�0 ج�&�`ع ا�أطراف�x �ا �`�&ْ�  ا�تراجع ع�  �!ذا ا�إجراء.', () => {
                     const convKey = isPrivate
                         ? (ChatManager._isSelfChat ? ChatManager._getSelfKey(me) : ChatManager._getPrivateKey(me, ChatManager.currentReceiverId))
                         : ChatManager._getRoomKey(ChatManager.currentReceiverId);
@@ -1448,7 +1448,7 @@ const ChatManager = {
                     }
 
                     ChatManager.renderMessages();
-                    NotificationManager.add('تم حذف المحادثة لدى الجميع بنجاح', 'fa-trash', 'success');
+                    NotificationManager.add('ت�& حذف ا��&حادثة �د�0 ا�ج�&�`ع ب� جاح', 'fa-trash', 'success');
                     modal.remove();
                 });
             };
@@ -1458,7 +1458,7 @@ const ChatManager = {
     },
 
 
-    // ----------------- Message Context Menu & Actions ------------------------------
+    // ������ Message Context Menu & Actions ��������������������������������������������������
     showMsgMenu: (e, msgId, isMe) => {
         const { msg } = ChatManager._getMsgAndKey(msgId);
         if (!msg) return;
@@ -1503,18 +1503,18 @@ const ChatManager = {
         };
 
         if (msg.isDeletedForEveryone) {
-            menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
+            menu.appendChild(createBtn('fa-trash', 'حذف �د�`', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
         } else {
-            menu.appendChild(createBtn('fa-reply', 'رد على الرسالة', 'var(--primary-color)', () => ChatManager.prepareReply(msgId)));
-            menu.appendChild(createBtn('fa-copy', 'نسخ النص', 'var(--text-primary)', () => ChatManager.copyMessage(msgId)));
-            menu.appendChild(createBtn('fa-share', 'توجيه الرسالة', 'var(--primary-color)', () => ChatManager.forwardMessage(msgId)));
+            menu.appendChild(createBtn('fa-reply', 'رد ع��0 ا�رسا�ة', 'var(--primary-color)', () => ChatManager.prepareReply(msgId)));
+            menu.appendChild(createBtn('fa-copy', '� سخ ا�� ص', 'var(--text-primary)', () => ChatManager.copyMessage(msgId)));
+            menu.appendChild(createBtn('fa-share', 'ت��ج�`�! ا�رسا�ة', 'var(--primary-color)', () => ChatManager.forwardMessage(msgId)));
 
             if (isMe) {
-                menu.appendChild(createBtn('fa-pen', 'تعديل الرسالة', 'var(--warning)', () => ChatManager.editMessage(msgId)));
-                menu.appendChild(createBtn('fa-trash-alt', 'حذف لدى الجميع', 'var(--danger)', () => ChatManager.deleteMessageForEveryone(msgId)));
+                menu.appendChild(createBtn('fa-pen', 'تعد�`� ا�رسا�ة', 'var(--warning)', () => ChatManager.editMessage(msgId)));
+                menu.appendChild(createBtn('fa-trash-alt', 'حذف �د�0 ا�ج�&�`ع', 'var(--danger)', () => ChatManager.deleteMessageForEveryone(msgId)));
             }
 
-            menu.appendChild(createBtn('fa-trash', 'حذف لدي', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
+            menu.appendChild(createBtn('fa-trash', 'حذف �د�`', 'var(--danger)', () => ChatManager.deleteMessageForMe(msgId)));
         }
 
         document.body.appendChild(menu);
@@ -1544,7 +1544,7 @@ const ChatManager = {
         const { msg } = ChatManager._getMsgAndKey(msgId);
         if (msg && msg.content) {
             navigator.clipboard.writeText(msg.content);
-            NotificationManager.add(LangManager.t('تم نسخ الرسالة بنجاح'), 'fa-copy', 'system');
+            NotificationManager.add(LangManager.t('ت�& � سخ ا�رسا�ة ب� جاح'), 'fa-copy', 'system');
         }
     },
 
@@ -1604,7 +1604,7 @@ const ChatManager = {
                 }
 
                 ChatManager.render(); // Full re-render
-                NotificationManager.add('تم الحذف لدى الجميع بنجاح', 'fa-check-circle', 'success');
+                NotificationManager.add('ت�& ا�حذف �د�0 ا�ج�&�`ع ����`دْ', 'fa-check-circle', 'success');
             }
         });
     },
@@ -1612,9 +1612,9 @@ const ChatManager = {
     editMessage: (msgId) => {
         const { msg, msgs, key } = ChatManager._getMsgAndKey(msgId);
         if (!msg || !msg.content) return;
-        askPrompt('تعديل الرسالة:', msg.content.replace(' (معدلة)', ''), (newText) => {
+        askPrompt('تعد�`� ا�رسا�ة:', msg.content.replace(' (�&عد�ة)', ''), (newText) => {
             if (newText !== null && newText.trim() !== '') {
-                msg.content = newText.trim() + ' (معدلة)';
+                msg.content = newText.trim() + ' (�&عد�ة)';
                 ChatManager._updateFirebaseMessages(key, msgs);
                 ChatManager.renderMessages();
             }
@@ -1644,7 +1644,7 @@ const ChatManager = {
         modal.innerHTML = `
             <div class="modal-content glass-effect" style="max-width:400px;">
                 <div class="modal-header">
-                    <h2><i class="fa fa-share"></i> توجيه الرسالة إلى...</h2>
+                    <h2><i class="fa fa-share"></i> ت��ج�`�! ا�رسا�ة إ��0...</h2>
                     <button class="close-modal" onclick="this.closest('.modal').remove()"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body" style="max-height:400px; overflow-y:auto;">
@@ -1679,7 +1679,7 @@ const ChatManager = {
             senderId: me.id,
             senderName: me.name,
             senderAvatar: me.avatar,
-            content: (originalMsg.content || '') + '<br><br><span style="font-size:0.7rem;opacity:0.6;background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;"><i class="fas fa-share"></i> رسالة موجهة</span>',
+            content: (originalMsg.content || '') + '<br><br><span style="font-size:0.7rem;opacity:0.6;background:rgba(0,0,0,0.2);padding:2px 6px;border-radius:4px;"><i class="fas fa-share"></i> رسا�ة �&��ج�!ة</span>',
             attachment: originalMsg.attachment,
             timestamp: new Date().toISOString()
         };
@@ -1696,10 +1696,10 @@ const ChatManager = {
                 timestamp: Date.now()
             }, { merge: true });
         }
-        NotificationManager.add('تم توجيه الرسالة بنجاح إلى ' + targetName, 'fa-check-circle', 'system');
+        NotificationManager.add('ت�& ت��ج�`�! ا�رسا�ة ب� جاح إ��0 ' + targetName, 'fa-check-circle', 'system');
     },
 
-    // ----------------- Unread Counter (Timestamp-based) ----------------------------
+    // ������ Unread Counter (Timestamp-based) ��������������������������������������������������
     _clearUnread: (convKey) => {
         const data = JSON.parse(localStorage.getItem('chat_last_read') || '{}');
         data[convKey] = Date.now();
@@ -1742,7 +1742,7 @@ const ChatManager = {
         return (Store.get(convKey) || []).filter(msg => msg.senderId !== me.id && new Date(msg.timestamp).getTime() > lr).length;
     },
 
-    // ----------------- Nav Badge ---------------------------------------------------
+    // ������ Nav Badge ��������������������������������������������������������������������������������������������������������
     _updateNavBadge: () => {
         const me = AuthManager.currentUser;
         if (!me) return;
@@ -1814,7 +1814,7 @@ const ChatManager = {
         updateTabBadge('broadcast', broadcastUnread);
     },
 
-    // ----------------- Sound Notification ------------------------------------------
+    // ������ Sound Notification ��������������������������������������������������������������������������������������������
     _playSound: () => {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1857,7 +1857,7 @@ const ChatManager = {
         modal.innerHTML = `
             <div class="modal-content glass-effect" style="max-width:500px; padding:0; border-radius:20px; overflow:hidden;">
                 <div style="padding:1.5rem; background:linear-gradient(135deg, var(--primary-color), var(--accent-color)); color:#fff; display:flex; justify-content:space-between; align-items:center;">
-                    <h2 style="margin:0; font-size:1.2rem;"><i class="fas ${isGroup ? 'fa-users' : 'fa-bullhorn'}"></i> ${isGroup ? 'إنشاء مجموعة جديدة' : 'إنشاء قناة جديدة'}</h2>
+                    <h2 style="margin:0; font-size:1.2rem;"><i class="fas ${isGroup ? 'fa-users' : 'fa-bullhorn'}"></i> ${isGroup ? 'إ� شاء �&ج�&��عة جد�`دة' : 'إ� شاء �� اة جد�`دة'}</h2>
                     <button class="close-modal" style="background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;"><i class="fas fa-times"></i></button>
                 </div>
                 <div class="modal-body" style="padding:1.5rem; display:flex; flex-direction:column; gap:1.2rem;">
@@ -1872,34 +1872,34 @@ const ChatManager = {
                         <input type="hidden" id="new-room-image-data" value="">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:6px; opacity:0.8;">اسم ${isGroup ? 'المجموعة' : 'القناة'}</label>
-                        <input type="text" id="new-room-name" placeholder="مثال: فريق التطوير" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--bg-primary); border:1.5px solid var(--border-color); color:var(--text-primary); outline:none; transition:border 0.3s;">
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:6px; opacity:0.8;">اس�& ${isGroup ? 'ا��&ج�&��عة' : 'ا��� اة'}</label>
+                        <input type="text" id="new-room-name" placeholder="�&ث�ا�9: فريق�`� ا�تط���`ر" style="width:100%; padding:0.8rem; border-radius:12px; background:var(--bg-primary); border:1.5px solid var(--border-color); color:var(--text-primary); outline:none; transition:border 0.3s;">
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:6px; opacity:0.8;">الوصف</label>
-                        <textarea id="new-room-desc" placeholder="توضيح موجز للهدف..." style="width:100%; padding:0.8rem; border-radius:12px; background:var(--bg-primary); border:1.5px solid var(--border-color); color:var(--text-primary); height:80px; outline:none; resize:none;"></textarea>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:6px; opacity:0.8;">ا���صف</label>
+                        <textarea id="new-room-desc" placeholder="ت��ض�`ح �&��جز ���!دف..." style="width:100%; padding:0.8rem; border-radius:12px; background:var(--bg-primary); border:1.5px solid var(--border-color); color:var(--text-primary); height:80px; outline:none; resize:none;"></textarea>
                     </div>
                     <div>
-                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:8px; opacity:0.8;">دعوة الأعضاء (الخصوصية)</label>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:8px; opacity:0.8;">دع��ة ا�أعضواء (ا�خص��ص�`ة)</label>
                         <div id="room-member-selector" style="display:grid; grid-template-columns:1fr 1fr; gap:8px; max-height:180px; overflow-y:auto; padding-right:5px; scrollbar-width:thin;">
                         </div>
                     </div>
                     <div style="display:flex; flex-direction:column; gap:10px; background:rgba(37,99,235,0.05); padding:15px; border-radius:15px; border:1px solid rgba(37,99,235,0.1);">
                         <div style="display:flex; align-items:center; gap:10px; margin-bottom:5px;">
                             <input type="checkbox" id="new-room-locked" style="width:18px; height:18px; cursor:pointer;">
-                            <label for="new-room-locked" style="font-size:0.85rem; font-weight:700; cursor:pointer;">قفل الشات (المدير فقط يمكنه الكتابة)</label>
+                            <label for="new-room-locked" style="font-size:0.85rem; font-weight:700; cursor:pointer;">�ف� ا�شات (ا��&د�`ر ف�ط �`�&ْ� �! ا�ْتابة)</label>
                         </div>
                         <div style="border-top:1px solid rgba(37,99,235,0.1); padding-top:10px;">
-                            <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">ربط ذكي بقسم (Smart Link)</label>
+                            <label style="display:block; font-size:0.75rem; font-weight:800; margin-bottom:8px; color:var(--primary-color);">�x ربط ذْ�` ب�س�& (Smart Link)</label>
                             <select id="new-room-linked-section" style="width:100%; padding:0.6rem; border-radius:10px; background:var(--bg-primary); border:1px solid var(--border-color); color:var(--text-primary); font-size:0.8rem; outline:none; cursor:pointer;">
-                                <option value="">بدون ربط</option>
-                                <option value="finance">قسم المالية (Financial Dashboard)</option>
-                                <option value="tasks">لوحة المهام (Task Board)</option>
-                                <option value="support">مركز الدعم (Support Center)</option>
+                                <option value="">بد���  ربط</option>
+                                <option value="finance">�س�& ا��&ا��`ة (Financial Dashboard)</option>
+                                <option value="tasks">���حة ا��&�!ا�& (Task Board)</option>
+                                <option value="support">�&رْز ا�دع�& (Support Center)</option>
                             </select>
                         </div>
                     </div>
-                    <button id="btn-confirm-room" style="width:100%; padding:1rem; border:none; border-radius:15px; background:var(--primary-gradient); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 10px 20px rgba(37,99,235,0.3); transition:all 0.3s;">تأكيد وإنشاء</button>
+                    <button id="btn-confirm-room" style="width:100%; padding:1rem; border:none; border-radius:15px; background:var(--primary-gradient); color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 10px 20px rgba(37,99,235,0.3); transition:all 0.3s;">تأْ�`د ��إ� شاء</button>
                 </div>
             </div>
         `;
@@ -1936,7 +1936,7 @@ const ChatManager = {
             const isLocked = modal.querySelector('#new-room-locked').checked;
             const linkedSection = modal.querySelector('#new-room-linked-section').value;
 
-            if (!name) { NotificationManager.add('يرجى كتابة اسم!', 'fa-exclamation-triangle', 'warning'); return; }
+            if (!name) { NotificationManager.add('�`رج�0 ْتابة اس�&!', 'fa-exclamation-triangle', 'warning'); return; }
 
             const roomId = 'room_' + Date.now();
             const newRoom = {
@@ -1967,7 +1967,7 @@ const ChatManager = {
                 Store.set('chat_invitations', invites);
             });
 
-            NotificationManager.add('تم إنشاء ' + (isGroup ? 'المجموعة' : 'القناة') + ' بنجاح', 'fa-check-circle', 'success');
+            NotificationManager.add('ت�& إ� شاء ' + (isGroup ? 'ا��&ج�&��عة' : 'ا��� اة') + ' ب� جاح', 'fa-check-circle', 'success');
             modal.remove();
             ChatManager.loadRooms();
         };

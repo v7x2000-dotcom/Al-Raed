@@ -10,8 +10,13 @@ const App = {
         if(mobileNavBtn) {
             mobileNavBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 document.querySelector('.sidebar').classList.add('open');
-                document.getElementById('sidebar-overlay').style.display = 'block';
+                const overlay = document.getElementById('sidebar-overlay');
+                if (overlay) {
+                    overlay.classList.add('active');
+                    overlay.style.display = ''; // Let CSS handle it
+                }
             });
         }
 
@@ -151,7 +156,7 @@ const App = {
         if (user && user.role !== 'Super Admin') {
             const defaultPermissions = { "dashboard": true, "tasks": true, "chat-section": true, "calendar": true, "drive": true, "settings": true, "profile": true, "projects": true, "clients": true, "wiki": true, "feed-section": true, "expenses-section": true, "polls-section": true, "support": true };
             const perms = user.permissions || defaultPermissions;
-            if (perms[target] === false) {
+            if (perms[target] === false && !['profile', 'settings', 'support'].includes(target)) {
                 if (typeof AuthManager !== 'undefined') AuthManager.showToast('عذراً، ليس لديك صلاحية للوصول لهذا القسم.', 'error');
                 target = 'dashboard';
             }
@@ -185,7 +190,7 @@ const App = {
                 if (user && user.role !== 'Super Admin') {
                     const defaultPermissions = { "dashboard": true, "tasks": true, "chat-section": true, "calendar": true, "drive": true, "settings": true, "profile": true, "projects": true, "clients": true, "wiki": true, "feed-section": true, "expenses-section": true, "polls-section": true, "support": true };
                     const perms = user.permissions || defaultPermissions;
-                    if (perms[target] === false) {
+                    if (perms[target] === false && !['profile', 'settings', 'support'].includes(target)) {
                         if (typeof AuthManager !== 'undefined') AuthManager.showToast('عذراً، ليس لديك صلاحية للوصول لهذا القسم.', 'error');
                         return;
                     }
@@ -284,7 +289,10 @@ const App = {
 
         const closeSidebar = () => {
             sidebar.classList.remove('open');
-            if (overlay) overlay.classList.remove('active');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = ''; // Reset inline style if it was set
+            }
         };
 
         toggle?.addEventListener('click', () => {
@@ -296,7 +304,8 @@ const App = {
 
         document.addEventListener('click', (e) => {
             if (window.innerWidth <= 1024 && sidebar.classList.contains('open')) {
-                if (!sidebar.contains(e.target) && !toggle?.contains(e.target)) {
+                const mobileBtn = document.getElementById('mobile-nav-menu-btn');
+                if (!sidebar.contains(e.target) && !toggle?.contains(e.target) && (!mobileBtn || !mobileBtn.contains(e.target))) {
                     closeSidebar();
                 }
             }
@@ -865,5 +874,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // App starts ONLY after successful auth (called from auth.js login)
     // AuthManager.init() calls App.init() after login
 });
+
 
 
