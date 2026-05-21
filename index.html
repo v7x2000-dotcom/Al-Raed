@@ -19,7 +19,7 @@
         rel="stylesheet">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/style.css?v=3.8">
+    <link rel="stylesheet" href="css/style.css?v=4.1">
     <script src="https://cdn.jsdelivr.net/npm/@twemoji/api@latest/dist/twemoji.min.js" crossorigin="anonymous"></script>
     <!-- Chart.js for Advanced Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -496,37 +496,54 @@
                             <h1>هيكلة وإدارة فريق العمل</h1>
                             <p class="subtitle">تصفح الهيكل الوظيفي التفاعلي وإحصائيات الموظفين بالتفصيل</p>
                         </div>
-                        <button id="btn-add-team-member" class="btn btn-primary admin-only" style="white-space: nowrap;"><i class="fas fa-user-plus"></i> إضافة موظف</button>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div class="attendance-widget glass-effect" style="padding: 0.5rem 1rem; border-radius: 12px; display: flex; align-items: center; gap: 1rem;">
+                                <div style="display: flex; flex-direction: column;">
+                                    <span style="font-size: 0.75rem; color: var(--text-secondary);">حالة الدوام اليوم</span>
+                                    <span id="attendance-status-text" style="font-weight: bold; color: var(--text-primary);">غير مسجل</span>
+                                </div>
+                                <button id="btn-clock-in" class="btn btn-primary" onclick="AttendanceManager.clockIn()" style="padding: 0.4rem 1rem; font-size: 0.85rem;"><i class="fas fa-sign-in-alt"></i> تسجيل حضور</button>
+                                <button id="btn-clock-out" class="btn btn-danger hidden" onclick="AttendanceManager.clockOut()" style="padding: 0.4rem 1rem; font-size: 0.85rem; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444;"><i class="fas fa-sign-out-alt"></i> تسجيل انصراف</button>
+                            </div>
+                            <button id="btn-add-team-member" class="btn btn-primary admin-only" style="white-space: nowrap;"><i class="fas fa-user-plus"></i> إضافة موظف</button>
+                        </div>
                     </div>
 
                     <!-- Team Stats -->
-                    <div class="team-stats-grid">
-                        <div class="team-stat-card glass-effect animate-glow">
-                            <div class="stat-icon" style="background: rgba(37,99,235,0.15); color: #3b82f6;"><i class="fas fa-users"></i></div>
+                    <div class="team-stats-grid" style="grid-template-columns: repeat(5, 1fr);">
+                        <div class="team-stat-card glass-effect">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(37,99,235,0.05)); color: #3b82f6; box-shadow: 0 4px 15px rgba(37,99,235,0.15);"><i class="fas fa-users"></i></div>
                             <div class="stat-info">
                                 <h3 id="stat-total-members">0</h3>
                                 <p>إجمالي الموظفين</p>
                             </div>
                         </div>
-                        <div class="team-stat-card glass-effect animate-glow">
-                            <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="fas fa-sitemap"></i></div>
+                        <div class="team-stat-card glass-effect">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(139,92,246,0.2), rgba(139,92,246,0.05)); color: #8b5cf6; box-shadow: 0 4px 15px rgba(139,92,246,0.15);"><i class="fas fa-sitemap"></i></div>
                             <div class="stat-info">
                                 <h3 id="stat-total-depts">0</h3>
                                 <p>عدد الإدارات</p>
                             </div>
                         </div>
-                        <div class="team-stat-card glass-effect animate-glow">
-                            <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="fas fa-user-check"></i></div>
+                        <div class="team-stat-card glass-effect">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.05)); color: #10b981; box-shadow: 0 4px 15px rgba(16,185,129,0.15);"><i class="fas fa-user-check"></i></div>
                             <div class="stat-info">
                                 <h3 id="stat-active-members">0</h3>
-                                <p>الموظفين النشطين</p>
+                                <p>النشطين</p>
                             </div>
                         </div>
-                        <div class="team-stat-card glass-effect animate-glow">
-                            <div class="stat-icon" style="background: rgba(245,158,11,0.15); color: #f59e0b;"><i class="fas fa-crown"></i></div>
+                        <div class="team-stat-card glass-effect">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(245,158,11,0.05)); color: #f59e0b; box-shadow: 0 4px 15px rgba(245,158,11,0.15);"><i class="fas fa-crown"></i></div>
                             <div class="stat-info">
                                 <h3 id="stat-top-execs">0</h3>
                                 <p>المناصب العليا</p>
+                            </div>
+                        </div>
+                        <div class="team-stat-card glass-effect">
+                            <div class="stat-icon" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(6,182,212,0.05)); color: #06b6d4; box-shadow: 0 4px 15px rgba(6,182,212,0.15);"><i class="fas fa-clock"></i></div>
+                            <div class="stat-info">
+                                <h3 id="stat-present-today">0</h3>
+                                <p>حاضر اليوم</p>
                             </div>
                         </div>
                     </div>
@@ -1065,81 +1082,130 @@
                 <section id="expense-requests" class="view-section">
 
                     <!-- Top Header Bar -->
-                    <div class="exp-header-bar glass-effect">
+                    <div class="exp-header-bar glass-panel-premium" style="padding: 1.25rem 1.75rem; margin-bottom: 1.5rem;">
                         <div class="exp-header-left">
-                            <div class="exp-header-icon">
-                                <i class="fas fa-file-invoice-dollar"></i>
+                            <div class="exp-header-icon" style="background: linear-gradient(135deg, rgba(37,99,235,0.25), rgba(124,58,237,0.25)); border-color: rgba(37,99,235,0.4);">
+                                <i class="fas fa-wallet" style="color: #60a5fa; text-shadow: 0 0 10px rgba(59, 130, 246, 0.4);"></i>
                             </div>
                             <div>
-                                <h2 data-original="Expense Requests">طلبات الصرف</h2>
-                                <p data-original="Manage reimbursements and work expenses">إدارة المصروفات وطلبات الصرف</p>
+                                <h2 style="font-size:1.35rem; font-weight:800; color:#fff;" data-original="Expense Requests">طلبات الصرف</h2>
+                                <p style="font-size:0.85rem; color:var(--text-secondary);" data-original="Manage reimbursements and work expenses">إدارة ومتابعة طلبات الصرف المالي للموظفين</p>
                             </div>
                         </div>
-                        <button class="btn btn-primary" onclick="ExpenseManager.showRequestModal()">
-                            <i class="fas fa-plus"></i> <span data-original="Add Expense">طلب صرف جديد</span>
+                        <button class="glow-btn-primary" onclick="ExpenseManager.showRequestModal()">
+                            <i class="fas fa-plus-circle"></i> <span data-original="Add Expense">إضافة مصروف جديد</span>
                         </button>
                     </div>
 
                     <!-- Dashboard Row -->
-                    <div class="exp-dashboard-row">
+                    <div class="exp-dashboard-row" style="margin-top: 0; margin-bottom: 1.5rem;">
 
-                        <!-- Mini Visa Card -->
-                        <div class="exp-visa-mini">
-                            <div class="exp-visa-top">
-                                <div class="exp-visa-logo">
-                                    <i class="fas fa-shield-alt"></i>
-                                    <span data-original="APPROVED">APPROVED</span>
+                        <!-- Platinum Visa Card -->
+                        <div class="exp-visa-platinum-premium">
+                            <div class="exp-visa-premium-glow"></div>
+                            <div class="exp-visa-top-new">
+                                <div class="exp-visa-logo-new">
+                                    <i class="fas fa-crown"></i>
+                                    <span data-original="PLATINUM">PLATIN PASS</span>
                                 </div>
-                                <i class="fab fa-cc-visa exp-visa-brand"></i>
+                                <span class="exp-visa-brand-new">الرائد</span>
                             </div>
-                            <div class="exp-visa-chip"><i class="fas fa-microchip"></i></div>
-                            <div class="exp-visa-num">•••• •••• •••• 5050</div>
-                            <div class="exp-visa-footer">
+                            <div class="exp-visa-chip-new"></div>
+                            <div class="exp-visa-number-new">•••• •••• •••• 9900</div>
+                            <div class="exp-visa-footer-new">
                                 <div>
-                                    <div class="exp-visa-label" data-original="Total Approved Amount">المبالغ المعتمدة</div>
-                                    <div class="exp-visa-amount" id="exp-stat-amount">0 ج.م</div>
+                                    <div class="exp-visa-lbl-new" data-original="Total Approved Amount">المبالغ المعتمدة</div>
+                                    <div class="exp-visa-amt-new" id="exp-stat-amount">0 ج.م</div>
                                 </div>
                                 <div>
-                                    <div class="exp-visa-label" data-original="Company Finance">مالية الشركة</div>
-                                    <div class="exp-visa-sub">Al-Raed</div>
+                                    <div class="exp-visa-lbl-new" data-original="Company Finance">فئة النخبة</div>
+                                    <div class="exp-visa-sub-new">Elite Platinum</div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Stats Column -->
-                        <div class="exp-stats-col">
-                            <div class="exp-stat-item glass-effect">
-                                <div class="exp-stat-icon" style="background:rgba(99,102,241,0.15);color:#6366f1;"><i class="fas fa-list-alt"></i></div>
-                                <div class="exp-stat-body">
-                                    <span class="exp-stat-num" id="exp-stat-total">0</span>
-                                    <span class="exp-stat-lbl" data-original="Total Requests">إجمالي الطلبات</span>
+                        <!-- Stats Grid -->
+                        <div class="exp-stats-grid-premium" style="flex: 1;">
+                            <div class="exp-stat-card-premium total">
+                                <div class="exp-stat-icon-premium"><i class="fas fa-list-ul"></i></div>
+                                <div class="exp-stat-body-premium">
+                                    <span class="exp-stat-val-premium" id="exp-stat-total">0</span>
+                                    <span class="exp-stat-lbl-premium" data-original="Total Requests">إجمالي الطلبات</span>
                                 </div>
                             </div>
-                            <div class="exp-stat-item glass-effect">
-                                <div class="exp-stat-icon" style="background:rgba(245,158,11,0.15);color:#f59e0b;"><i class="fas fa-hourglass-half"></i></div>
-                                <div class="exp-stat-body">
-                                    <span class="exp-stat-num" id="exp-stat-pending">0</span>
-                                    <span class="exp-stat-lbl" data-original="Pending">قيد الانتظار</span>
+                            <div class="exp-stat-card-premium approved">
+                                <div class="exp-stat-icon-premium"><i class="fas fa-check-circle"></i></div>
+                                <div class="exp-stat-body-premium">
+                                    <span class="exp-stat-val-premium" id="exp-stat-approved">0</span>
+                                    <span class="exp-stat-lbl-premium" data-original="Approved">المعتمدة</span>
                                 </div>
                             </div>
-                            <div class="exp-stat-item glass-effect">
-                                <div class="exp-stat-icon" style="background:rgba(16,185,129,0.15);color:#10b981;"><i class="fas fa-check-double"></i></div>
-                                <div class="exp-stat-body">
-                                    <span class="exp-stat-num" id="exp-stat-approved">0</span>
-                                    <span class="exp-stat-lbl" data-original="Approved">تم الاعتماد</span>
+                            <div class="exp-stat-card-premium pending">
+                                <div class="exp-stat-icon-premium"><i class="fas fa-hourglass-start"></i></div>
+                                <div class="exp-stat-body-premium">
+                                    <span class="exp-stat-val-premium" id="exp-stat-pending">0</span>
+                                    <span class="exp-stat-lbl-premium" data-original="Pending">قيد الانتظار</span>
                                 </div>
+                            </div>
+                            <div class="exp-stat-card-premium rejected">
+                                <div class="exp-stat-icon-premium"><i class="fas fa-times-circle"></i></div>
+                                <div class="exp-stat-body-premium">
+                                    <span class="exp-stat-val-premium" id="exp-stat-rejected">0</span>
+                                    <span class="exp-stat-lbl-premium" data-original="Rejected">المرفوضة</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Smart Control Panel -->
+                    <div class="exp-control-panel-premium">
+                        <div class="exp-filters-left">
+                            <div class="exp-search-box-premium">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="exp-search-input" class="exp-search-input-premium" placeholder="بحث باسم الموظف أو الوصف..." oninput="ExpenseManager.handleSearch(this.value)">
+                            </div>
+                            <div class="exp-status-tabs-premium" id="exp-status-tabs">
+                                <button class="exp-tab-btn-premium active" onclick="ExpenseManager.setStatusFilter('all')">الكل</button>
+                                <button class="exp-tab-btn-premium" onclick="ExpenseManager.setStatusFilter('pending')">قيد الانتظار</button>
+                                <button class="exp-tab-btn-premium" onclick="ExpenseManager.setStatusFilter('approved')">المقبولة</button>
+                                <button class="exp-tab-btn-premium" onclick="ExpenseManager.setStatusFilter('rejected')">المرفوضة</button>
+                            </div>
+                        </div>
+                        <div class="exp-filters-right">
+                            <div class="drive-sort-container-premium">
+                                <span class="drive-sort-lbl-premium"><i class="fas fa-sort-amount-down"></i> ترتيب:</span>
+                                <select id="exp-sort-select" class="exp-select-modern-premium" onchange="ExpenseManager.handleSort(this.value)">
+                                    <option value="date-desc">التاريخ: الأحدث أولاً</option>
+                                    <option value="date-asc">التاريخ: الأقدم أولاً</option>
+                                    <option value="amount-desc">المبلغ: الأكبر أولاً</option>
+                                    <option value="amount-asc">المبلغ: الأقل أولاً</option>
+                                </select>
+                            </div>
+                            <div class="exp-view-toggles-premium">
+                                <button class="exp-view-btn-premium active" id="exp-view-grid-btn" title="عرض بطاقات" onclick="ExpenseManager.setViewMode('grid')">
+                                    <i class="fas fa-th-large"></i>
+                                </button>
+                                <button class="exp-view-btn-premium" id="exp-view-list-btn" title="عرض جدول" onclick="ExpenseManager.setViewMode('list')">
+                                    <i class="fas fa-list"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Table Card -->
-                    <div class="exp-table-card glass-effect">
+                    <!-- Dynamic Requests Display Container -->
+                    <div id="expenses-grid-container" class="exp-grid-premium">
+                        <!-- Injected as cards by JS -->
+                    </div>
+
+                    <!-- Table View (Hidden by default) -->
+                    <div id="expenses-table-wrapper" class="exp-table-card glass-panel-premium hidden" style="margin-top:0;">
                         <div class="exp-table-header">
                             <div style="display:flex;align-items:center;gap:0.6rem;">
                                 <i class="fas fa-table" style="color:var(--primary-color);"></i>
-                                <span style="font-weight:700;" data-original="Expense Requests">سجل الطلبات</span>
+                                <span style="font-weight:700;" data-original="Expense Requests">سجل المعاملات المالي</span>
                             </div>
-                            <span class="exp-count-badge" id="exp-table-count">جاري التحميل...</span>
+                            <span class="exp-count-badge" id="exp-table-count">طلب واحد</span>
                         </div>
                         <div class="table-container">
                             <table class="exp-table">
@@ -1157,6 +1223,7 @@
                             </table>
                         </div>
                     </div>
+
                 </section>
 
                 <!-- Profile Section -->
@@ -1546,6 +1613,19 @@
                                 </div>
                             </div>
 
+                            <div class="drive-sort-container-premium">
+                                <span class="drive-sort-lbl-premium" style="color:var(--text-secondary);font-size:0.75rem;"><i class="fas fa-sort"></i> ترتيب:</span>
+                                <select id="drive-sort-select" class="exp-select-modern-premium" style="padding: 0.45rem 1.8rem 0.45rem 0.8rem; min-width: 110px;" onchange="DriveManager.handleSort(this.value)">
+                                    <option value="name-asc">الاسم (أ-ي)</option>
+                                    <option value="name-desc">الاسم (ي-أ)</option>
+                                    <option value="date-desc" selected>التاريخ (الأحدث)</option>
+                                    <option value="date-asc">التاريخ (الأقدم)</option>
+                                    <option value="size-desc">الحجم (الأكبر)</option>
+                                    <option value="size-asc">الحجم (الأصغر)</option>
+                                    <option value="type-asc">النوع</option>
+                                </select>
+                            </div>
+
                             <div class="view-options">
                                 <button class="view-btn active" id="view-grid-btn" title="شبكة"
                                     onclick="DriveManager.setViewMode('grid')">
@@ -1853,6 +1933,62 @@
                     <button class="btn btn-primary btn-glow-action" onclick="DriveManager.confirmUpload()">
                         <i class="fas fa-check-circle"></i> تأكيد الرفع والبدء
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drive File Preview Modal -->
+        <div class="drive-preview-backdrop" id="drive-preview-backdrop" style="display:none;" onclick="DriveManager.hidePreviewModal()">
+            <div class="drive-preview-modal-premium" onclick="event.stopPropagation()">
+                <div class="drive-preview-header">
+                    <div class="drive-preview-title" id="drive-preview-title">
+                        <i class="fas fa-file"></i>
+                        <span>اسم الملف</span>
+                    </div>
+                    <button class="drive-preview-close" onclick="DriveManager.hidePreviewModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="drive-preview-body">
+                    <div class="drive-preview-viewport" id="drive-preview-viewport">
+                        <!-- Injected by JS -->
+                    </div>
+                    <div class="drive-preview-sidebar">
+                        <div class="drive-preview-meta-section">
+                            <div class="drive-preview-meta-title">تفاصيل الملف</div>
+                            <div class="drive-preview-meta-list">
+                                <div class="drive-preview-meta-item">
+                                    <span class="drive-preview-meta-lbl">اسم الملف</span>
+                                    <span class="drive-preview-meta-val" id="drive-preview-meta-name">-</span>
+                                </div>
+                                <div class="drive-preview-meta-item">
+                                    <span class="drive-preview-meta-lbl">حجم الملف</span>
+                                    <span class="drive-preview-meta-val" id="drive-preview-meta-size">-</span>
+                                </div>
+                                <div class="drive-preview-meta-item">
+                                    <span class="drive-preview-meta-lbl">نوع الملف</span>
+                                    <span class="drive-preview-meta-val" id="drive-preview-meta-type">-</span>
+                                </div>
+                                <div class="drive-preview-meta-item">
+                                    <span class="drive-preview-meta-lbl">تاريخ الرفع</span>
+                                    <span class="drive-preview-meta-val" id="drive-preview-meta-date">-</span>
+                                </div>
+                                <div class="drive-preview-meta-item">
+                                    <span class="drive-preview-meta-lbl">بواسطة</span>
+                                    <span class="drive-preview-meta-val" id="drive-preview-meta-by">-</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="drive-preview-toolbar-vertical">
+                            <button class="drive-toolbar-btn-premium download" id="drive-preview-btn-download">
+                                <i class="fas fa-download"></i> تحميل الملف
+                            </button>
+                            <button class="drive-toolbar-btn-premium copylink" id="drive-preview-btn-copylink">
+                                <i class="fas fa-link"></i> نسخ رابط الملف
+                            </button>
+                            <button class="drive-toolbar-btn-premium viewraw" id="drive-preview-btn-view" style="display:none;">
+                                <i class="fas fa-external-link-alt"></i> فتح في نافذة جديدة
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2611,6 +2747,8 @@
     <script src="js/drive.js?v=2.0"></script>
     <script src="js/projects.js"></script>
     <script src="js/clients.js"></script>
+    <script src="js/team.js"></script>
+    <script src="js/attendance.js"></script>
     <script src="js/inventory.js"></script>
     <script src="js/wiki.js"></script>
     <script src="js/feed.js"></script>

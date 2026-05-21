@@ -76,12 +76,22 @@ const TeamManager = {
         const depts = [...new Set(team.map(m => m.dept).filter(Boolean))];
         const active = team.filter(m => (m.status || 'Active') === 'Active');
         const top = team.filter(m => ['CEO', 'General Manager'].includes(m.jobLevel));
+        
+        // Attendance stats for today
+        const attendanceLogs = Store.get('attendance_logs') || [];
+        const today = new Date().toLocaleDateString('en-CA');
+        const presentToday = [...new Set(
+            attendanceLogs
+                .filter(l => l.date === today && !l.clockOut)
+                .map(l => l.userId)
+        )].length;
 
         const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
         set('stat-total-members', team.length);
         set('stat-total-depts', depts.length || 1);
         set('stat-active-members', active.length);
         set('stat-top-execs', top.length);
+        set('stat-present-today', presentToday);
     },
 
     /* ─── Populate dept filter ──────────────── */
@@ -137,66 +147,146 @@ const TeamManager = {
         }
     },
 
-    /* ─── Directory Render ──────────────────── */
+        /* ─── Directory Render ──────────────────── */
     render: () => {
         const grid = document.getElementById('team-grid');
         if (!grid) return;
         const team = Store.get('team') || [];
         const me = AuthManager.currentUser;
-        const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
+        const isAdmin = ['Super Admin', 'Admin', 'Manager'].includes(me?.role);
+        const allTasks = Store.get('tasks') || [];
+        const attendanceLogs = Store.get('attendance_logs') || [];
+        const today = new Date().toLocaleDateString('en-CA');
 
         grid.innerHTML = '';
 
         if (team.length === 0) {
-            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-secondary);">
-                <i class="fas fa-users" style="font-size:3rem;opacity:0.2;display:block;margin-bottom:1rem;"></i>
-                <p>لا يوجد أعضاء بعد. أضف أول موظف في فريقك!</p>
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:4rem 2rem;color:var(--text-secondary);">
+                <div style="width:80px;height:80px;border-radius:50%;background:rgba(37,99,235,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                    <i class="fas fa-users" style="font-size:2rem;color:#3b82f6;"></i>
+                </div>
+                <h3 style="font-size:1.1rem;margin-bottom:0.5rem;color:var(--text-primary);">لا يوجد أعضاء بعد</h3>
+                <p style="font-size:0.85rem;">أضف أول موظف في فريقك للبدء!</p>
             </div>`;
             TeamManager.updateStats();
             return;
         }
 
-        team.forEach(member => {
-            const avatar = member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=2563eb&color=fff&bold=true&size=256`;
-            const isOnline = (Store._onlineUsers || []).some(p => (p.id || p) === member.id && (Date.now() - (p.timestamp || 0) < 60000));
-            const statusColor = { Active: '#10b981', Inactive: '#9ca3af', 'On Leave': '#f59e0b' };
+        team.forEach((member, idx) => {
+            const avatar = member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=1e40af&color=fff&bold=true&size=256`;
+            const isOnline = (Store._onlineUsers || []).some(p => (p.id || p) === member.id && (Date.now() - (p.timestamp || 0) < 90000));
+            
+            // Attendance status for today
+            const todayLogs = attendanceLogs.filter(l => l.userId === member.id && l.date === today);
+            const activeLog = todayLogs.find(l => !l.clockOut);
+            const isClockedIn = !!activeLog;
+            const hasWorkedToday = todayLogs.length > 0;
+
+            // Task stats for this member
+            const memberTasks = allTasks.filter(t => 
+                t.assignees?.includes(member.id) || 
+                t.assignee === member.id ||
+                t.assignType === 'all'
+            );
+            const doneTasks = memberTasks.filter(t => t.status === 'done').length;
+            const activeTasks = memberTasks.filter(t => t.status === 'inprogress').length;
+
+            const statusColors = { Active: '#10b981', Inactive: '#ef4444', 'On Leave': '#f59e0b' };
+            const memberStatus = member.status || 'Active';
+            
             const levelGradients = {
-                CEO: 'linear-gradient(135deg,#f59e0b,#ef4444)',
-                'General Manager': 'linear-gradient(135deg,#8b5cf6,#d946ef)',
-                HR: 'linear-gradient(135deg,#0ea5e9,#3b82f6)',
-                'Legal Accountant': 'linear-gradient(135deg,#10b981,#059669)',
-                'Legal Advisor': 'linear-gradient(135deg,#6366f1,#4338ca)',
-                Administrator: 'linear-gradient(135deg,#f97316,#ea580c)',
-                Trainer: 'linear-gradient(135deg,#14b8a6,#0f766e)',
-                Employee: 'linear-gradient(135deg,#64748b,#475569)'
+                CEO: 'linear-gradient(135deg, #f59e0b 0%, #dc2626 100%)',
+                'General Manager': 'linear-gradient(135deg, #7c3aed 0%, #db2777 100%)',
+                HR: 'linear-gradient(135deg, #0284c7 0%, #2563eb 100%)',
+                'Legal Accountant': 'linear-gradient(135deg, #059669 0%, #0d9488 100%)',
+                'Legal Advisor': 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                Administrator: 'linear-gradient(135deg, #ea580c 0%, #dc2626 100%)',
+                Trainer: 'linear-gradient(135deg, #0f766e 0%, #0369a1 100%)',
+                Employee: 'linear-gradient(135deg, #475569 0%, #334155 100%)'
             };
             const grad = levelGradients[member.jobLevel] || levelGradients.Employee;
+
+            const roleColors = {
+                'Super Admin': { bg: 'rgba(245,158,11,0.15)', color: '#f59e0b', icon: 'fa-crown' },
+                'Admin': { bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6', icon: 'fa-shield-alt' },
+                'Manager': { bg: 'rgba(59,130,246,0.15)', color: '#3b82f6', icon: 'fa-user-tie' },
+                'Supervisor': { bg: 'rgba(20,184,166,0.15)', color: '#14b8a6', icon: 'fa-user-check' },
+                'Employee': { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', icon: 'fa-user' },
+                'Member': { bg: 'rgba(100,116,139,0.15)', color: '#94a3b8', icon: 'fa-user' },
+            };
+            const roleStyle = roleColors[member.role] || roleColors['Employee'];
+
             const card = document.createElement('div');
             card.className = 'team-card';
+            card.style.animationDelay = `${idx * 0.05}s`;
             card.dataset.id = member.id;
             card.dataset.name = member.name;
             card.dataset.dept = member.dept || '';
             card.dataset.level = member.jobLevel || '';
-            card.dataset.status = member.status || 'Active';
+            card.dataset.status = memberStatus;
 
             card.innerHTML = `
-                <div class="team-card-header" style="background:${grad}"></div>
+                <!-- Gradient Header Banner -->
+                <div class="team-card-header" style="background:${grad};">
+                    <div class="team-card-header-shine"></div>
+                </div>
+                
+                <!-- Attendance Chip -->
+                <div class="attendance-chip ${isClockedIn ? 'clocked-in' : (hasWorkedToday ? 'clocked-out' : '')}">
+                    <span class="attendance-chip-dot"></span>
+                    <span>${isClockedIn ? 'حاضر الآن' : (hasWorkedToday ? 'انصرف' : 'غير مسجل')}</span>
+                </div>
+                
+                <!-- Avatar -->
                 <div class="team-card-avatar-wrapper">
                     <img src="${avatar}" alt="${member.name}" loading="lazy">
-                    <span class="status-dot ${isOnline ? 'status-pulse' : ''}" style="background:${isOnline ? '#10b981' : statusColor[member.status || 'Active'] || '#9ca3af'};"></span>
+                    <span class="status-dot ${isOnline ? 'status-pulse' : ''}" 
+                          style="background:${isOnline ? '#10b981' : statusColors[memberStatus] || '#9ca3af'};
+                                 box-shadow:${isOnline ? '0 0 0 3px rgba(16,185,129,0.3)' : 'none'};"></span>
                 </div>
+                
+                <!-- Body -->
                 <div class="team-card-body">
                     <h3>${member.name}</h3>
                     <div class="member-title">${member.title || member.jobLevel || 'موظف'}</div>
-                    <div class="role-badge" style="background:rgba(37,99,235,0.1);color:#3b82f6;">
-                        <i class="fas fa-building" style="font-size:0.6rem;"></i> ${member.dept || 'غير محدد'}
+                    
+                    <!-- Role Badge -->
+                    <div class="role-badge" style="background:${roleStyle.bg};color:${roleStyle.color};border:1px solid ${roleStyle.color}33;">
+                        <i class="fas ${roleStyle.icon}" style="font-size:0.6rem;"></i>
+                        ${member.role || 'Employee'}
                     </div>
-                    <div style="display:flex;gap:0.5rem;width:100%;margin-top:0.5rem;">
-                        <button class="team-card-btn team-card-btn-primary" style="flex:1;" onclick="TeamManager.showDetail('${member.id}')">
-                            <i class="fas fa-eye"></i> عرض
+                    
+                    <!-- Department -->
+                    <div style="font-size:0.75rem;color:var(--text-secondary);margin:0.4rem 0;display:flex;align-items:center;gap:0.3rem;justify-content:center;">
+                        <i class="fas fa-building" style="font-size:0.65rem;color:#3b82f6;"></i>
+                        ${member.dept || 'غير محدد'}
+                    </div>
+                    
+                    <!-- Task Mini-Stats -->
+                    <div class="team-card-mini-stats">
+                        <div class="mini-stat">
+                            <span class="mini-stat-val" style="color:#3b82f6;">${activeTasks}</span>
+                            <span class="mini-stat-lbl">نشطة</span>
+                        </div>
+                        <div class="mini-stat-divider"></div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-val" style="color:#10b981;">${doneTasks}</span>
+                            <span class="mini-stat-lbl">مكتملة</span>
+                        </div>
+                        <div class="mini-stat-divider"></div>
+                        <div class="mini-stat">
+                            <span class="mini-stat-val" style="color:#f59e0b;">${memberTasks.length}</span>
+                            <span class="mini-stat-lbl">إجمالي</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div style="display:flex;gap:0.5rem;width:100%;margin-top:0.75rem;">
+                        <button class="team-card-btn team-card-btn-primary" style="flex:2;" onclick="TeamManager.showDetail('${member.id}')">
+                            <i class="fas fa-eye"></i> عرض الملف
                         </button>
-                        ${isAdmin ? `<button class="team-card-btn team-card-btn-outline" style="flex:1;" onclick="TeamManager.openAddEdit('${member.id}')">
-                            <i class="fas fa-pen"></i> تعديل
+                        ${isAdmin ? `<button class="team-card-btn team-card-btn-outline" onclick="TeamManager.openAddEdit('${member.id}')" title="تعديل">
+                            <i class="fas fa-pen"></i>
                         </button>` : ''}
                     </div>
                 </div>
@@ -295,10 +385,33 @@ const TeamManager = {
         const m = team.find(t => t.id === id);
         if (!m) return;
 
-        const tasks = (Store.get('tasks') || []).filter(t => t.assignee === id || t.assigneeId === id);
+        // All tasks for this member
+        const allTasks = Store.get('tasks') || [];
+        const tasks = allTasks.filter(t => 
+            t.assignees?.includes(id) || t.assignee === id || t.assigneeId === id
+        );
+        const doneTasks = tasks.filter(t => t.status === 'done').length;
+        const inProgressTasks = tasks.filter(t => t.status === 'inprogress').length;
+        const overdueTasks = tasks.filter(t => 
+            t.deadline && new Date(t.deadline) < new Date() && t.status !== 'done'
+        ).length;
+        const productivity = tasks.length > 0 ? Math.round((doneTasks / tasks.length) * 100) : 0;
+
+        // Attendance stats for last 30 days
+        const attendanceLogs = Store.get('attendance_logs') || [];
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        const memberLogs = attendanceLogs.filter(l => 
+            l.userId === id && l.clockOut && new Date(l.date) >= thirtyDaysAgo
+        );
+        const totalMins = memberLogs.reduce((sum, l) => sum + (l.durationMins || 0), 0);
+        const totalHours = (totalMins / 60).toFixed(1);
+        const daysWorked = memberLogs.length;
+        const today = new Date().toLocaleDateString('en-CA');
+        const isClockedIn = attendanceLogs.some(l => l.userId === id && l.date === today && !l.clockOut);
         const avatar = m.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(m.name)}&background=2563eb&color=fff&bold=true&size=256`;
         const me = AuthManager.currentUser;
-        const isAdmin = me?.role === 'Super Admin' || me?.role === 'Manager';
+        const isAdmin = ['Super Admin', 'Admin', 'Manager'].includes(me?.role);
         const statusColor = { Active: '#10b981', Inactive: '#ef4444', 'On Leave': '#f59e0b' };
         const perms = m.permissions || {};
         const permKeys = Object.keys(perms).filter(k => perms[k] === true);
@@ -311,8 +424,9 @@ const TeamManager = {
 
                 <!-- Left Panel: Avatar + Identity + Actions -->
                 <div class="emp-detail-left">
-                    <div class="emp-avatar-glow">
+                    <div class="emp-avatar-glow" style="position:relative;">
                         <img class="emp-detail-avatar-lg" src="${avatar}" alt="${m.name}">
+                        ${isClockedIn ? '<div style="position:absolute;top:5px;right:5px;background:#10b981;border-radius:50%;width:16px;height:16px;border:2px solid var(--bg-secondary);animation:pulse-anim 2s infinite;"></div>' : ''}
                     </div>
                     <h2 class="emp-name-lg">${m.name}</h2>
                     <p class="emp-title-lg"><i class="fas fa-briefcase" style="color:var(--primary-color);"></i> ${m.title || m.jobLevel || 'موظف'}</p>
@@ -320,6 +434,20 @@ const TeamManager = {
                         <span style="width:7px;height:7px;border-radius:50%;background:${statusColor[m.status||'Active']};display:inline-block;"></span>
                         ${m.status || 'Active'}
                     </span>
+                    
+                    <!-- Productivity Ring -->
+                    <div style="margin-top:1rem;display:flex;flex-direction:column;align-items:center;gap:0.5rem;">
+                        <div style="position:relative;width:80px;height:80px;">
+                            <svg width="80" height="80" viewBox="0 0 80 80">
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="8"/>
+                                <circle cx="40" cy="40" r="32" fill="none" stroke="${productivity >= 70 ? '#10b981' : productivity >= 40 ? '#f59e0b' : '#ef4444'}" stroke-width="8"
+                                    stroke-dasharray="${(productivity / 100) * 201} 201" stroke-linecap="round"
+                                    transform="rotate(-90 40 40)" style="transition:stroke-dasharray 1s ease;"/>
+                            </svg>
+                            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:${productivity >= 70 ? '#10b981' : productivity >= 40 ? '#f59e0b' : '#ef4444'};">${productivity}%</div>
+                        </div>
+                        <span style="font-size:0.75rem;color:var(--text-secondary);">نسبة الإنجاز</span>
+                    </div>
                     ${isAdmin ? `
                     <div class="emp-action-row">
                         <button class="btn btn-primary emp-modal-btn" onclick="document.getElementById('employee-detail-modal').classList.add('hidden');TeamManager.openAddEdit('${m.id}')">
@@ -371,6 +499,33 @@ const TeamManager = {
                     ${permKeys.length ? `
                     <div class="emp-info-section-title" style="margin-top:1rem;"><i class="fas fa-key"></i> صلاحيات الوصول</div>
                     <div class="emp-perms-grid">${permKeys.map(k => `<span class="emp-perm-tag">${k}</span>`).join('')}</div>` : ''}
+                    <!-- Tasks Stats Row -->
+                    <div class="emp-info-section-title" style="margin-top:1.25rem;"><i class="fas fa-chart-bar"></i> إحصائيات المهام والحضور</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;margin-bottom:0.75rem;">
+                        <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:10px;padding:0.6rem;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#3b82f6;">${inProgressTasks}</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">قيد التنفيذ</div>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:10px;padding:0.6rem;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#10b981;">${doneTasks}</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">مكتملة</div>
+                        </div>
+                        <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:0.6rem;text-align:center;">
+                            <div style="font-size:1.2rem;font-weight:700;color:#ef4444;">${overdueTasks}</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">متأخرة</div>
+                        </div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+                        <div style="background:rgba(6,182,212,0.1);border:1px solid rgba(6,182,212,0.2);border-radius:10px;padding:0.6rem;text-align:center;">
+                            <div style="font-size:1.1rem;font-weight:700;color:#06b6d4;">${daysWorked}</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">يوم دوام (30 يوم)</div>
+                        </div>
+                        <div style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:0.6rem;text-align:center;">
+                            <div style="font-size:1.1rem;font-weight:700;color:#a855f7;">${totalHours}h</div>
+                            <div style="font-size:0.65rem;color:var(--text-secondary);">إجمالي ساعات العمل</div>
+                        </div>
+                    </div>
+                    
                     ${m.notes ? `
                     <div class="emp-info-section-title" style="margin-top:1rem;"><i class="fas fa-sticky-note"></i> ملاحظات</div>
                     <p style="font-size:0.85rem;line-height:1.7;color:var(--text-secondary);margin:0;padding:0.75rem;background:var(--bg-primary);border-radius:10px;border:1px solid var(--border-color);">${m.notes}</p>` : ''}

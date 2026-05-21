@@ -34,7 +34,7 @@ const Store = {
 
 
             // ✅ Real-time Firestore Listeners for ALL collections
-            const collections = ['tasks', 'team', 'finance', 'audit_logs', 'messages', 'events', 'presence', 'users', 'workspace', 'projects', 'clients', 'inventory', 'chat_rooms', 'chat_invitations', 'typing', 'drive'];
+            const collections = ['tasks', 'team', 'finance', 'audit_logs', 'messages', 'events', 'presence', 'users', 'workspace', 'projects', 'clients', 'inventory', 'chat_rooms', 'chat_invitations', 'typing', 'drive', 'attendance_logs'];
             const loadedCollections = new Set();
             
             // 🕒 Faster Fallback: 3 seconds
@@ -248,7 +248,8 @@ const Store = {
                     'inventory': 'inventory',
                     'chat_rooms': 'chat_rooms',
                     'chat_invitations': 'chat_invitations',
-                    'cloud_drive_meta': 'drive'
+                    'cloud_drive_meta': 'drive',
+                    'attendance_logs': 'attendance_logs'
                 };
 
                 let collectionName = collectionMap[key] || 'workspace';
@@ -303,6 +304,7 @@ const Store = {
             Store.set('chat_rooms', []);
             Store.set('chat_invitations', []);
             Store.set('audit_logs', []);
+            Store.set('attendance_logs', []);
             Store.set('wsInitialized', true);
         }
     },

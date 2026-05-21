@@ -1,6 +1,6 @@
 /**
- * Al-Raed Platform - Cloud Drive Manager v2.0
- * Features: Subfolders, Category Access Permissions
+ * Al-Raed Platform - Cloud Drive Manager v3.0 (Elite Redesign)
+ * Features: Subfolders, Category Access Permissions, Drag & Drop, File Previews, Interactive Sorting
  */
 const DriveManager = {
     currentCategory: 'all',
@@ -8,6 +8,7 @@ const DriveManager = {
     viewMode: 'grid',
     pendingFileRaw: null,
     searchTerm: '',
+    sortBy: 'date-desc', // Default sort
 
     categories: [
         { id: 'all',       name: 'كل الملفات',         icon: 'fa-folder-open' },
@@ -194,20 +195,53 @@ const DriveManager = {
         });
         const uploadInput = document.getElementById('drive-upload-input');
         if (uploadInput) uploadInput.addEventListener('change', DriveManager.handleFileInput);
+        
+        // Setup Drag & Drop Visuals and Events
         const dropZone = document.getElementById('drive-drop-zone');
         if (dropZone) {
-            ['dragenter','dragover','dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
-            ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.add('drag-active')));
-            ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, () => dropZone.classList.remove('drag-active')));
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+                dropZone.addEventListener(ev, e => { 
+                    e.preventDefault(); 
+                    e.stopPropagation(); 
+                });
+            });
+            ['dragenter', 'dragover'].forEach(ev => {
+                dropZone.addEventListener(ev, () => {
+                    dropZone.classList.add('drag-active');
+                });
+            });
+            ['dragleave', 'drop'].forEach(ev => {
+                dropZone.addEventListener(ev, () => {
+                    dropZone.classList.remove('drag-active');
+                });
+            });
             dropZone.addEventListener('drop', (e) => {
                 const files = e.dataTransfer?.files;
-                if (files?.length) DriveManager.handleFileInput({ target: { files } });
+                if (files?.length) {
+                    DriveManager.handleFileInput({ target: { files } });
+                }
             });
         }
+        
+        // Sync sorting select default UI
+        const sortSel = document.getElementById('drive-sort-select');
+        if (sortSel) {
+            sortSel.value = DriveManager.sortBy;
+        }
+
         DriveManager.render();
     },
 
-    handleSearch: (term) => { DriveManager.searchTerm = term.toLowerCase(); DriveManager.render(); },
+    handleSearch: (term) => { 
+        DriveManager.searchTerm = term.toLowerCase(); 
+        DriveManager.render(); 
+    },
+    
+    handleSort: (val) => {
+        DriveManager.sortBy = val;
+        DriveManager.render();
+    },
+
     getFilesMeta: () => Store.get('cloud_drive_meta') || [],
 
     setCategory: (catId) => {
@@ -253,7 +287,11 @@ const DriveManager = {
     handleFileInput: (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        if (file.size > 100 * 1024 * 1024) { showAlert('حجم الملف كبير جداً. الحد الأقصى 100MB'); e.target.value = ''; return; }
+        if (file.size > 100 * 1024 * 1024) { 
+            showAlert('حجم الملف كبير جداً. الحد الأقصى 100MB'); 
+            e.target.value = ''; 
+            return; 
+        }
         DriveManager.pendingFileRaw = file;
         const el = document.getElementById('drive-selected-file-name');
         if (el) el.textContent = file.name;
@@ -290,7 +328,8 @@ const DriveManager = {
             if (el) el.textContent = 'لم يتم اختيار ملف';
             setTimeout(() => {
                 DriveManager.hideUploadProgress();
-                if (window.Notifications) Notifications.add('نجاح', `تم رفع "${file.name}" بنجاح ✓`, 'success');
+                if (window.showToast) showToast(`تم رفع "${file.name}" بنجاح ✓`, 'success');
+                else if (window.Notifications) Notifications.add('نجاح', `تم رفع "${file.name}" بنجاح ✓`, 'success');
                 DriveManager.render();
             }, 800);
         };
@@ -321,7 +360,10 @@ const DriveManager = {
         if (pctEl) pctEl.textContent = pct + '%';
     },
 
-    hideUploadProgress: () => { const bar = document.getElementById('drive-upload-progress-bar'); if (bar) bar.classList.remove('visible'); },
+    hideUploadProgress: () => { 
+        const bar = document.getElementById('drive-upload-progress-bar'); 
+        if (bar) bar.classList.remove('visible'); 
+    },
 
     deleteFile: (fileId) => {
         DriveManager.showConfirm('هل أنت متأكد من حذف هذا الملف نهائياً؟', () => DriveManager.performDelete(fileId));
@@ -435,10 +477,31 @@ const DriveManager = {
         let files = allMeta;
         if (cat !== 'all') files = files.filter(f => f.category === cat);
         if (DriveManager.currentSubFolder) files = files.filter(f => f.subFolder === DriveManager.currentSubFolder);
-        else if (cat !== 'all' && DriveManager.currentSubFolder === null) { /* show all files in category */ }
         if (DriveManager.searchTerm) files = files.filter(f => f.name.toLowerCase().includes(DriveManager.searchTerm));
 
-        /* Render grid */
+        /* Sort files */
+        if (DriveManager.sortBy) {
+            files.sort((a, b) => {
+                if (DriveManager.sortBy === 'name-asc') {
+                    return a.name.localeCompare(b.name, 'ar');
+                } else if (DriveManager.sortBy === 'name-desc') {
+                    return b.name.localeCompare(a.name, 'ar');
+                } else if (DriveManager.sortBy === 'date-desc') {
+                    return new Date(b.uploadDate) - new Date(a.uploadDate);
+                } else if (DriveManager.sortBy === 'date-asc') {
+                    return new Date(a.uploadDate) - new Date(b.uploadDate);
+                } else if (DriveManager.sortBy === 'size-desc') {
+                    return b.size - a.size;
+                } else if (DriveManager.sortBy === 'size-asc') {
+                    return a.size - b.size;
+                } else if (DriveManager.sortBy === 'type-asc') {
+                    return a.type.localeCompare(b.type);
+                }
+                return 0;
+            });
+        }
+
+        /* Render grid / list */
         grid.className = DriveManager.viewMode === 'grid' ? 'drive-grid' : 'drive-list';
         grid.innerHTML = '';
 
@@ -480,7 +543,10 @@ const DriveManager = {
                         ${sfName ? `<div class="dc-detail-item" style="grid-column:1/-1;"><span class="dc-detail-text" style="color:#8b5cf6;"><i class="fas fa-folder"></i> ${sfName}</span></div>` : ''}
                     </div>
                 </div>`;
-            card.addEventListener('click', (e) => { e.stopPropagation(); DriveManager.showFilePopup(file, e.currentTarget); });
+            card.addEventListener('click', (e) => { 
+                e.stopPropagation(); 
+                DriveManager.showFilePopup(file, e.currentTarget); 
+            });
             grid.appendChild(card);
         });
     },
@@ -493,13 +559,14 @@ const DriveManager = {
         popup.innerHTML = `
             <div class="dfp-header"><i class="fas fa-file dfp-icon"></i><span class="dfp-name" title="${file.name}">${file.name}</span></div>
             <div class="dfp-actions">
+                <button class="dfp-btn dfp-preview" id="dfp-preview-btn"><i class="fas fa-eye"></i> معاينة</button>
                 <button class="dfp-btn dfp-download" id="dfp-download-btn"><i class="fas fa-download"></i> تحميل</button>
                 ${isAdmin ? `<button class="dfp-btn dfp-rename" id="dfp-rename-btn"><i class="fas fa-pen"></i> إعادة تسمية</button>` : ''}
                 ${isAdmin ? `<button class="dfp-btn dfp-delete admin-only" id="dfp-delete-btn"><i class="fas fa-trash"></i> حذف</button>` : ''}
             </div>`;
         document.body.appendChild(popup);
         const rect = cardEl.getBoundingClientRect();
-        const pH = popup.offsetHeight || 120; // fallback height if not rendered yet
+        const pH = popup.offsetHeight || 150; // default estimated popup height
         const vH = window.innerHeight;
         const sY = window.scrollY;
         let top = rect.bottom + sY + 8;
@@ -507,11 +574,30 @@ const DriveManager = {
         top = Math.max(sY+10, Math.min(top, sY+vH-pH-10));
         popup.style.top = top + 'px';
         popup.style.left = (rect.left + window.scrollX) + 'px';
-        popup.querySelector('#dfp-download-btn').onclick = (e) => { e.stopPropagation(); DriveManager.downloadFile(file.id, file.name); DriveManager.hideFilePopup(); };
+
+        popup.querySelector('#dfp-preview-btn').onclick = (e) => { 
+            e.stopPropagation(); 
+            DriveManager.showPreviewModal(file); 
+            DriveManager.hideFilePopup(); 
+        };
+        popup.querySelector('#dfp-download-btn').onclick = (e) => { 
+            e.stopPropagation(); 
+            DriveManager.downloadFile(file.id, file.name); 
+            DriveManager.hideFilePopup(); 
+        };
         const ren = popup.querySelector('#dfp-rename-btn');
-        if (ren) ren.onclick = (e) => { e.stopPropagation(); DriveManager.renameFile(file.id, file.name); DriveManager.hideFilePopup(); };
+        if (ren) ren.onclick = (e) => { 
+            e.stopPropagation(); 
+            DriveManager.renameFile(file.id, file.name); 
+            DriveManager.hideFilePopup(); 
+        };
         const del = popup.querySelector('#dfp-delete-btn');
-        if (del) del.onclick = (e) => { e.stopPropagation(); DriveManager.deleteFile(file.id); DriveManager.hideFilePopup(); };
+        if (del) del.onclick = (e) => { 
+            e.stopPropagation(); 
+            DriveManager.deleteFile(file.id); 
+            DriveManager.hideFilePopup(); 
+        };
+        
         popup.addEventListener('click', e => e.stopPropagation());
         const close = () => { DriveManager.hideFilePopup(); document.removeEventListener('click', close); };
         setTimeout(() => document.addEventListener('click', close), 10);
@@ -535,6 +621,148 @@ const DriveManager = {
                 else if (window.Notifications) Notifications.add('نجاح', 'تم تغيير اسم الملف بنجاح', 'success');
             }
         });
+    },
+
+    /* ─── Preview Modal Logic ────────────────── */
+    showPreviewModal: (file) => {
+        const backdrop = document.getElementById('drive-preview-backdrop');
+        if (!backdrop) return;
+
+        // Reset display first
+        backdrop.style.display = 'flex';
+
+        // Set title
+        const titleEl = document.getElementById('drive-preview-title');
+        const isImage = file.type.startsWith('image/');
+        const icon = isImage ? 'fa-image' : file.type.includes('pdf') ? 'fa-file-pdf' : file.type.includes('video') ? 'fa-file-video' : file.type.includes('word') ? 'fa-file-word' : file.type.includes('excel')||file.type.includes('sheet') ? 'fa-file-excel' : 'fa-file-alt';
+        const iconColor = isImage ? 'var(--primary-color)' : file.type.includes('pdf') ? '#ef4444' : file.type.includes('excel')||file.type.includes('sheet') ? '#10b981' : '#6366f1';
+        if (titleEl) {
+            titleEl.innerHTML = `<i class="fas ${icon}" style="color:${iconColor}; text-shadow: 0 0 10px ${iconColor}40;"></i> <span>${file.name}</span>`;
+        }
+
+        // Load metadata
+        const sizeText = file.size < 1024*1024 ? (file.size/1024).toFixed(0)+' KB' : (file.size/(1024*1024)).toFixed(2)+' MB';
+        const dateText = new Date(file.uploadDate).toLocaleDateString('ar-EG', {day:'numeric', month:'long', year:'numeric', hour:'numeric', minute:'numeric'});
+        
+        document.getElementById('drive-preview-meta-name').textContent = file.name;
+        document.getElementById('drive-preview-meta-size').textContent = sizeText;
+        document.getElementById('drive-preview-meta-type').textContent = file.type || 'غير معروف';
+        document.getElementById('drive-preview-meta-date').textContent = dateText;
+        document.getElementById('drive-preview-meta-by').textContent = file.uploadedBy || 'Admin';
+
+        // Load preview content into viewport
+        const viewport = document.getElementById('drive-preview-viewport');
+        const rawBtn = document.getElementById('drive-preview-btn-view');
+        if (viewport) {
+            viewport.innerHTML = `<div style="color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> جاري تحميل المعاينة...</div>`;
+            
+            const fileData = Store.get(file.id);
+            if (!fileData) {
+                viewport.innerHTML = `
+                    <div class="drive-preview-fallback">
+                        <i class="fas fa-exclamation-triangle" style="color:var(--danger)"></i>
+                        <p style="font-weight:700; color:var(--text-primary);">الملف غير متوفر في الذاكرة التخزينية</p>
+                    </div>`;
+                if (rawBtn) rawBtn.style.display = 'none';
+            } else {
+                if (rawBtn) {
+                    rawBtn.style.display = '';
+                    rawBtn.onclick = () => {
+                        const newTab = window.open();
+                        if (newTab) newTab.document.write(`<iframe src="${fileData}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+                    };
+                }
+
+                // Render based on MIME type
+                if (isImage) {
+                    viewport.innerHTML = `<img src="${fileData}" alt="${file.name}">`;
+                } else if (file.type.includes('pdf')) {
+                    viewport.innerHTML = `<iframe src="${fileData}"></iframe>`;
+                } else if (file.type.startsWith('text/') || file.name.endsWith('.txt') || file.name.endsWith('.js') || file.name.endsWith('.json') || file.name.endsWith('.css') || file.name.endsWith('.html') || file.name.endsWith('.md')) {
+                    // Extract text safely from base64 data url
+                    try {
+                        const textVal = DriveManager._extractTextFromDataURL(fileData);
+                        const escaped = DriveManager._escapeHtml(textVal);
+                        viewport.innerHTML = `<pre class="drive-preview-txt-container">${escaped}</pre>`;
+                    } catch (err) {
+                        viewport.innerHTML = `
+                            <div class="drive-preview-fallback">
+                                <i class="fas fa-exclamation-circle" style="color:var(--warning)"></i>
+                                <p>حدث خطأ أثناء تحميل الملف النصي</p>
+                            </div>`;
+                    }
+                } else {
+                    // Fallback preview
+                    viewport.innerHTML = `
+                        <div class="drive-preview-fallback">
+                            <i class="fas ${icon}" style="color:${iconColor}"></i>
+                            <p style="font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-top:1rem;">لا تتوفر معاينة مباشرة للملف</p>
+                            <p style="font-size:0.9rem; color:var(--text-secondary);">يمكنك تحميل الملف لمشاهدة محتواه الكامل.</p>
+                        </div>`;
+                }
+            }
+        }
+
+        // Configure toolbar actions
+        const downloadBtn = document.getElementById('drive-preview-btn-download');
+        const copylinkBtn = document.getElementById('drive-preview-btn-copylink');
+
+        if (downloadBtn) {
+            downloadBtn.onclick = () => {
+                DriveManager.downloadFile(file.id, file.name);
+            };
+        }
+
+        if (copylinkBtn) {
+            copylinkBtn.onclick = () => {
+                const shareUrl = `${window.location.origin}${window.location.pathname}#drive/file/${file.id}`;
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    if (window.showToast) {
+                        showToast('تم نسخ رابط مشاركة الملف بنجاح!', 'success');
+                    } else if (window.Notifications) {
+                        Notifications.add('تم النسخ', 'تم نسخ رابط مشاركة الملف بنجاح!', 'success');
+                    }
+                }).catch(() => {
+                    if (window.showToast) showToast('عذراً، فشل نسخ الرابط تلقائياً', 'error');
+                });
+            };
+        }
+    },
+
+    hidePreviewModal: () => {
+        const backdrop = document.getElementById('drive-preview-backdrop');
+        if (backdrop) {
+            backdrop.style.display = 'none';
+        }
+        // Clean up viewport iframe/img to release memory
+        const viewport = document.getElementById('drive-preview-viewport');
+        if (viewport) viewport.innerHTML = '';
+    },
+
+    _extractTextFromDataURL: (dataUrl) => {
+        try {
+            const arr = dataUrl.split(',');
+            if (arr.length < 2) return '';
+            const base64 = arr[1];
+            const binary = atob(base64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+            return new TextDecoder('utf-8').decode(bytes);
+        } catch (e) {
+            console.error('Error decoding text file:', e);
+            return 'تعذر قراءة محتوى الملف النصي بشكل سليم.';
+        }
+    },
+
+    _escapeHtml: (text) => {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
     }
 };
 

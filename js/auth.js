@@ -25,7 +25,15 @@ const AuthManager = {
     },
 
     isAdmin: () => {
-        return AuthManager.currentUser && (AuthManager.currentUser.role === 'Super Admin' || AuthManager.currentUser.role === 'Manager');
+        return AuthManager.currentUser && (AuthManager.currentUser.role === 'Super Admin' || AuthManager.currentUser.role === 'Admin' || AuthManager.currentUser.role === 'Manager');
+    },
+
+    isManager: () => {
+        return AuthManager.currentUser && (AuthManager.currentUser.role === 'Super Admin' || AuthManager.currentUser.role === 'Admin' || AuthManager.currentUser.role === 'Manager');
+    },
+
+    isSupervisor: () => {
+        return AuthManager.currentUser && (AuthManager.currentUser.role === 'Super Admin' || AuthManager.currentUser.role === 'Admin' || AuthManager.currentUser.role === 'Manager' || AuthManager.currentUser.role === 'Supervisor');
     },
 
     isSuperAdmin: () => {
@@ -149,7 +157,7 @@ const AuthManager = {
         }
 
         // CRITICAL: Ensure we don't accidentally make everyone Super Admin if sync is slow
-        let role = 'Member';
+        let role = 'Employee';
         if (users.length === 0) {
             // First user ever becomes Super Admin
             role = 'Super Admin';
@@ -183,7 +191,7 @@ const AuthManager = {
             email,
             password: pass,
             role: role,
-            title: title || 'Member',
+            title: title || 'Employee',
             avatar: null,
             status: 'active',
             joinedAt: Date.now(),
@@ -411,7 +419,8 @@ const AuthManager = {
         if (!user) return;
         
         const role = user.role;
-        const isAdmin = role === 'Super Admin' || role === 'Manager';
+        const isAdmin = role === 'Super Admin' || role === 'Admin' || role === 'Manager';
+        const isSupervisor = isAdmin || role === 'Supervisor';
         const isSuperAdmin = role === 'Super Admin';
 
         // 1. Class-based basic restrictions
@@ -425,6 +434,10 @@ const AuthManager = {
 
         document.querySelectorAll('.member-only').forEach(el => {
             el.style.display = isAdmin ? 'none' : '';
+        });
+
+        document.querySelectorAll('.supervisor-only').forEach(el => {
+            el.style.display = isSupervisor ? '' : 'none';
         });
 
         // 2. Granular Permissions Enforcement for Navigation
